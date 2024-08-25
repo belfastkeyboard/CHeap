@@ -13,4 +13,6 @@ add_library(
         src/queue.c      queue.h
         src/rbuff.c      rbuff.h
         src/stringview.c stringview.h
+        list.c
+        list.h
 )
