@@ -1,10 +1,14 @@
-# Arena
-Basic arena implementation
+# C Heap
+Library for all my memory-related functions 
 
-- Static arena, size is fixed, requesting memory beyond limit returns NULL
-- Dynamic arena, shrinks and grows as memory is allocated/freed, doubles/halves size
+- Arena
+  - Static
+  - Dynamic
+  - Global
+- Dynamic Array
+- String Builder
+- Priority Queue
+- Ring Buffer
+- String View
 
-Abstract API, cannot access arena's internal state, must rely on functions.
-
-TODO:
-- add support for global arena
+TODO: add support for arena allocation
