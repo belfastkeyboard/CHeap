@@ -10,6 +10,15 @@ typedef struct Queue
     size_t size;
 } Queue;
 
+static void resize(Queue *queue)
+{
+    queue->capacity = (queue->capacity > 0) ? queue->capacity * 2 : 1;
+
+    void *tmp = realloc(queue->array, queue->size * queue->capacity);
+    if (tmp)
+        queue->array = tmp;
+}
+
 Queue *create_pqueue(size_t capacity, size_t size)
 {
     Queue *queue = malloc(sizeof(Queue));
@@ -34,11 +43,11 @@ void destroy_pqueue(Queue **queue)
 
 void push(Queue *queue, void* item)
 {
-    if (queue->nmemb < queue->capacity)
-    {
-        memcpy(queue->array + (queue->nmemb * queue->size), item, queue->size);
-        queue->nmemb++;
-    }
+    if (queue->nmemb >= queue->capacity)
+        resize(queue);
+
+    memcpy(queue->array + (queue->nmemb * queue->size), item, queue->size);
+    queue->nmemb++;
 }
 void *front(Queue *queue)
 {
