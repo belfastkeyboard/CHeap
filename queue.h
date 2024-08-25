@@ -11,6 +11,7 @@ void destroy_pqueue(Queue **queue);
 
 void push(Queue *queue, void* item);
 void *front(Queue *queue);
+void *back(Queue *queue);
 void pop(Queue *queue);
 
 bool empty(Queue *queue);

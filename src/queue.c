@@ -53,6 +53,10 @@ void *front(Queue *queue)
 {
     return (queue->nmemb) ? queue->array : NULL;
 }
+void *back(Queue *queue)
+{
+    return (queue->nmemb) ? queue->array + (queue->nmemb - 1) * queue->size : NULL;
+}
 void pop(Queue *queue)
 {
     if (queue->nmemb)
