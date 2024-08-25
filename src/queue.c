@@ -19,7 +19,7 @@ static void resize(Queue *queue)
         queue->array = tmp;
 }
 
-Queue *create_pqueue(size_t capacity, size_t size)
+Queue *create_queue(size_t capacity, size_t size)
 {
     Queue *queue = malloc(sizeof(Queue));
 
@@ -32,7 +32,7 @@ Queue *create_pqueue(size_t capacity, size_t size)
 
     return queue;
 }
-void destroy_pqueue(Queue **queue)
+void destroy_queue(Queue **queue)
 {
     if ((*queue)->array)
         free((*queue)->array);

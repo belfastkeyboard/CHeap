@@ -6,8 +6,8 @@
 typedef struct Queue Queue;
 
 __attribute__((warn_unused_result))
-Queue *create_pqueue(size_t capacity, size_t size);
-void destroy_pqueue(Queue **queue);
+Queue *create_queue(size_t capacity, size_t size);
+void destroy_queue(Queue **queue);
 
 void push(Queue *queue, void* item);
 void *front(Queue *queue);
