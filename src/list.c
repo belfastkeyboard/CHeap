@@ -172,6 +172,8 @@ Node *erase(List *list, Iter *iter)
         else
             list->tail = iter->prev;
 
+        node = iter->next;
+
         free(iter);
 
         list->nmemb--;
