@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "builder.h"
+#include "../builder.h"
 
 #define INIT_BUFFER_SZ 256
 #define INVALID (-1)

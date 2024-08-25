@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <memory.h>
-#include "pqueue.h"
+#include "../pqueue.h"
 
 static void update(void *array, size_t nmemb, size_t size, CompareFunc fnc)
 {

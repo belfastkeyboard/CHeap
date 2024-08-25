@@ -1,6 +1,6 @@
 #include <memory.h>
 #include <malloc.h>
-#include "array.h"
+#include "../array.h"
 
 typedef struct Array
 {
