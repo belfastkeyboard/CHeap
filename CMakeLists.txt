@@ -3,11 +3,12 @@ project(CHeap C)
 
 set(CMAKE_C_STANDARD 23)
 
-#add_library(
-#    CHeap STATIC library.c
-#        arena.c arena.h
-#        main.c
-#
-#)
-
-add_executable(CHeap main.c arena.c)
+add_library(
+    CHeap STATIC
+        arena.c      arena.h
+        array.c      array.h
+        builder.c    builder.h
+        pqueue.c     pqueue.h
+        rbuff.c      rbuff.h
+        stringview.c stringview.h
+)
