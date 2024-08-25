@@ -9,6 +9,7 @@ add_library(
         array.c      array.h
         builder.c    builder.h
         pqueue.c     pqueue.h
+        queue.c      queue.h
         rbuff.c      rbuff.h
         stringview.c stringview.h
 )
