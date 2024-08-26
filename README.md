@@ -16,4 +16,6 @@ Library for all my memory-related functions
 - Stack
 - String View
 
-TODO: add support for arena allocation
+TODO: 
+- add support for arena allocation
+- resolve naming conflicts
