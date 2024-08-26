@@ -19,16 +19,16 @@ static void resize(Queue *queue)
         queue->array = tmp;
 }
 
-Queue *create_queue(size_t capacity, size_t size)
+Queue *create_queue(size_t size)
 {
     Queue *queue = malloc(sizeof(Queue));
 
-    queue->capacity = capacity;
+    queue->capacity = 0;
     queue->nmemb = 0;
     queue->size = size;
 
-    queue->array = malloc(capacity * size);
-    memset(queue->array, 0, capacity * size);
+    queue->array = malloc(queue->capacity * size);
+    memset(queue->array, 0, queue->capacity * size);
 
     return queue;
 }

@@ -7,7 +7,7 @@ typedef struct PriorityQueue PriorityQueue;
 typedef int (*CompareFunc)(const void*, const void*);
 
 __attribute__((warn_unused_result))
-PriorityQueue *create_pqueue(size_t capacity, size_t size, CompareFunc comparator);
+PriorityQueue *create_pqueue(size_t size, CompareFunc comparator);
 void destroy_pqueue(PriorityQueue **pqueue);
 
 void push(PriorityQueue *pqueue, void* item);
