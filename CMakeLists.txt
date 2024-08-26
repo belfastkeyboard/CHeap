@@ -16,4 +16,5 @@ add_library(
         src/rbuff.c      rbuff.h
         src/stack.c      stack.h
         src/stringview.c stringview.h
+        src/span.c       span.h
 )
