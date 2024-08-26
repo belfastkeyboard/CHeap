@@ -13,9 +13,16 @@ Library for all my memory-related functions
 - Priority Queue
 - Queue
 - Ring Buffer
+- Span
 - Stack
 - String View
 
 TODO: 
 - add support for arena allocation
 - resolve naming conflicts
+- add containers:
+  - ordered set
+  - ordered map
+  - hashed set
+  - hashed map
+- thread safety
