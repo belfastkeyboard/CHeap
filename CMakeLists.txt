@@ -9,6 +9,7 @@ add_library(
         src/array.c      array.h
         src/builder.c    builder.h
         src/deque.c      deque.h
+        src/flist.c      flist.h
         src/list.c       list.h
         src/pqueue.c     pqueue.h
         src/queue.c      queue.h
