@@ -245,12 +245,13 @@ static struct Node *insert_node(Table *table, void *key, void *value)
         if (!curr)
         {
             curr = create_node(table, parent, key, value, comp);
+
+            insertion_fix(&table->root, curr);
+
             node = curr;
         }
         else
             memcpy(curr->value, value, table->v_size);
-
-        insertion_fix(&table->root, curr);
     }
 
     return node;
