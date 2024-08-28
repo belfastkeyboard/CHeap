@@ -16,7 +16,6 @@ struct Node
     void *key;
     void *value;
 };
-
 typedef struct Table
 {
     struct Node *root;
