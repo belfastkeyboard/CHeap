@@ -9,6 +9,7 @@ Library for all my memory-related functions
 - String Builder
 - Double-ended Queue
 - Forward List 
+- Hash Set
 - Hash Table
 - Double-ended List
 - Priority Queue
@@ -26,6 +27,4 @@ TODO:
 - resolve naming conflicts
 - make use of generic macro?
 - iterators?
-- add containers:
-  - hashed set
 - thread safety
