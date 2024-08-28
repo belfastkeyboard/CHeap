@@ -1,10 +1,7 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <stddef.h>
 
 typedef struct Table Table;
 typedef int (*KeyComp)(const void *a, const void *b);
