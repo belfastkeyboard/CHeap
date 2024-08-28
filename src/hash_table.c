@@ -1,5 +1,9 @@
 #include "../hash_table.h"
 
+#include <assert.h>
+#include <malloc.h>
+#include <memory.h>
+
 #define GROW_FACTOR 2.f
 #define SHRINK_FACTOR 0.5f
 #define LF_UPPER_THRESHOLD 0.75f
