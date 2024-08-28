@@ -103,7 +103,7 @@ static size_t get_index(hash_t hash, size_t capacity)
 {
     return hash % capacity;
 }
-static size_t probe(Table *table, void *key, unsigned int index, bool skip_tombstones)
+static size_t probe(Table *table, void *key, size_t index, bool skip_tombstones)
 {
     assert(table && table->array);
 
