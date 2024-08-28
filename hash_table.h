@@ -24,7 +24,3 @@ void clear(Table *table);
 
 bool empty(Table *table);
 size_t size(Table *table);
-
-/* TODO:
-    at()
-*/
