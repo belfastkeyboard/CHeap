@@ -21,7 +21,9 @@ Library for all my memory-related functions
 
 TODO: 
 - add support for arena allocation
+- add generic internal functions, so stack/vector etc. can make use of same code
 - resolve naming conflicts
+- make use of generic macro?
 - add containers:
   - hashed set
   - hashed map
