@@ -9,6 +9,7 @@ Library for all my memory-related functions
 - String Builder
 - Double-ended Queue
 - Forward List 
+- Hash Table
 - Double-ended List
 - Priority Queue
 - Queue
@@ -24,7 +25,7 @@ TODO:
 - add generic internal functions, so stack/vector etc. can make use of same code
 - resolve naming conflicts
 - make use of generic macro?
+- iterators?
 - add containers:
   - hashed set
-  - hashed map
 - thread safety
