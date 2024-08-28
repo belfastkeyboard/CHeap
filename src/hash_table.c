@@ -87,8 +87,6 @@ void destroy_table(Table **table)
     *table = NULL;
 }
 
-// slightly modified version of djb2 algorithm to allow handling of null terminators (e.g. hash an int 0)
-// there are other ways to accomplish this (e.g. snprintf) but this method is simple and general purpose
 static hash_t djb2(void *item, size_t size)
 {
     hash_t hash = 5381;
@@ -105,7 +103,7 @@ static size_t get_index(hash_t hash, size_t capacity)
 {
     return hash % capacity;
 }
-static size_t probe(Table *table, void *value, unsigned int index, bool skip_tombstones)
+static size_t probe(Table *table, void *key, unsigned int index, bool skip_tombstones)
 {
     assert(table && table->array);
 
@@ -126,7 +124,7 @@ static size_t probe(Table *table, void *value, unsigned int index, bool skip_tom
         }
 
         if (
-            (!bucket.tombstone && bucket.value != (void*)-1 && table->v_comp(bucket.value, value)) ||
+            (!bucket.tombstone && bucket.key != (void*)-1 && table->k_comp(bucket.key, key)) ||
             (!skip_tombstones && (bucket.hash == INVALID || bucket.tombstone))
         )
             found = index;
@@ -139,17 +137,17 @@ static size_t probe(Table *table, void *value, unsigned int index, bool skip_tom
 
     if (tombstone != INVALID && found != NOT_FOUND)
     {
-        void *key, *val;
+        void *k, *v;
 
-        key = table->array[tombstone].key;
-        val = table->array[tombstone].value;
+        k = table->array[tombstone].key;
+        v = table->array[tombstone].value;
 
         table->array[tombstone].key = table->array[found].key;
         table->array[tombstone].value = table->array[found].value;
         table->array[tombstone].tombstone = false;
 
-        table->array[found].key = key;
-        table->array[found].value = val;
+        table->array[found].key = k;
+        table->array[found].value = v;
         table->array[found].tombstone = true;
 
         found = tombstone;
@@ -183,7 +181,7 @@ static void resize(Table *table, float factor)
             continue;
 
         size_t re_index = get_index(bucket.hash, table->capacity);
-        re_index = probe(table, bucket.value, re_index, false);
+        re_index = probe(table, bucket.key, re_index, false);
         table->array[re_index] = bucket;
     }
 
@@ -227,7 +225,7 @@ void insert(Table *table, void *key, void *value)
 
     hash_t hash = djb2(key, table->k_size);
     size_t index = get_index(hash, table->capacity);
-    index = probe(table, value, index, false);
+    index = probe(table, key, index, false);
 
     Bucket bucket;
     if (
