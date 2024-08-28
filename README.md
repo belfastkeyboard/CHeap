@@ -10,14 +10,14 @@ Library for all my memory-related functions
 - Double-ended Queue
 - Forward List 
 - Double-ended List
-- Ordered Set
-- Ordered Table
 - Priority Queue
 - Queue
 - Ring Buffer
+- Ordered Set
 - Span
 - Stack
 - String View
+- Ordered Table
 
 TODO: 
 - add support for arena allocation
