@@ -10,6 +10,8 @@ Library for all my memory-related functions
 - Double-ended Queue
 - Forward List 
 - Double-ended List
+- Ordered Set
+- Ordered Table
 - Priority Queue
 - Queue
 - Ring Buffer
@@ -21,8 +23,6 @@ TODO:
 - add support for arena allocation
 - resolve naming conflicts
 - add containers:
-  - ordered set
-  - ordered map
   - hashed set
   - hashed map
 - thread safety
