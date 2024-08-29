@@ -100,7 +100,7 @@ void reserve(Array *array, size_t amount)
     if (amount > array->capacity)
     {
         array->capacity = amount;
-        sequential_realloc(&array->array, array->capacity, array->size);
+        array->array = sequential_realloc(array->array, array->capacity, array->size);
     }
 }
 void shrink(Array *array)
@@ -108,6 +108,6 @@ void shrink(Array *array)
     if (array->nmemb < array->capacity)
     {
         array->capacity = array->nmemb;
-        sequential_realloc(&array->array, array->capacity, array->size);
+        array->array = sequential_realloc(array->array, array->capacity, array->size);
     }
 }
