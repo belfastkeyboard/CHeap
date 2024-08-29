@@ -1,5 +1,7 @@
-#include <stdlib.h>
+#include <assert.h>
+#include <malloc.h>
 #include <memory.h>
+#include "../base.h"
 #include "../deque.h"
 
 typedef struct DoubleEndedQueue
@@ -9,15 +11,6 @@ typedef struct DoubleEndedQueue
     size_t nmemb;
     size_t size;
 } Deque;
-
-static void resize(Deque *deque)
-{
-    deque->capacity = (deque->capacity > 0) ? deque->capacity * 2 : 1;
-
-    void *tmp = realloc(deque->array, deque->size * deque->capacity);
-    if (tmp)
-        deque->array = tmp;
-}
 
 Deque *create_deque(size_t size)
 {
@@ -40,49 +33,35 @@ void destroy_deque(Deque **deque)
 void push_front(Deque *deque, void* item)
 {
     if (deque->nmemb >= deque->capacity)
-        resize(deque);
+        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
 
-    memmove(deque->array + deque->size, deque->array, deque->size * deque->nmemb);
-    memcpy(deque->array, item, deque->size);
+    sequential_insert(deque->array, 0, item, deque->nmemb, deque->size);
     deque->nmemb++;
 }
 void push_back(Deque *deque, void* item)
 {
     if (deque->nmemb >= deque->capacity)
-        resize(deque);
+        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
 
-    memcpy(deque->array + (deque->nmemb * deque->size), item, deque->size);
+    sequential_insert(deque->array, deque->nmemb, item, deque->nmemb, deque->size);
     deque->nmemb++;
 }
 void insert(Deque *deque, void *const item, const size_t index)
 {
-    if (index <= deque->nmemb)
-    {
-        if (deque->nmemb >= deque->capacity)
-            resize(deque);
+    if (deque->nmemb >= deque->capacity)
+        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
 
-        if (index == deque->nmemb)
-            push_back(deque, item);
-        else
-        {
-            memmove(
-                deque->array + (index + 1) * deque->size,
-                deque->array + index * deque->size,
-                (deque->nmemb - index) * deque->size
-            );
-            memcpy(deque->array + index * deque->size, item, deque->size);
-            deque->nmemb++;
-        }
-    }
+    sequential_insert(deque->array, index, item, deque->nmemb, deque->size);
+    deque->nmemb++;
 }
 
 void *front(Deque *deque)
 {
-    return (deque->nmemb) ? deque->array : NULL;
+    return sequential_index_access(deque->array, 0, deque->size);
 }
 void *back(Deque *deque)
 {
-    return (deque->nmemb) ? deque->array + (deque->nmemb - 1) * deque->size : NULL;
+    return sequential_index_access(deque->array, deque->nmemb - 1, deque->size);
 }
 
 void pop_front(Deque *deque)
@@ -95,42 +74,28 @@ void pop_front(Deque *deque)
 }
 void pop_back(Deque *deque)
 {
-    if (deque->nmemb)
-        deque->nmemb--;
+    assert(deque->nmemb);
+
+    deque->nmemb--;
 }
 size_t erase(Deque *deque, size_t index)
 {
-    if (deque->nmemb)
-    {
-        if (index == deque->nmemb - 1)
-        {
-            pop_back(deque);
-            index--;
-        }
-        else
-        {
-            memmove(deque->array + index, deque->array + index + 1, (deque->nmemb - index) * deque->size);
-            deque->nmemb--;
-            index--;
-        }
-    }
+    index = sequential_remove(deque->array, index, deque->nmemb, deque->size);
+    deque->nmemb--;
 
     return index;
 }
 void clear(Deque *deque)
 {
-    deque->capacity = 0;
+    sequential_clear(deque->array, deque->capacity, deque->size);
     deque->nmemb = 0;
-
-    deque->array = malloc(deque->capacity * deque->size);
-    memset(deque->array, 0, deque->capacity * deque->size);
 }
 
 bool empty(Deque *deque)
 {
-    return deque->nmemb == 0;
+    return container_empty(deque->nmemb);
 }
 size_t size(Deque *deque)
 {
-    return deque->nmemb;
+    return container_size(deque->nmemb);
 }
