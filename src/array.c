@@ -35,7 +35,7 @@ void destroy_array(Array **array)
 void push_back(Array *array, void *const item)
 {
     if (array->nmemb >= array->capacity)
-        sequential_resize(array->array, &array->capacity, array->size);
+        array->array = sequential_resize(array->array, &array->capacity, array->size);
 
     sequential_insert(array->array, array->nmemb, item, array->nmemb, array->size);
 
@@ -44,7 +44,7 @@ void push_back(Array *array, void *const item)
 void insert(Array *array, void *const item, const size_t index)
 {
     if (array->nmemb >= array->capacity)
-        sequential_resize(array->array, &array->capacity, array->size);
+        array->array = sequential_resize(array->array, &array->capacity, array->size);
 
     sequential_insert(array->array, index, item, array->nmemb, array->size);
     array->nmemb++;
