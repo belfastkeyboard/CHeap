@@ -15,8 +15,6 @@ typedef struct ForwardList
 
     size_t nmemb;
     size_t size;
-
-    Comparator cmp;
 } ForwardList;
 
 static Node *create_node(size_t size, void *value)
@@ -35,14 +33,13 @@ static void destroy_node(Node **node)
     free(*node);
 }
 
-ForwardList *create_forward_list(size_t size, Comparator comparator)
+ForwardList *create_forward_list(size_t size)
 {
     ForwardList *flist = memory_allocate_container(sizeof(ForwardList));
 
     flist->head = NULL;
     flist->nmemb = 0;
     flist->size = size;
-    flist->cmp = comparator;
 
     return flist;
 }
@@ -93,7 +90,7 @@ void pop_front(ForwardList *flist)
         Node *front = flist->head;
         flist->head = flist->head->next;
 
-        free(front);
+        destroy_node(&front);
 
         flist->nmemb--;
     }

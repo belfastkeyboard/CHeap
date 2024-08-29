@@ -5,10 +5,9 @@
 
 typedef struct ForwardList ForwardList, FList;
 typedef void *Iter;
-typedef bool (*Comparator)(const void*, const void*);
 
 __attribute__((warn_unused_result))
-ForwardList *create_forward_list(size_t size, Comparator comparator);
+ForwardList *create_forward_list(size_t size);
 void destroy_forward_list(ForwardList *flist);
 
 void push_front(ForwardList *flist, void *value);
