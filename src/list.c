@@ -53,7 +53,6 @@ List *create_list(size_t size)
 }
 void destroy_list(List *list)
 {
-    clear(list);
     destroy_arena(&list->arena);
     memory_free_container((void**)&list);
 }
