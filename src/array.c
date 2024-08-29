@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <memory.h>
 #include <malloc.h>
 #include "../base.h"
@@ -51,8 +52,9 @@ void insert(Array *array, void *const item, const size_t index)
 
 void pop_back(Array *array)
 {
-    if (array->nmemb)
-        array->nmemb--;
+    assert(array->nmemb);
+
+    array->nmemb--;
 }
 size_t erase(Array *array, size_t index)
 {
