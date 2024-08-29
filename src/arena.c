@@ -102,17 +102,16 @@ void *alloc_arena(Arena *arena, const size_t size)
 
     void *ptr = NULL;
 
+    if (arena->curr->size - arena->curr->offset < size && arena->type == ARENA_DYNAMIC)
+    {
+        arena->curr = construct_page(arena->curr, arena->size);
+        arena->size += arena->curr->size;
+    }
+
     if (arena->curr->size - arena->curr->offset >= size)
     {
         ptr = arena->curr->base + arena->curr->offset;
         arena->curr->offset += size;
-    }
-    else if (arena->type == ARENA_DYNAMIC)
-    {
-        arena->curr = construct_page(arena->curr, arena->size);
-        arena->curr->offset += size;
-        ptr = arena->curr->base + arena->curr->offset;
-        arena->size += arena->curr->size;
     }
 
     return ptr;
