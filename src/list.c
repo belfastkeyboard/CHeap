@@ -1,6 +1,7 @@
-#include <malloc.h>
 #include <memory.h>
 #include "../list.h"
+#include "../base.h"
+#include "../arena.h"
 
 typedef struct Node
 {
@@ -16,37 +17,50 @@ typedef struct List
     size_t nmemb;
     size_t size;
 
-    Comparator cmp;
+    Arena *arena;
 } List;
 
-List *create_list(size_t size, Comparator comparator)
+static Node *create_node(Arena *arena, size_t size, void *value)
 {
-    List *list = malloc(sizeof(List));
+    struct Node *node = alloc_arena(arena, sizeof(Node));
+
+    node->value = alloc_arena(arena, size);
+    memcpy(node->value, value, size);
+
+    node->next = NULL;
+    node->prev = NULL;
+
+    return node;
+}
+static void destroy_node(Arena *arena, Node *node, size_t size)
+{
+    free_arena(arena, node->value, size);
+    free_arena(arena, node, sizeof(Node));
+}
+
+List *create_list(size_t size)
+{
+    List *list = memory_allocate_container(sizeof(List));
 
     list->head = NULL;
     list->tail = NULL;
     list->nmemb = 0;
     list->size = size;
-    list->cmp = comparator;
+
+    list->arena = create_arena((sizeof(Node) + size) * 8, ARENA_DYNAMIC);
 
     return list;
 }
-void destroy_list(List **list)
+void destroy_list(List *list)
 {
-    clear(*list);
-
-    free(*list);
-    *list = NULL;
+    clear(list);
+    destroy_arena(&list->arena);
+    memory_free_container((void**)&list);
 }
 
 void push_back(List *list, void *value)
 {
-    Node *curr = malloc(sizeof(Node));
-
-    curr->value = malloc(sizeof(list->size));
-    memcpy(curr->value, value, list->size);
-    curr->prev = NULL;
-    curr->next = NULL;
+    Node *curr = create_node(list->arena, list->size, value);
 
     if (list->tail)
     {
@@ -57,16 +71,12 @@ void push_back(List *list, void *value)
         list->head = curr;
 
     list->tail = curr;
+
     list->nmemb++;
 }
 void push_front(List *list, void *value)
 {
-    Node *curr = malloc(sizeof(Node));
-
-    curr->value = malloc(sizeof(list->size));
-    memcpy(curr->value, value, list->size);
-    curr->prev = NULL;
-    curr->next = NULL;
+    Node *curr = create_node(list->arena, list->size, value);
 
     if (list->head)
     {
@@ -81,20 +91,15 @@ void push_front(List *list, void *value)
 }
 void insert(List *list, Iter *iter, void *value)
 {
-    if (iter)
-    {
-        Node *node = malloc(sizeof(Node));
+    Node *node = create_node(list->arena, list->size, value);
 
-        node->value = malloc(list->size);
-        memcpy(node->value, value, list->size);
-        node->prev = iter->prev;
-        node->next = iter;
+    node->prev = iter->prev;
+    node->next = iter;
 
-        iter->prev->next = node;
-        iter->prev = node;
+    iter->prev->next = node;
+    iter->prev = node;
 
-        list->nmemb++;
-    }
+    list->nmemb++;
 }
 
 void *front(List *list)
@@ -108,35 +113,32 @@ void *back(List *list)
 
 void pop_front(List *list)
 {
+    Node *front = list->head;
+    list->head = list->head->next;
+
     if (list->head)
-    {
-        Node *front = list->head;
-        list->head = list->head->next;
-        if (list->head)
-            list->head->prev = NULL;
-        free(front);
+        list->head->prev = NULL;
 
-        list->nmemb--;
+    destroy_node(list->arena, front, list->size);
 
-        if (!list->nmemb)
-            list->tail = NULL;
-    }
+    list->nmemb--;
+
+    if (!list->nmemb)
+        list->tail = NULL;
 }
 void pop_back(List *list)
 {
+    Node *back = list->tail;
+    list->tail = list->tail->prev;
     if (list->tail)
-    {
-        Node *back = list->tail;
-        list->tail = list->tail->prev;
-        if (list->tail)
-            list->tail->next = NULL;
-        free(back);
+        list->tail->next = NULL;
 
-        list->nmemb--;
+    destroy_node(list->arena, back, list->size);
 
-        if (!list->nmemb)
-            list->head = NULL;
-    }
+    list->nmemb--;
+
+    if (!list->nmemb)
+        list->head = NULL;
 }
 Node *erase(List *list, Iter *iter)
 {
@@ -156,7 +158,7 @@ Node *erase(List *list, Iter *iter)
 
         node = iter->next;
 
-        free(iter);
+        destroy_node(list->arena, iter, list->size);
 
         list->nmemb--;
     }
@@ -165,21 +167,11 @@ Node *erase(List *list, Iter *iter)
 }
 void clear(List *list)
 {
-    if (list->tail)
-    {
-        Node *curr = list->tail;
-        do {
-            free(curr->value);
-            curr = curr->prev;
-            if (curr)
-                free(curr->next);
-        } while (curr);
-        free(list->head);
+    clear_arena(list->arena);
 
-        list->head = NULL;
-        list->tail = NULL;
-        list->nmemb = 0;
-    }
+    list->head = NULL;
+    list->tail = NULL;
+    list->nmemb = 0;
 }
 
 bool empty(List *list)

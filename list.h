@@ -5,11 +5,10 @@
 
 typedef struct List List;
 typedef struct Node Iter;
-typedef bool (*Comparator)(const void*, const void*);
 
 __attribute__((warn_unused_result))
-List *create_list(size_t size, Comparator comparator);
-void destroy_list(List **list);
+List *create_list(size_t size);
+void destroy_list(List *list);
 
 void push_back(List *list, void *value);
 void push_front(List *list, void *value);
