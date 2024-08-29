@@ -1,5 +1,7 @@
-#include <stdlib.h>
+#include <assert.h>
+#include <malloc.h>
 #include <memory.h>
+#include "../base.h"
 #include "../queue.h"
 
 typedef struct Queue
@@ -9,15 +11,6 @@ typedef struct Queue
     size_t nmemb;
     size_t size;
 } Queue;
-
-static void resize(Queue *queue)
-{
-    queue->capacity = (queue->capacity > 0) ? queue->capacity * 2 : 1;
-
-    void *tmp = realloc(queue->array, queue->size * queue->capacity);
-    if (tmp)
-        queue->array = tmp;
-}
 
 Queue *create_queue(size_t size)
 {
@@ -44,33 +37,31 @@ void destroy_queue(Queue **queue)
 void push(Queue *queue, void* item)
 {
     if (queue->nmemb >= queue->capacity)
-        resize(queue);
+        queue->array = sequential_resize(queue->array, &queue->capacity, queue->size);
 
-    memcpy(queue->array + (queue->nmemb * queue->size), item, queue->size);
+    sequential_insert(queue->array, queue->nmemb, item, queue->nmemb, queue->size);
     queue->nmemb++;
 }
 void *front(Queue *queue)
 {
-    return (queue->nmemb) ? queue->array : NULL;
+    return sequential_index_access(queue->array, 0, queue->size);
 }
 void *back(Queue *queue)
 {
-    return (queue->nmemb) ? queue->array + (queue->nmemb - 1) * queue->size : NULL;
+    return sequential_index_access(queue->array, queue->nmemb - 1, queue->size);
 }
 void pop(Queue *queue)
 {
-    if (queue->nmemb)
-    {
-        memmove(queue->array, queue->array + queue->size, (queue->nmemb - 1) * queue->size);
-        queue->nmemb--;
-    }
+    assert(queue->nmemb);
+
+    queue->nmemb--;
 }
 
 bool empty(Queue *queue)
 {
-    return queue->nmemb == 0;
+    return container_empty(queue->nmemb);
 }
 size_t size(Queue *queue)
 {
-    return queue->nmemb;
+    return container_size(queue->nmemb);
 }
