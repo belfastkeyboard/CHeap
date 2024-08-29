@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define SEQ_CONTAINER_INIT(cntr) cntr->nmemb = 0; cntr->capacity = 0; cntr->size = size; cntr->array = NULL;
+
+void *memory_allocate_container(size_t size);
+void memory_free_buffer(void *buffer);
+void memory_free_container(void **container);
+
 bool container_empty(size_t nmemb);
 size_t container_size(size_t nmemb);
 size_t container_capacity(size_t capacity);

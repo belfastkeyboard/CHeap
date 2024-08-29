@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <malloc.h>
-#include <memory.h>
 #include "../base.h"
 #include "../stack.h"
 
@@ -14,24 +13,18 @@ typedef struct Stack
 
 Stack *create_stack(size_t size)
 {
-    Stack *stack = malloc(sizeof(Stack));
+    Stack *stack = memory_allocate_container(sizeof(Stack));
 
-    stack->capacity = 0;
-    stack->nmemb = 0;
-    stack->size = size;
-
-    stack->array = malloc(stack->capacity * size);
-    memset(stack->array, 0, stack->capacity * size);
+    SEQ_CONTAINER_INIT(stack);
 
     return stack;
 }
-void destroy_stack(Stack **stack)
+void destroy_stack(Stack *stack)
 {
-    if ((*stack)->array)
-        free((*stack)->array);
+    assert(stack);
 
-    free(*stack);
-    *stack = NULL;
+    memory_free_buffer(stack->array);
+    memory_free_container((void**)&stack);
 }
 
 void push(Stack *stack, void* item)
@@ -39,7 +32,7 @@ void push(Stack *stack, void* item)
     if (stack->nmemb >= stack->capacity)
         stack->array = sequential_resize(stack->array, &stack->capacity, stack->size);
 
-    memcpy(stack->array + (stack->nmemb * stack->size), item, stack->size);
+    sequential_insert(stack->array, stack->nmemb, item, stack->nmemb, stack->size);
     stack->nmemb++;
 }
 void *top(Stack *stack)
@@ -62,4 +55,3 @@ size_t size(Stack *stack)
 {
     return container_size(stack->nmemb);
 }
-

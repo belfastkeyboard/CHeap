@@ -10,6 +10,25 @@
 #define SEQUENTIAL_GROWTH 2
 #define SEQUENTIAL_INIT 1
 
+void *memory_allocate_container(size_t size)
+{
+    void *ptr = malloc(size);
+
+    assert(ptr);
+
+    return ptr;
+}
+void memory_free_buffer(void *buffer)
+{
+    if (buffer)
+        free(buffer);
+}
+void memory_free_container(void **container)
+{
+    free(*container);
+    *container = NULL;
+}
+
 bool container_empty(size_t nmemb)
 {
     return (nmemb == EMPTY);

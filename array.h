@@ -5,8 +5,9 @@
 
 typedef struct Array Array;
 
+__attribute__((warn_unused_result))
 Array *create_array(size_t size);
-void destroy_array(Array **array);
+void destroy_array(Array *array);
 
 void push_back(Array *array, void *item);
 void insert(Array *array, void *item, size_t index);

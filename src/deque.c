@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <malloc.h>
-#include <memory.h>
 #include "../base.h"
 #include "../deque.h"
 
@@ -14,20 +13,18 @@ typedef struct DoubleEndedQueue
 
 Deque *create_deque(size_t size)
 {
-    Deque *deque = malloc(sizeof(Deque));
+    Deque *deque = memory_allocate_container(sizeof(Deque));
 
-    deque->size = size;
-    clear(deque);
+    SEQ_CONTAINER_INIT(deque);
 
     return deque;
 }
-void destroy_deque(Deque **deque)
+void destroy_deque(Deque *deque)
 {
-    if ((*deque)->array)
-        free((*deque)->array);
+    assert(deque);
 
-    free(*deque);
-    *deque = NULL;
+    memory_free_buffer(deque->array);
+    memory_free_container((void**)&deque);
 }
 
 void push_front(Deque *deque, void* item)

@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <memory.h>
 #include <malloc.h>
 #include "../base.h"
 #include "../array.h"
@@ -14,22 +13,18 @@ typedef struct Array
 
 Array *create_array(const size_t size)
 {
-    Array *array = malloc(sizeof(Array));
+    Array *array = memory_allocate_container(sizeof(Array));
 
-    array->array = NULL;
-    array->capacity = 0;
-    array->nmemb = 0;
-    array->size = size;
+    SEQ_CONTAINER_INIT(array);
 
     return array;
 }
-void destroy_array(Array **array)
+void destroy_array(Array *array)
 {
-    if ((*array)->array)
-        free((*array)->array);
+    assert(array);
 
-    free(*array);
-    *array = NULL;
+    memory_free_buffer(array->array);
+    memory_free_container((void**)&array);
 }
 
 void push_back(Array *array, void *const item)

@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <memory.h>
 #include "../base.h"
 #include "../pqueue.h"
 
@@ -20,25 +19,19 @@ static void update(void *array, size_t nmemb, size_t size, CompareFunc fnc)
 
 PriorityQueue *create_pqueue(size_t size, CompareFunc comparator)
 {
-    PriorityQueue *pqueue = malloc(sizeof(PriorityQueue));
+    PriorityQueue *pqueue = memory_allocate_container(sizeof(PriorityQueue));
 
-    pqueue->capacity = 0;
-    pqueue->nmemb = 0;
-    pqueue->size = size;
+    SEQ_CONTAINER_INIT(pqueue);
     pqueue->fnc = comparator;
-
-    pqueue->array = malloc(pqueue->capacity * size);
-    memset(pqueue->array, 0, pqueue->capacity * size);
 
     return pqueue;
 }
-void destroy_pqueue(PriorityQueue **pqueue)
+void destroy_pqueue(PriorityQueue *pqueue)
 {
-    if ((*pqueue)->array)
-        free((*pqueue)->array);
+    assert(pqueue);
 
-    free(*pqueue);
-    *pqueue = NULL;
+    memory_free_buffer(pqueue->array);
+    memory_free_container((void**)&pqueue);
 }
 
 void push(PriorityQueue *pqueue, void* item)
@@ -63,6 +56,7 @@ void pop(PriorityQueue *pqueue)
 
     sequential_remove(pqueue->array, 0, pqueue->nmemb, pqueue->size);
     pqueue->nmemb--;
+
     update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
 }
 

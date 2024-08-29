@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <malloc.h>
-#include <memory.h>
 #include "../base.h"
 #include "../queue.h"
 
@@ -14,24 +13,18 @@ typedef struct Queue
 
 Queue *create_queue(size_t size)
 {
-    Queue *queue = malloc(sizeof(Queue));
+    Queue *queue = memory_allocate_container(sizeof(Queue));
 
-    queue->capacity = 0;
-    queue->nmemb = 0;
-    queue->size = size;
-
-    queue->array = malloc(queue->capacity * size);
-    memset(queue->array, 0, queue->capacity * size);
+    SEQ_CONTAINER_INIT(queue);
 
     return queue;
 }
-void destroy_queue(Queue **queue)
+void destroy_queue(Queue *queue)
 {
-    if ((*queue)->array)
-        free((*queue)->array);
+    assert(queue);
 
-    free(*queue);
-    *queue = NULL;
+    memory_free_buffer(queue->array);
+    memory_free_container((void**)&queue);
 }
 
 void push(Queue *queue, void* item)

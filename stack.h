@@ -7,7 +7,7 @@ typedef struct Stack Stack;
 
 __attribute__((warn_unused_result))
 Stack *create_stack(size_t size);
-void destroy_stack(Stack **stack);
+void destroy_stack(Stack *stack);
 
 void push(Stack *stack, void* item);
 
