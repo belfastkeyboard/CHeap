@@ -1,5 +1,6 @@
 #include <memory.h>
 #include <malloc.h>
+#include "../base.h"
 #include "../array.h"
 
 typedef struct Array
@@ -8,17 +9,7 @@ typedef struct Array
     size_t capacity;
     size_t nmemb;
     size_t size;
-
 } Array;
-
-static void resize(Array *array)
-{
-    array->capacity = (array->capacity > 0) ? array->capacity * 2 : 1;
-
-    void *tmp = realloc(array->array, array->size * array->capacity);
-    if (tmp)
-        array->array = tmp;
-}
 
 Array *create_array(const size_t size)
 {
@@ -43,83 +34,62 @@ void destroy_array(Array **array)
 void push_back(Array *array, void *const item)
 {
     if (array->nmemb >= array->capacity)
-        resize(array);
+        sequential_resize(array->array, &array->capacity, array->size);
 
-    memcpy(array->array + array->nmemb * array->size, item, array->size);
+    sequential_insert(array->array, array->nmemb, item, array->nmemb, array->size);
+
     array->nmemb++;
 }
 void insert(Array *array, void *const item, const size_t index)
 {
-    if (index <= array->nmemb)
-    {
-        if (array->nmemb >= array->capacity)
-            resize(array);
+    if (array->nmemb >= array->capacity)
+        sequential_resize(&array->array, &array->capacity, array->size);
 
-        if (index == array->nmemb)
-            push_back(array, item);
-        else
-        {
-            memmove(
-                array->array + (index + 1) * array->size,
-                array->array + index * array->size,
-                (array->nmemb - index) * array->size
-            );
-            memcpy(array->array + index * array->size, item, array->size);
-            array->nmemb++;
-        }
-    }
+    sequential_insert(array->array, index, item, array->nmemb, array->size);
+    array->nmemb++;
 }
 
 void pop_back(Array *array)
 {
-    if (array->nmemb)
-        array->nmemb--;
+    array->nmemb--;
 }
 size_t erase(Array *array, size_t index)
 {
-    if (array->nmemb)
-    {
-        if (index == array->nmemb - 1)
-        {
-            pop_back(array);
-            index--;
-        }
-        else
-        {
-            memmove(array->array + index, array->array + index + 1, (array->nmemb - index) * array->size);
-            array->nmemb--;
-            index--;
-        }
-    }
+    index = sequential_remove(array->array, index, array->nmemb, array->size);
+    array->nmemb--;
 
     return index;
 }
 void clear(Array *array)
 {
+    sequential_clear(array->array, array->capacity, array->size);
     array->nmemb = 0;
-    memset(array->array, 0, array->capacity * array->size);
 }
 
 void *at(Array *array, size_t index)
 {
-    return array->array + (index * array->size);
+    return sequential_index_access(array->array, index, array->size);
 }
 void *front(Array *array)
 {
-    return array->array;
+    return sequential_index_access(array->array, 0, array->size);
 }
 void *back(Array *array)
 {
-    return array->array + array->nmemb - 1;
+    return sequential_index_access(array->array, array->nmemb - 1, array->size);
 }
 
 bool empty(Array *array)
 {
-    return (array->nmemb == 0);
+    return container_empty(array->nmemb);
 }
 size_t size(Array *array)
 {
-    return array->nmemb;
+    return container_size(array->nmemb);
+}
+size_t capacity(Array *array)
+{
+    return container_capacity(array->capacity);
 }
 
 void reserve(Array *array, size_t amount)
@@ -127,10 +97,7 @@ void reserve(Array *array, size_t amount)
     if (amount > array->capacity)
     {
         array->capacity = amount;
-        void *tmp = realloc(array->array, array->size * amount);
-
-        if(tmp)
-            array->array = tmp;
+        sequential_realloc(&array->array, array->capacity, array->size);
     }
 }
 void shrink(Array *array)
@@ -138,9 +105,6 @@ void shrink(Array *array)
     if (array->nmemb < array->capacity)
     {
         array->capacity = array->nmemb;
-        void *tmp = realloc(array->array, array->size * array->capacity);
-
-        if (tmp)
-            array->array = tmp;
+        sequential_realloc(&array->array, array->capacity, array->size);
     }
 }
