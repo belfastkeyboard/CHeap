@@ -4,7 +4,7 @@ project(CHeap C)
 set(CMAKE_C_STANDARD 23)
 
 add_library(
-        CHeap STATIC
+    CHeap STATIC
         src/arena.c      arena.h
         src/array.c      array.h
         src/builder.c    builder.h
@@ -21,4 +21,5 @@ add_library(
         src/stringview.c stringview.h
         src/span.c       span.h
         src/table.c      table.h
+        src/base.c       base.h
 )
