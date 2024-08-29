@@ -21,6 +21,7 @@ void *back(Array *array);
 
 bool empty(Array *array);
 size_t size(Array *array);
+size_t capacity(Array *array);
 
 void reserve(Array *array, size_t amount);
 void shrink(Array *array);
