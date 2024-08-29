@@ -23,19 +23,19 @@ size_t container_capacity(size_t capacity)
     return capacity;
 }
 
-void sequential_realloc(void **array, size_t capacity, const size_t size)
+void *sequential_realloc(void *array, size_t capacity, const size_t size)
 {
-    void *tmp = realloc(*array, size * capacity);
+    void *tmp = realloc(array, size * capacity);
 
     assert(tmp);
 
-    *array = tmp;
+    return tmp;
 }
-void sequential_resize(void *array, size_t *capacity, const size_t size)
+void *sequential_resize(void *array, size_t *capacity, const size_t size)
 {
     *capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH : SEQUENTIAL_INIT;
 
-    sequential_realloc(&array, *capacity, size);
+    return sequential_realloc(array, *capacity, size);
 }
 void sequential_insert(void *array, size_t index, void *item, size_t nmemb, size_t size)
 {
