@@ -43,7 +43,7 @@ void push_back(Array *array, void *const item)
 void insert(Array *array, void *const item, const size_t index)
 {
     if (array->nmemb >= array->capacity)
-        sequential_resize(&array->array, &array->capacity, array->size);
+        sequential_resize(array->array, &array->capacity, array->size);
 
     sequential_insert(array->array, index, item, array->nmemb, array->size);
     array->nmemb++;
@@ -51,7 +51,8 @@ void insert(Array *array, void *const item, const size_t index)
 
 void pop_back(Array *array)
 {
-    array->nmemb--;
+    if (array->nmemb)
+        array->nmemb--;
 }
 size_t erase(Array *array, size_t index)
 {
