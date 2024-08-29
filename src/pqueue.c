@@ -1,5 +1,7 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <memory.h>
+#include "../base.h"
 #include "../pqueue.h"
 
 typedef struct PriorityQueue
@@ -14,14 +16,6 @@ typedef struct PriorityQueue
 static void update(void *array, size_t nmemb, size_t size, CompareFunc fnc)
 {
     qsort(array, nmemb, size, fnc);
-}
-static void resize(PriorityQueue *pqueue)
-{
-    pqueue->capacity = (pqueue->capacity > 0) ? pqueue->capacity * 2 : 1;
-
-    void *tmp = realloc(pqueue->array, pqueue->size * pqueue->capacity);
-    if (tmp)
-        pqueue->array = tmp;
 }
 
 PriorityQueue *create_pqueue(size_t size, CompareFunc comparator)
@@ -50,33 +44,35 @@ void destroy_pqueue(PriorityQueue **pqueue)
 void push(PriorityQueue *pqueue, void* item)
 {
     if (pqueue->nmemb >= pqueue->capacity)
-        resize(pqueue);
+        pqueue->array = sequential_resize(pqueue->array, &pqueue->capacity, pqueue->size);
 
-    memcpy(pqueue->array + (pqueue->nmemb * pqueue->size), item, pqueue->size);
+    sequential_insert(pqueue->array, pqueue->nmemb, item, pqueue->nmemb, pqueue->size);
     pqueue->nmemb++;
+
     update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
 }
+
 void *front(PriorityQueue *pqueue)
 {
-    return (pqueue->nmemb) ? pqueue->array : NULL;
+    return sequential_index_access(pqueue->array, 0, pqueue->size);
 }
+
 void pop(PriorityQueue *pqueue)
 {
-    if (pqueue->nmemb)
-    {
-        memmove(pqueue->array, pqueue->array + pqueue->size, (pqueue->nmemb - 1) * pqueue->size);
-        pqueue->nmemb--;
-        update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
-    }
+    assert(pqueue->nmemb);
+
+    sequential_remove(pqueue->array, 0, pqueue->nmemb, pqueue->size);
+    pqueue->nmemb--;
+    update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
 }
 
 bool empty(PriorityQueue *pqueue)
 {
-    return pqueue->nmemb == 0;
+    return container_empty(pqueue->nmemb);
 }
 size_t size(PriorityQueue *pqueue)
 {
-    return pqueue->nmemb;
+    return container_size(pqueue->nmemb);
 }
 
 void set_comparator(PriorityQueue *pqueue, CompareFunc comparator)
