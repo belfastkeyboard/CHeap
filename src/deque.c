@@ -66,11 +66,10 @@ void *back(Deque *deque)
 
 void pop_front(Deque *deque)
 {
-    if (deque->nmemb)
-    {
-        memmove(deque->array, deque->array + deque->size, (deque->nmemb - 1) * deque->size);
-        deque->nmemb--;
-    }
+    assert(deque->nmemb);
+
+    sequential_remove(deque->array, 0, deque->nmemb, deque->size);
+    deque->nmemb--;
 }
 void pop_back(Deque *deque)
 {
