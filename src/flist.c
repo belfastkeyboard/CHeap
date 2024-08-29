@@ -1,12 +1,14 @@
 #include <malloc.h>
 #include <memory.h>
 #include "../flist.h"
+#include "../base.h"
+#include "../arena.h"
 
 typedef struct Node
 {
     void *value;
     struct Node *next;
-} Node, Iter;
+} Node;
 typedef struct ForwardList
 {
     Node *head;
@@ -17,9 +19,25 @@ typedef struct ForwardList
     Comparator cmp;
 } ForwardList;
 
+static Node *create_node(size_t size, void *value)
+{
+    struct Node *node = malloc(sizeof(Node));
+
+    node->value = malloc(size);
+    memcpy(node->value, value, size);
+    node->next = NULL;
+
+    return node;
+}
+static void destroy_node(Node **node)
+{
+    free((*node)->value);
+    free(*node);
+}
+
 ForwardList *create_forward_list(size_t size, Comparator comparator)
 {
-    ForwardList *flist = malloc(sizeof(ForwardList));
+    ForwardList *flist = memory_allocate_container(sizeof(ForwardList));
 
     flist->head = NULL;
     flist->nmemb = 0;
@@ -28,21 +46,16 @@ ForwardList *create_forward_list(size_t size, Comparator comparator)
 
     return flist;
 }
-void destroy_forward_list(ForwardList **flist)
+void destroy_forward_list(ForwardList *flist)
 {
-    clear(*flist);
+    clear(flist);
 
-    free(*flist);
-    *flist = NULL;
+    memory_free_container((void**)&flist);
 }
 
 void push_front(ForwardList *flist, void *value)
 {
-    Node *curr = malloc(sizeof(Node));
-
-    curr->value = malloc(sizeof(flist->size));
-    memcpy(curr->value, value, flist->size);
-    curr->next = NULL;
+    Node *curr = create_node(flist->size, value);
 
     if (flist->head)
         curr->next = flist->head;
@@ -50,7 +63,7 @@ void push_front(ForwardList *flist, void *value)
     flist->head = curr;
     flist->nmemb++;
 }
-void insert(ForwardList *flist, Iter *iter, void *value)
+Iter insert(ForwardList *flist, Iter iter, void *value)
 {
     if (iter)
     {
@@ -59,35 +72,18 @@ void insert(ForwardList *flist, Iter *iter, void *value)
         node->value = malloc(flist->size);
         memcpy(node->value, value, flist->size);
 
-        node->next = iter->next;
-        iter->next = node;
+        node->next = ((Node*)iter)->next;
+        iter = node;
 
         flist->nmemb++;
     }
+
+    return iter;
 }
 
 void *front(ForwardList *flist)
 {
     return flist->head->value;
-}
-Iter *find(ForwardList *flist, void *value)
-{
-    Node *node = NULL;
-
-    if (flist->head)
-    {
-        Node *curr = flist->head;
-
-        while (!node && curr)
-        {
-            if (flist->cmp(curr->value, value))
-                node = curr;
-            else
-                curr = curr->next;
-        }
-    }
-
-    return node;
 }
 
 void pop_front(ForwardList *flist)
@@ -102,24 +98,23 @@ void pop_front(ForwardList *flist)
         flist->nmemb--;
     }
 }
-Node *erase_after(ForwardList *flist, Iter *iter)
+Iter erase_after(ForwardList *flist, Iter iter)
 {
-    Node *node = iter;
+    Node *node = (Node*)iter;
 
-    if (iter && iter->next)
+    if (node && node->next)
     {
-        Node *next = iter->next;
+        Node *next = node->next;
 
-        iter->next = next->next;
-        node = iter->next;
+        node->next = next->next;
+        iter = (void*)node->next;
 
-        free(next->value);
-        free(next);
+        destroy_node(&next);
 
         flist->nmemb--;
     }
 
-    return node;
+    return iter;
 }
 void clear(ForwardList *flist)
 {
@@ -129,12 +124,10 @@ void clear(ForwardList *flist)
         Node *prev = NULL;
 
         do {
-            free(curr->value);
-
             prev = curr;
             curr = curr->next;
 
-            free(prev);
+            destroy_node(&prev);
         } while (curr);
 
         flist->head = NULL;
