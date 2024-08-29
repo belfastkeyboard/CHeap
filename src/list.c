@@ -105,24 +105,6 @@ void *back(List *list)
 {
     return list->tail->value;
 }
-Iter *find(List *list, void *value)
-{
-    Node *node = NULL;
-
-    if (list->head)
-    {
-        Node *curr = list->head;
-
-        do {
-            if (list->cmp(curr->value, value))
-                node = curr;
-            else
-                curr = curr->next;
-        } while (!node && curr);
-    }
-
-    return node;
-}
 
 void pop_front(List *list)
 {

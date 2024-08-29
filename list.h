@@ -17,7 +17,6 @@ void insert(List *list, Iter *iter, void *value);
 
 void *front(List *list);
 void *back(List *list);
-Iter *find(List *list, void *value);
 
 void pop_front(List *list);
 void pop_back(List *list);
