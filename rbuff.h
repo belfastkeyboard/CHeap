@@ -5,6 +5,7 @@
 
 typedef struct RingBuffer RingBuffer;
 
+__attribute__((warn_unused_result))
 RingBuffer *create_ringbuffer(size_t capacity, size_t size);
 void destroy_ringbuffer(RingBuffer **rbuff);
 

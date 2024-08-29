@@ -7,6 +7,7 @@ typedef struct Table Table;
 typedef int (*KeyComp)(const void *a, const void *b);
 typedef bool (*ValueComp)(const void *a, const void *b);
 
+__attribute__((warn_unused_result))
 Table *create_table(size_t key_size, size_t value_size, KeyComp kc, ValueComp vc);
 void destroy_table(Table **table);
 

@@ -6,6 +6,7 @@
 typedef struct Set Set;
 typedef int (*KeyComp)(const void *a, const void *b);
 
+__attribute__((warn_unused_result))
 Set *create_set(size_t key_size, KeyComp kc);
 void destroy_set(Set **set);
 

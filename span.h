@@ -5,6 +5,9 @@
 
 typedef struct Span Span;
 
+// TODO: consider creating spans on the stack instead
+
+__attribute__((warn_unused_result))
 Span *create_span(void *view, size_t nmemb, size_t size);
 void destroy_span(Span **span);
 
