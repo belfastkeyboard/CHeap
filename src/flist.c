@@ -1,4 +1,3 @@
-#include <malloc.h>
 #include <memory.h>
 #include "../flist.h"
 #include "../base.h"
@@ -15,27 +14,30 @@ typedef struct ForwardList
 
     size_t nmemb;
     size_t size;
+
+    Arena *arena;
 } ForwardList;
 
-static Node *create_node(size_t size, void *value)
+static Node *create_node(Arena *arena, size_t size, void *value)
 {
-    struct Node *node = malloc(sizeof(Node));
+    struct Node *node = alloc_arena(arena, sizeof(Node));
 
-    node->value = malloc(size);
+    node->value = alloc_arena(arena, size);
     memcpy(node->value, value, size);
     node->next = NULL;
 
     return node;
 }
-static void destroy_node(Node **node)
+static void destroy_node(Arena *arena, Node *node, size_t size)
 {
-    free((*node)->value);
-    free(*node);
+    free_arena(arena, node->value, size);
+    free_arena(arena, node, size);
 }
 
 ForwardList *create_forward_list(size_t size)
 {
     ForwardList *flist = memory_allocate_container(sizeof(ForwardList));
+    flist->arena = create_arena((sizeof(Node) + size) * 8, ARENA_DYNAMIC);
 
     flist->head = NULL;
     flist->nmemb = 0;
@@ -45,14 +47,13 @@ ForwardList *create_forward_list(size_t size)
 }
 void destroy_forward_list(ForwardList *flist)
 {
-    clear(flist);
-
+    destroy_arena(&flist->arena);
     memory_free_container((void**)&flist);
 }
 
 void push_front(ForwardList *flist, void *value)
 {
-    Node *curr = create_node(flist->size, value);
+    Node *curr = create_node(flist->arena, flist->size, value);
 
     if (flist->head)
         curr->next = flist->head;
@@ -64,10 +65,7 @@ Iter insert(ForwardList *flist, Iter iter, void *value)
 {
     if (iter)
     {
-        Node *node = malloc(sizeof(Node));
-
-        node->value = malloc(flist->size);
-        memcpy(node->value, value, flist->size);
+        Node *node = create_node(flist->arena, flist->size, value);
 
         node->next = ((Node*)iter)->next;
         iter = node;
@@ -90,7 +88,7 @@ void pop_front(ForwardList *flist)
         Node *front = flist->head;
         flist->head = flist->head->next;
 
-        destroy_node(&front);
+        destroy_node(flist->arena, front, flist->size);
 
         flist->nmemb--;
     }
@@ -106,7 +104,7 @@ Iter erase_after(ForwardList *flist, Iter iter)
         node->next = next->next;
         iter = (void*)node->next;
 
-        destroy_node(&next);
+        destroy_node(flist->arena, next, flist->size);
 
         flist->nmemb--;
     }
@@ -115,21 +113,7 @@ Iter erase_after(ForwardList *flist, Iter iter)
 }
 void clear(ForwardList *flist)
 {
-    if (flist->head)
-    {
-        Node *curr = flist->head;
-        Node *prev = NULL;
-
-        do {
-            prev = curr;
-            curr = curr->next;
-
-            destroy_node(&prev);
-        } while (curr);
-
-        flist->head = NULL;
-        flist->nmemb = 0;
-    }
+    clear_arena(flist->arena);
 }
 
 bool empty(ForwardList *flist)
