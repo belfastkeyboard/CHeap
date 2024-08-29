@@ -28,7 +28,7 @@ static struct Page *construct_page(struct Page *prev, const size_t size)
 
     return page;
 }
-static struct Page *destruct_page(Arena *arena, struct Page *page)
+static struct Page *destroy_page(Arena *arena, struct Page *page)
 {
     arena->size -= page->size;
 
@@ -62,15 +62,16 @@ Arena *create_arena(const size_t size, const ArenaType type)
 }
 void destroy_arena(Arena **arena)
 {
-    if (*arena == NULL)
+    if (!*arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
+
         *arena = g_arena;
         g_arena = NULL;
     }
 
     do {
-        (*arena)->curr = destruct_page(*arena, (*arena)->curr);
+        (*arena)->curr = destroy_page(*arena, (*arena)->curr);
     } while ((*arena)->curr);
 
     free(*arena);
@@ -78,22 +79,24 @@ void destroy_arena(Arena **arena)
 }
 void clear_arena(Arena *arena)
 {
-    if (arena == NULL)
+    if (!arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
+
         arena = g_arena;
     }
 
     while (arena->curr->prev)
-        arena->curr = destruct_page(arena, arena->curr);
+        arena->curr = destroy_page(arena, arena->curr);
 
     arena->curr->offset = 0;
 }
 void *alloc_arena(Arena *arena, const size_t size)
 {
-    if (arena == NULL)
+    if (!arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
+
         arena = g_arena;
     }
 
@@ -114,9 +117,9 @@ void *alloc_arena(Arena *arena, const size_t size)
 
     return ptr;
 }
-void free_arena(Arena *arena, size_t size)
+void free_arena(Arena *arena, void *ptr, size_t size)
 {
-    if (arena == NULL)
+    if (!arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
         arena = g_arena;
@@ -124,10 +127,10 @@ void free_arena(Arena *arena, size_t size)
 
     if (arena->type == ARENA_STATIC)
     {
-        if (size > arena->curr->offset)
-            size = arena->curr->offset;
+        assert(size <= arena->curr->offset);
 
-        arena->curr->offset -= size;
+        if (!ptr || arena->curr->base + arena->curr->offset - size == ptr)
+            arena->curr->offset -= size;
     }
     else if (arena->type == ARENA_DYNAMIC)
     {
@@ -146,7 +149,7 @@ void free_arena(Arena *arena, size_t size)
                 if (size > arena->curr->offset)
                 {
                     size -= arena->curr->offset;
-                    arena->curr = destruct_page(arena, arena->curr);
+                    arena->curr = destroy_page(arena, arena->curr);
                 }
                 else
                 {
@@ -160,7 +163,7 @@ void free_arena(Arena *arena, size_t size)
 
 size_t memory_remaining_arena(const Arena *arena)
 {
-    if (arena == NULL)
+    if (!arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
         arena = g_arena;
@@ -170,7 +173,7 @@ size_t memory_remaining_arena(const Arena *arena)
 }
 ArenaType get_type_arena(const Arena *arena)
 {
-    if (arena == NULL)
+    if (!arena)
     {
         assert(g_arena && "Global arena not defined. Did you forget to create one, or did you destroy the arena?");
         arena = g_arena;
