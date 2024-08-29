@@ -38,7 +38,6 @@ void push_back(Array *array, void *const item)
         array->array = sequential_resize(array->array, &array->capacity, array->size);
 
     sequential_insert(array->array, array->nmemb, item, array->nmemb, array->size);
-
     array->nmemb++;
 }
 void insert(Array *array, void *const item, const size_t index)
