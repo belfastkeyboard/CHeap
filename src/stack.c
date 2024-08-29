@@ -1,5 +1,7 @@
-#include <stdlib.h>
+#include <assert.h>
+#include <malloc.h>
 #include <memory.h>
+#include "../base.h"
 #include "../stack.h"
 
 typedef struct Stack
@@ -9,15 +11,6 @@ typedef struct Stack
     size_t nmemb;
     size_t size;
 } Stack;
-
-static void resize(Stack *stack)
-{
-    stack->capacity = (stack->capacity > 0) ? stack->capacity * 2 : 1;
-
-    void *tmp = realloc(stack->array, stack->size * stack->capacity);
-    if (tmp)
-        stack->array = tmp;
-}
 
 Stack *create_stack(size_t size)
 {
@@ -44,28 +37,29 @@ void destroy_stack(Stack **stack)
 void push(Stack *stack, void* item)
 {
     if (stack->nmemb >= stack->capacity)
-        resize(stack);
+        stack->array = sequential_resize(stack->array, &stack->capacity, stack->size);
 
     memcpy(stack->array + (stack->nmemb * stack->size), item, stack->size);
     stack->nmemb++;
 }
 void *top(Stack *stack)
 {
-    return (stack->nmemb) ? stack->array + (stack->nmemb - 1) * stack->size : NULL;
+    return sequential_index_access(stack->array, stack->nmemb - 1, stack->size);
 }
 
 void pop(Stack *stack)
 {
-    if (stack->nmemb)
-        stack->nmemb--;
+    assert(stack->nmemb);
+
+    stack->nmemb--;
 }
 
 bool empty(Stack *stack)
 {
-    return stack->nmemb == 0;
+    return container_empty(stack->nmemb);
 }
 size_t size(Stack *stack)
 {
-    return stack->nmemb;
+    return container_size(stack->nmemb);
 }
 
