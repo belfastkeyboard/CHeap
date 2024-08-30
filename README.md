@@ -15,11 +15,9 @@ Library for all my memory-related functions
 - Priority Queue
 - Queue
 - Ring Buffer
-- Ordered Set
 - Span
 - Stack
 - String View
-- Ordered Table
 
 TODO: 
 - add support for arena allocation
@@ -28,3 +26,4 @@ TODO:
 - make use of generic macro?
 - iterators?
 - thread safety
+- fix bugs in RB Tree
