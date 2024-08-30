@@ -16,10 +16,8 @@ add_library(
         src/pqueue.c     pqueue.h
         src/queue.c      queue.h
         src/rbuff.c      rbuff.h
-        src/set.c        set.h
         src/stack.c      stack.h
         src/stringview.c stringview.h
         src/span.c       span.h
-        src/table.c      table.h
         src/base.c       base.h
 )
