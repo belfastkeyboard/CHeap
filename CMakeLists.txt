@@ -21,3 +21,17 @@ add_library(
         src/span.c       span.h
         src/base.c       base.h
 )
+
+install(TARGETS CHeap
+    EXPORT CHeapConfig
+    ARCHIVE DESTINATION lib
+)
+
+install(EXPORT CHeapConfig
+    DESTINATION lib/cmake/CHeap
+)
+
+install(DIRECTORY include/
+    DESTINATION include
+)
+
