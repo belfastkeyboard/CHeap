@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <malloc.h>
+#include <memory.h>
 #include "../arena.h"
 
 struct Page
@@ -115,6 +116,14 @@ void *alloc_arena(Arena *arena, const size_t size)
     }
 
     return ptr;
+}
+void *calloc_arena(Arena *arena, size_t size)
+{
+    void *mem = alloc_arena(arena, size);
+
+    memset(mem, 0, size);
+
+    return mem;
 }
 void free_arena(Arena *arena, void *ptr, size_t size)
 {
