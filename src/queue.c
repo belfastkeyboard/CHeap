@@ -15,7 +15,7 @@ Queue *create_queue(size_t size)
 {
     Queue *queue = memory_allocate_container(sizeof(Queue));
 
-    SEQ_CONTAINER_INIT(queue);
+    SEQ_CONTAINER_INIT(queue, size);
 
     return queue;
 }

@@ -21,7 +21,7 @@ PriorityQueue *create_pqueue(size_t size, CompareFunc comparator)
 {
     PriorityQueue *pqueue = memory_allocate_container(sizeof(PriorityQueue));
 
-    SEQ_CONTAINER_INIT(pqueue);
+    SEQ_CONTAINER_INIT(pqueue, size);
     pqueue->fnc = comparator;
 
     return pqueue;

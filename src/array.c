@@ -15,7 +15,7 @@ Array *create_array(const size_t size)
 {
     Array *array = memory_allocate_container(sizeof(Array));
 
-    SEQ_CONTAINER_INIT(array);
+    SEQ_CONTAINER_INIT(array, size);
 
     return array;
 }
@@ -27,13 +27,14 @@ void destroy_array(Array *array)
     memory_free_container((void**)&array);
 }
 
-void push_back(Array *array, void *const item)
+void push_back_array(Array *array, void *const value)
 {
-    if (array->nmemb >= array->capacity)
+    /*if (array->nmemb >= array->capacity)
         array->array = sequential_resize(array->array, &array->capacity, array->size);
 
     sequential_insert(array->array, array->nmemb, item, array->nmemb, array->size);
-    array->nmemb++;
+    array->nmemb++;*/
+    no_iterator_push_back(&array->array, value, &array->nmemb, &array->capacity, array->size);
 }
 void insert(Array *array, void *const item, const size_t index)
 {

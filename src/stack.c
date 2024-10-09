@@ -15,7 +15,7 @@ Stack *create_stack(size_t size)
 {
     Stack *stack = memory_allocate_container(sizeof(Stack));
 
-    SEQ_CONTAINER_INIT(stack);
+    SEQ_CONTAINER_INIT(stack, size);
 
     return stack;
 }

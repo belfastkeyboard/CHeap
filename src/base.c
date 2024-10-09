@@ -78,3 +78,12 @@ void *sequential_index_access(void *array, size_t index, size_t size)
 {
     return array + index * size;
 }
+
+void no_iterator_push_back(void **array, void *const item, size_t *nmemb, size_t *capacity, const size_t size)
+{
+    if (*nmemb >= *capacity)
+        *array = sequential_resize(*array, capacity, size);
+
+    sequential_insert(array, *nmemb, item, *nmemb, size);
+    (*nmemb)++;
+}

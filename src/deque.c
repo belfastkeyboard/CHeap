@@ -15,7 +15,7 @@ Deque *create_deque(size_t size)
 {
     Deque *deque = memory_allocate_container(sizeof(Deque));
 
-    SEQ_CONTAINER_INIT(deque);
+    SEQ_CONTAINER_INIT(deque, size);
 
     return deque;
 }
@@ -27,7 +27,7 @@ void destroy_deque(Deque *deque)
     memory_free_container((void**)&deque);
 }
 
-void push_front(Deque *deque, void* item)
+void push_front_deque(Deque *deque, void* item)
 {
     if (deque->nmemb >= deque->capacity)
         deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
@@ -35,7 +35,7 @@ void push_front(Deque *deque, void* item)
     sequential_insert(deque->array, 0, item, deque->nmemb, deque->size);
     deque->nmemb++;
 }
-void push_back(Deque *deque, void* item)
+void push_back_deque(Deque *deque, void* item)
 {
     if (deque->nmemb >= deque->capacity)
         deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
