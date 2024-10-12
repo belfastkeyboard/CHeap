@@ -29,6 +29,7 @@ Library for all my memory-related functions
 - iterators?
 - thread safety
 - fix bugs in RB Tree
+- alternate arena type for containers that has a freeblock list?
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
