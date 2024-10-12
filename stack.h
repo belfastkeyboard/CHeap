@@ -7,14 +7,14 @@ typedef struct Stack Stack;
 
 __attribute__((warn_unused_result))
 Stack *create_stack(size_t size);
-void destroy_stack(Stack *stack);
+void destroy_stack(Stack **stack);
 
-void push(Stack *stack, void* item);
+void push_stack(Stack *stack, void* value);
 
-void *top(Stack *stack);
+void *top_stack(Stack *stack);
 
-void pop(Stack *stack);
+void pop_stack(Stack *stack);
 
-bool empty(Stack *stack);
-size_t size(Stack *stack);
+bool empty_stack(Stack *stack);
+size_t size_stack(Stack *stack);
 
