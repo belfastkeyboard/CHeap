@@ -5,25 +5,30 @@ Library for all my memory-related functions
   - Static
   - Dynamic
   - Global
-- Dynamic Array
 - String Builder
-- Double-ended Queue
-- Forward List 
 - Hash Set
 - Hash Table
-- Double-ended List
-- Priority Queue
-- Queue
 - Ring Buffer
 - Span
-- Stack
 - String View
 
-TODO: 
-- add support for arena allocation
-- add generic internal functions, so stack/vector etc. can make use of same code
-- resolve naming conflicts
-- make use of generic macro?
+## CONTAINER LIBRARY
+
+### SEQUENCE CONTAINERS
+- Array: dynamic contiguous array
+- Deque: double-ended queue
+- ForwardList: singly-linked list
+- List: doubly-linked list
+
+### CONTAINER ADAPTORS
+- PriorityQueue: adapts a container to provide priority queue
+- Queue: adapts a container to provide queue (FIFO data structure)
+- Stack: adapts a container to provide stack (LIFO data structure)
+
+## TODO:
 - iterators?
 - thread safety
 - fix bugs in RB Tree
+
+## CONSIDER:
+- C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
