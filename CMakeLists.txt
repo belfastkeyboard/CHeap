@@ -4,7 +4,7 @@ project(CHeap C)
 set(CMAKE_C_STANDARD 23)
 
 add_library(
-    CHeap STATIC
+    CHeapLib STATIC
         src/arena.c      arena.h
         src/array.c      array.h
         src/builder.c    builder.h
@@ -20,4 +20,11 @@ add_library(
         src/stringview.c stringview.h
         src/span.c       span.h
         src/base.c       base.h
+        src/mpool.c
+        mpool.h
+        src/linked.c
+        linked.h
 )
+
+add_executable(CHeap main.c cheap.h)
+target_link_libraries(CHeap PRIVATE CHeapLib)
