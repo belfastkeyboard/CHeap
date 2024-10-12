@@ -1,6 +1,5 @@
-#include <assert.h>
-#include <malloc.h>
 #include "../base.h"
+#include "../mpool.h"
 #include "../deque.h"
 
 typedef struct DoubleEndedQueue
@@ -9,89 +8,65 @@ typedef struct DoubleEndedQueue
     size_t capacity;
     size_t nmemb;
     size_t size;
-} Deque;
+} DoubleEndedQueue, Deque;
 
-Deque *create_deque(size_t size)
+Deque *create_deque(const size_t size)
 {
     Deque *deque = memory_allocate_container(sizeof(Deque));
 
-    SEQ_CONTAINER_INIT(deque, size);
+    deque->size = size;
 
     return deque;
 }
-void destroy_deque(Deque *deque)
+void destroy_deque(Deque **deque)
 {
-    assert(deque);
-
-    memory_free_buffer(deque->array);
-    memory_free_container((void**)&deque);
+    memory_free_container_mempool((void **) deque, (*deque)->array);
 }
 
-void push_front_deque(Deque *deque, void* item)
+void push_front_deque(Deque *deque, void *value)
 {
-    if (deque->nmemb >= deque->capacity)
-        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
-
-    sequential_insert(deque->array, 0, item, deque->nmemb, deque->size);
-    deque->nmemb++;
+    generic_mempool_push_front(&deque->array, value, &deque->capacity, &deque->nmemb, deque->size);
 }
-void push_back_deque(Deque *deque, void* item)
+void push_back_deque(Deque *deque, void *value)
 {
-    if (deque->nmemb >= deque->capacity)
-        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
-
-    sequential_insert(deque->array, deque->nmemb, item, deque->nmemb, deque->size);
-    deque->nmemb++;
+    generic_mempool_push_back(&deque->array, value, &deque->capacity, &deque->nmemb, deque->size);
 }
-void insert(Deque *deque, void *const item, const size_t index)
+void insert_deque(Deque *deque, void *const value, const size_t index)
 {
-    if (deque->nmemb >= deque->capacity)
-        deque->array = sequential_resize(deque->array, &deque->capacity, deque->size);
-
-    sequential_insert(deque->array, index, item, deque->nmemb, deque->size);
-    deque->nmemb++;
+    generic_mempool_insert(&deque->array, value, index, &deque->capacity, &deque->nmemb, deque->size);
 }
 
-void *front(Deque *deque)
+void *front_deque(Deque *deque)
 {
-    return sequential_index_access(deque->array, 0, deque->size);
+    return contiguous_random_access(deque->array, 0, deque->size);
 }
-void *back(Deque *deque)
+void *back_deque(Deque *deque)
 {
-    return sequential_index_access(deque->array, deque->nmemb - 1, deque->size);
-}
-
-void pop_front(Deque *deque)
-{
-    assert(deque->nmemb);
-
-    sequential_remove(deque->array, 0, deque->nmemb, deque->size);
-    deque->nmemb--;
-}
-void pop_back(Deque *deque)
-{
-    assert(deque->nmemb);
-
-    deque->nmemb--;
-}
-size_t erase(Deque *deque, size_t index)
-{
-    index = sequential_remove(deque->array, index, deque->nmemb, deque->size);
-    deque->nmemb--;
-
-    return index;
-}
-void clear(Deque *deque)
-{
-    sequential_clear(deque->array, deque->capacity, deque->size);
-    deque->nmemb = 0;
+    return contiguous_random_access(deque->array, deque->nmemb - 1, deque->size);
 }
 
-bool empty(Deque *deque)
+void pop_front_deque(Deque *deque)
 {
-    return container_empty(deque->nmemb);
+    generic_mempool_pop_front(&deque->array, &deque->nmemb, deque->size);
 }
-size_t size(Deque *deque)
+void pop_back_deque(Deque *deque)
 {
-    return container_size(deque->nmemb);
+    generic_mempool_pop_back(&deque->nmemb);
+}
+size_t erase_deque(Deque *deque, const size_t index)
+{
+    return generic_mempool_erase(&deque->array, index, &deque->nmemb, deque->size);
+}
+void clear_deque(Deque *deque)
+{
+    generic_mempool_clear(&deque->array, deque->capacity, &deque->nmemb, deque->size);
+}
+
+bool empty_deque(Deque *deque)
+{
+    return generic_empty(deque->nmemb);
+}
+size_t size_deque(Deque *deque)
+{
+    return generic_size(deque->nmemb);
 }

@@ -1,6 +1,5 @@
-#include <assert.h>
-#include <malloc.h>
 #include "../base.h"
+#include "../mpool.h"
 #include "../queue.h"
 
 typedef struct Queue
@@ -11,50 +10,41 @@ typedef struct Queue
     size_t size;
 } Queue;
 
-Queue *create_queue(size_t size)
+Queue *create_queue(const size_t size)
 {
     Queue *queue = memory_allocate_container(sizeof(Queue));
 
-    SEQ_CONTAINER_INIT(queue, size);
+    queue->size = size;
 
     return queue;
 }
-void destroy_queue(Queue *queue)
+void destroy_queue(Queue **queue)
 {
-    assert(queue);
-
-    memory_free_buffer(queue->array);
-    memory_free_container((void**)&queue);
+    memory_free_container_mempool((void **) queue, (*queue)->array);
 }
 
-void push(Queue *queue, void* item)
+void push_queue(Queue *queue, void *value)
 {
-    if (queue->nmemb >= queue->capacity)
-        queue->array = sequential_resize(queue->array, &queue->capacity, queue->size);
-
-    sequential_insert(queue->array, queue->nmemb, item, queue->nmemb, queue->size);
-    queue->nmemb++;
+    generic_mempool_push_back(&queue->array, value, &queue->capacity, &queue->nmemb, queue->size);
 }
-void *front(Queue *queue)
+void *front_queue(Queue *queue)
 {
-    return sequential_index_access(queue->array, 0, queue->size);
+    return mempool_random_access(queue->array, 0, queue->size);
 }
-void *back(Queue *queue)
+void *back_queue(Queue *queue)
 {
-    return sequential_index_access(queue->array, queue->nmemb - 1, queue->size);
+    return mempool_random_access(queue->array, queue->nmemb - 1, queue->size);
 }
-void pop(Queue *queue)
+void pop_queue(Queue *queue)
 {
-    assert(queue->nmemb);
-
-    queue->nmemb--;
+    generic_mempool_pop_front(&queue->array, &queue->nmemb, queue->size);
 }
 
-bool empty(Queue *queue)
+bool empty_queue(Queue *queue)
 {
-    return container_empty(queue->nmemb);
+    return generic_empty(queue->nmemb);
 }
-size_t size(Queue *queue)
+size_t size_queue(Queue *queue)
 {
-    return container_size(queue->nmemb);
+    return generic_size(queue->nmemb);
 }

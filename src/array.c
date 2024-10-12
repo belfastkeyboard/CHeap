@@ -1,6 +1,5 @@
-#include <assert.h>
-#include <malloc.h>
 #include "../base.h"
+#include "../mpool.h"
 #include "../array.h"
 
 typedef struct Array
@@ -15,94 +14,68 @@ Array *create_array(const size_t size)
 {
     Array *array = memory_allocate_container(sizeof(Array));
 
-    SEQ_CONTAINER_INIT(array, size);
+    array->size = size;
 
     return array;
 }
-void destroy_array(Array *array)
+void destroy_array(Array **array)
 {
-    assert(array);
-
-    memory_free_buffer(array->array);
-    memory_free_container((void**)&array);
+    memory_free_container_mempool((void **) array, (*array)->array);
 }
 
 void push_back_array(Array *array, void *const value)
 {
-    /*if (array->nmemb >= array->capacity)
-        array->array = sequential_resize(array->array, &array->capacity, array->size);
-
-    sequential_insert(array->array, array->nmemb, item, array->nmemb, array->size);
-    array->nmemb++;*/
-    no_iterator_push_back(&array->array, value, &array->nmemb, &array->capacity, array->size);
+    generic_mempool_push_back(&array->array, value, &array->capacity, &array->nmemb, array->size);
 }
-void insert(Array *array, void *const item, const size_t index)
+void insert_array(Array *array, void *const value, const size_t index)
 {
-    if (array->nmemb >= array->capacity)
-        array->array = sequential_resize(array->array, &array->capacity, array->size);
-
-    sequential_insert(array->array, index, item, array->nmemb, array->size);
-    array->nmemb++;
+    generic_mempool_insert(&array->array, value, index, &array->capacity, &array->nmemb, array->size);
 }
 
-void pop_back(Array *array)
+void pop_back_array(Array *array)
 {
-    assert(array->nmemb);
-
-    array->nmemb--;
+    generic_mempool_pop_back(&array->nmemb);
 }
-size_t erase(Array *array, size_t index)
+size_t erase_array(Array *array, const size_t index)
 {
-    index = sequential_remove(array->array, index, array->nmemb, array->size);
-    array->nmemb--;
-
-    return index;
+    return generic_mempool_erase(&array->array, index, &array->nmemb, array->size);
 }
-void clear(Array *array)
+void clear_array(Array *array)
 {
-    sequential_clear(array->array, array->capacity, array->size);
-    array->nmemb = 0;
+    generic_mempool_clear(&array->array, array->capacity, &array->nmemb, array->size);
 }
 
-void *at(Array *array, size_t index)
+void *at_array(Array *array, size_t index)
 {
-    return sequential_index_access(array->array, index, array->size);
+    return mempool_random_access(array->array, index, array->size);
 }
-void *front(Array *array)
+void *front_array(Array *array)
 {
-    return sequential_index_access(array->array, 0, array->size);
+    return mempool_random_access(array->array, 0, array->size);
 }
-void *back(Array *array)
+void *back_array(Array *array)
 {
-    return sequential_index_access(array->array, array->nmemb - 1, array->size);
-}
-
-bool empty(Array *array)
-{
-    return container_empty(array->nmemb);
-}
-size_t size(Array *array)
-{
-    return container_size(array->nmemb);
-}
-size_t capacity(Array *array)
-{
-    return container_capacity(array->capacity);
+    return mempool_random_access(array->array, array->nmemb - 1, array->size);
 }
 
-void reserve(Array *array, size_t amount)
+bool empty_array(Array *array)
 {
-    if (amount > array->capacity)
-    {
-        array->capacity = amount;
-        array->array = sequential_realloc(array->array, array->capacity, array->size);
-    }
+    return generic_empty(array->nmemb);
 }
-void shrink(Array *array)
+size_t size_array(Array *array)
 {
-    if (array->nmemb < array->capacity)
-    {
-        array->capacity = array->nmemb;
-        array->array = sequential_realloc(array->array, array->capacity, array->size);
-    }
+    return generic_size(array->nmemb);
+}
+size_t capacity_array(Array *array)
+{
+    return generic_capacity(array->capacity);
+}
+
+void reserve_array(Array *array, const size_t new_cap)
+{
+    generic_mempool_reserve(&array->array, &array->capacity, array->size, new_cap);
+}
+void shrink_to_fit_array(Array *array)
+{
+    generic_mempool_shrink_to_fit(&array->array, &array->capacity, &array->nmemb, array->size);
 }

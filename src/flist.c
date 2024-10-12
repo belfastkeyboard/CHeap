@@ -1,126 +1,63 @@
-#include <memory.h>
 #include "../flist.h"
+#include "../linked.h"
 #include "../base.h"
-#include "../arena.h"
 
-typedef struct Node
-{
-    void *value;
-    struct Node *next;
-} Node;
 typedef struct ForwardList
 {
-    Node *head;
+    Arena *arena;
 
     size_t nmemb;
     size_t size;
 
-    Arena *arena;
-} ForwardList;
+    struct Node *head;
+} ForwardList, FList;
 
-static Node *create_node(Arena *arena, size_t size, void *value)
+FList *create_forward_list(const size_t size)
 {
-    struct Node *node = alloc_arena(arena, sizeof(Node));
+    FList *flist = memory_allocate_container(sizeof(FList));
 
-    node->value = alloc_arena(arena, size);
-    memcpy(node->value, value, size);
-    node->next = NULL;
-
-    return node;
-}
-static void destroy_node(Arena *arena, Node *node, size_t size)
-{
-    free_arena(arena, node->value, size);
-    free_arena(arena, node, size);
-}
-
-ForwardList *create_forward_list(size_t size)
-{
-    ForwardList *flist = memory_allocate_container(sizeof(ForwardList));
-    flist->arena = create_arena((sizeof(Node) + size) * 8, ARENA_DYNAMIC);
-
-    flist->head = NULL;
-    flist->nmemb = 0;
+    flist->arena = create_arena(ARENA_CONTAINER_INIT_COUNT, (sizeof(struct Node) + size), ARENA_DYNAMIC);
     flist->size = size;
 
     return flist;
 }
-void destroy_forward_list(ForwardList *flist)
+void destroy_forward_list(FList **flist)
 {
-    destroy_arena(&flist->arena);
-    memory_free_container((void**)&flist);
+    memory_free_container_arena((void**)flist, (*flist)->arena);
 }
 
-void push_front(ForwardList *flist, void *value)
+void push_front_forward_list(FList *flist, void *value)
 {
-    Node *curr = create_node(flist->arena, flist->size, value);
-
-    if (flist->head)
-        curr->next = flist->head;
-
-    flist->head = curr;
-    flist->nmemb++;
+    generic_push_front_singly_linked(flist->arena, &flist->nmemb, flist->size, &flist->head, value);
 }
-Iter insert(ForwardList *flist, Iter iter, void *value)
+size_t insert_after_forward_list(FList *flist, void *value, size_t index)
 {
-    if (iter)
-    {
-        Node *node = create_node(flist->arena, flist->size, value);
-
-        node->next = ((Node*)iter)->next;
-        iter = node;
-
-        flist->nmemb++;
-    }
-
-    return iter;
+    return generic_insert_singly_linked(flist->arena, &flist->nmemb, flist->size, &flist->head, value, index, 0);
 }
 
-void *front(ForwardList *flist)
+void *front_forward_list(FList *flist)
 {
-    return flist->head->value;
+    return generic_access_linked(flist->head);
 }
 
-void pop_front(ForwardList *flist)
+void pop_front_forward_list(FList *flist)
 {
-    if (flist->head)
-    {
-        Node *front = flist->head;
-        flist->head = flist->head->next;
-
-        destroy_node(flist->arena, front, flist->size);
-
-        flist->nmemb--;
-    }
+    generic_pop_front_singly_linked(flist->arena, &flist->nmemb, flist->size, &flist->head);
 }
-Iter erase_after(ForwardList *flist, Iter iter)
+size_t erase_after_forward_list(FList *flist, size_t index)
 {
-    Node *node = (Node*)iter;
-
-    if (node && node->next)
-    {
-        Node *next = node->next;
-
-        node->next = next->next;
-        iter = (void*)node->next;
-
-        destroy_node(flist->arena, next, flist->size);
-
-        flist->nmemb--;
-    }
-
-    return iter;
+    return generic_erase_singly_linked(flist->arena, &flist->nmemb, flist->size, index, &flist->head, 0);
 }
-void clear(ForwardList *flist)
+void clear_forward_list(FList *flist)
 {
-    clear_arena(flist->arena);
+    generic_clear_linked(flist->arena, &flist->head, NULL, &flist->nmemb);
 }
 
-bool empty(ForwardList *flist)
+bool empty_forward_list(FList *flist)
 {
-    return (flist->nmemb == 0);
+    return generic_empty(flist->nmemb);
 }
-size_t size(ForwardList *flist)
+size_t size_forward_list(FList *flist)
 {
-    return flist->nmemb;
+    return generic_size(flist->nmemb);
 }

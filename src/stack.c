@@ -1,6 +1,5 @@
-#include <assert.h>
-#include <malloc.h>
 #include "../base.h"
+#include "../mpool.h"
 #include "../stack.h"
 
 typedef struct Stack
@@ -11,47 +10,39 @@ typedef struct Stack
     size_t size;
 } Stack;
 
-Stack *create_stack(size_t size)
+Stack *create_stack(const size_t size)
 {
     Stack *stack = memory_allocate_container(sizeof(Stack));
 
-    SEQ_CONTAINER_INIT(stack, size);
+    stack->size = size;
 
     return stack;
 }
-void destroy_stack(Stack *stack)
+void destroy_stack(Stack **stack)
 {
-    assert(stack);
-
-    memory_free_buffer(stack->array);
-    memory_free_container((void**)&stack);
+    memory_free_container_mempool((void **) stack, (*stack)->array);
 }
 
-void push(Stack *stack, void* item)
+void push_stack(Stack *stack, void* value)
 {
-    if (stack->nmemb >= stack->capacity)
-        stack->array = sequential_resize(stack->array, &stack->capacity, stack->size);
-
-    sequential_insert(stack->array, stack->nmemb, item, stack->nmemb, stack->size);
-    stack->nmemb++;
-}
-void *top(Stack *stack)
-{
-    return sequential_index_access(stack->array, stack->nmemb - 1, stack->size);
+    generic_mempool_push_back(&stack->array, value, &stack->capacity, &stack->nmemb, stack->size);
 }
 
-void pop(Stack *stack)
+void pop_stack(Stack *stack)
 {
-    assert(stack->nmemb);
-
-    stack->nmemb--;
+    generic_mempool_pop_back(&stack->nmemb);
 }
 
-bool empty(Stack *stack)
+void *top_stack(Stack *stack)
 {
-    return container_empty(stack->nmemb);
+    return mempool_random_access(stack->array, stack->nmemb - 1, stack->size);
 }
-size_t size(Stack *stack)
+
+bool empty_stack(Stack *stack)
 {
-    return container_size(stack->nmemb);
+    return generic_empty(stack->nmemb);
+}
+size_t size_stack(Stack *stack)
+{
+    return generic_size(stack->nmemb);
 }
