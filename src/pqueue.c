@@ -1,6 +1,6 @@
-#include <assert.h>
 #include <stdlib.h>
 #include "../base.h"
+#include "../mpool.h"
 #include "../pqueue.h"
 
 typedef struct PriorityQueue
@@ -17,59 +17,46 @@ static void update(void *array, size_t nmemb, size_t size, CompareFunc fnc)
     qsort(array, nmemb, size, fnc);
 }
 
-PriorityQueue *create_pqueue(size_t size, CompareFunc comparator)
+PriorityQueue *create_pqueue(const size_t size, CompareFunc comparator)
 {
     PriorityQueue *pqueue = memory_allocate_container(sizeof(PriorityQueue));
 
-    SEQ_CONTAINER_INIT(pqueue, size);
     pqueue->fnc = comparator;
 
     return pqueue;
 }
-void destroy_pqueue(PriorityQueue *pqueue)
+void destroy_pqueue(PriorityQueue **pqueue)
 {
-    assert(pqueue);
-
-    memory_free_buffer(pqueue->array);
-    memory_free_container((void**)&pqueue);
+    memory_free_container_mempool((void **) pqueue, (*pqueue)->array);
 }
 
-void push(PriorityQueue *pqueue, void* item)
+void push_pqueue(PriorityQueue *pqueue, void *value)
 {
-    if (pqueue->nmemb >= pqueue->capacity)
-        pqueue->array = sequential_resize(pqueue->array, &pqueue->capacity, pqueue->size);
-
-    sequential_insert(pqueue->array, pqueue->nmemb, item, pqueue->nmemb, pqueue->size);
-    pqueue->nmemb++;
-
+    generic_mempool_push_back(&pqueue->array, value, &pqueue->capacity, &pqueue->nmemb, pqueue->size);
     update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
 }
 
-void *front(PriorityQueue *pqueue)
+void *front_pqueue(PriorityQueue *pqueue)
 {
-    return sequential_index_access(pqueue->array, 0, pqueue->size);
+    return contiguous_random_access(pqueue->array, 0, pqueue->size);
 }
 
-void pop(PriorityQueue *pqueue)
+void pop_pqueue(PriorityQueue *pqueue)
 {
-    assert(pqueue->nmemb);
-
-    sequential_remove(pqueue->array, 0, pqueue->nmemb, pqueue->size);
-    pqueue->nmemb--;
-
+    generic_mempool_pop_front(&pqueue->array, &pqueue->nmemb, pqueue->size);
     update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
 }
 
-bool empty(PriorityQueue *pqueue)
+bool empty_pqueue(PriorityQueue *pqueue)
 {
-    return container_empty(pqueue->nmemb);
+    return generic_empty(pqueue->nmemb);
 }
-size_t size(PriorityQueue *pqueue)
+size_t size_pqueue(PriorityQueue *pqueue)
 {
-    return container_size(pqueue->nmemb);
+    return generic_size(pqueue->nmemb);
 }
 
-void set_comparator(PriorityQueue *pqueue, CompareFunc comparator)
+void set_comparator_pqueue(PriorityQueue *pqueue, CompareFunc comparator)
 {
     pqueue->fnc = comparator;
     update(pqueue->array, pqueue->nmemb, pqueue->size, pqueue->fnc);
