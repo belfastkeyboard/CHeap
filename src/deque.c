@@ -38,11 +38,11 @@ void insert_deque(Deque *deque, void *const value, const size_t index)
 
 void *front_deque(Deque *deque)
 {
-    return contiguous_random_access(deque->array, 0, deque->size);
+    return mempool_random_access(deque->array, 0, deque->size);
 }
 void *back_deque(Deque *deque)
 {
-    return contiguous_random_access(deque->array, deque->nmemb - 1, deque->size);
+    return mempool_random_access(deque->array, deque->nmemb - 1, deque->size);
 }
 
 void pop_front_deque(Deque *deque)
