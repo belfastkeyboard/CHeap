@@ -3,79 +3,20 @@
 #include <memory.h>
 #include "../hash_set.h"
 
-#define GROW_FACTOR 2.f
-#define SHRINK_FACTOR 0.5f
+#define GROW_FACTOR        2.0f
+#define SHRINK_FACTOR      0.5f
 #define LF_UPPER_THRESHOLD 0.75f
 #define LF_LOWER_THRESHOLD 0.1f
-#define TABLE_MIN 8
+#define TABLE_MIN          8
 
-#define UNSET (-1)
-#define INVALID UNSET
+#define UNSET     (-1)
+#define INVALID   UNSET
 #define NOT_FOUND INVALID
 
 typedef unsigned long hash_t;
 
-typedef struct Bucket
-{
-    hash_t hash;
-    void *key;
-    bool tombstone;
-} Bucket;
-typedef struct Set
-{
-    Bucket* array;
-
-    size_t k_size;
-    KeyComp k_comp;
-
-    size_t nmemb;
-    size_t capacity;
-} Set;
-
-static Bucket create_bucket(hash_t hash, void *key, size_t k_size)
-{
-    Bucket bucket = { 0 };
-
-    bucket.hash = hash;
-    bucket.tombstone = false;
-
-    bucket.key = malloc(k_size);
-    memcpy(bucket.key, key, k_size);
-
-    return bucket;
-}
-static void destroy_bucket(Bucket *bucket)
-{
-    if (bucket->key != (void*)-1)
-        free(bucket->key);
-}
-
-Set *create_set(size_t key_size, KeyComp kc)
-{
-    Set *set = malloc(sizeof(Set));
-
-    set->array = NULL;
-
-    set->capacity = 0;
-    set->nmemb = 0;
-
-    set->k_size = key_size;
-    set->k_comp = kc;
-
-    return set;
-}
-void destroy_set(Set **set)
-{
-    clear(*set);
-
-    if ((*set)->array)
-        free((*set)->array);
-
-    free(*set);
-    *set = NULL;
-}
-
-static hash_t djb2(void *item, size_t size)
+// helper functions
+static hash_t djb2(const void *item, const size_t size)
 {
     hash_t hash = 5381;
 
@@ -87,13 +28,86 @@ static hash_t djb2(void *item, size_t size)
 
     return hash;
 }
-static size_t get_index(hash_t hash, size_t capacity)
+static size_t get_index(const hash_t hash, const size_t capacity)
 {
     return hash % capacity;
 }
-static size_t probe(Set *set, void *key, size_t index, bool skip_tombstones)
+static void *key_from_index(void *keys, size_t size, size_t index)
 {
-    assert(set && set->array);
+    return keys + (size * index);
+}
+
+struct Bucket
+{
+    hash_t hash;
+    size_t key_index;
+    bool tombstone;
+};
+static struct Bucket create_bucket(hash_t hash, void *key, size_t k_size, void *values, const size_t nmemb)
+{
+    memcpy(values + (k_size * nmemb), key, k_size);
+    struct Bucket bucket = { .hash = hash, .tombstone = false, .key_index = nmemb };
+
+    return bucket;
+}
+
+typedef struct HashSet
+{
+    struct Bucket *buckets;
+    void *keys;
+
+    size_t k_size;
+    KeyComp k_comp;
+
+    size_t nmemb;
+    size_t capacity;
+} HashSet;
+HashSet *create_hash_set(size_t key_size, KeyComp kc)
+{
+    HashSet *set = malloc(sizeof(HashSet));
+
+    set->buckets = NULL;
+    set->keys = NULL;
+
+    set->capacity = 0;
+    set->nmemb = 0;
+
+    set->k_size = key_size;
+    set->k_comp = kc;
+
+    return set;
+}
+void destroy_hash_set(HashSet **set)
+{
+    clear_hash_set(*set);
+
+    if ((*set)->buckets)
+        free((*set)->buckets);
+
+    free(*set);
+    *set = NULL;
+}
+
+// helper functions
+static bool key_exists(HashSet *set, size_t index)
+{
+    return !set->buckets[index].tombstone && set->buckets[index].key_index != UNSET;
+}
+bool is_found(HashSet *set, struct Bucket bucket, void *key, bool skip_tombstones)
+{
+    bool valid_bucket = !bucket.tombstone &&
+                        bucket.key_index != UNSET &&
+                        set->k_comp(key, key_from_index(set->keys, set->k_size, bucket.key_index));
+
+    bool invalid_or_tombstone = !skip_tombstones &&
+                                (bucket.hash == INVALID || bucket.tombstone); // TODO: think about .hash == INVALID, it's a bit weird
+
+    return valid_bucket || invalid_or_tombstone;
+}
+
+static size_t probe(HashSet *set, void *key, size_t index, bool skip_tombstones)
+{
+    assert(set && set->buckets);
 
     size_t found = NOT_FOUND;
     size_t tombstone = INVALID;
@@ -101,7 +115,7 @@ static size_t probe(Set *set, void *key, size_t index, bool skip_tombstones)
 
     while (found == NOT_FOUND)
     {
-        Bucket bucket = set->array[index];
+        struct Bucket bucket = set->buckets[index];
 
         if (skip_tombstones)
         {
@@ -111,10 +125,7 @@ static size_t probe(Set *set, void *key, size_t index, bool skip_tombstones)
                 break;
         }
 
-        if (
-                (!bucket.tombstone && bucket.key != (void*)-1 && set->k_comp(bucket.key, key)) ||
-                (!skip_tombstones && (bucket.hash == INVALID || bucket.tombstone))
-                )
+        if (is_found(set, bucket, key, skip_tombstones))
             found = index;
         else
             index = (index + 1) % set->capacity;
@@ -125,118 +136,130 @@ static size_t probe(Set *set, void *key, size_t index, bool skip_tombstones)
 
     if (tombstone != INVALID && found != NOT_FOUND)
     {
-        void *tmp;
+        size_t key_index = set->buckets[tombstone].key_index;
 
-        tmp = set->array[tombstone].key;
+        set->buckets[tombstone].key_index = set->buckets[found].key_index;
+        set->buckets[tombstone].tombstone = false;
+        set->buckets[tombstone].hash = set->buckets[found].hash;
 
-        set->array[tombstone].key = set->array[found].key;
-        set->array[tombstone].tombstone = false;
-
-        set->array[found].key = tmp;
-        set->array[found].tombstone = true;
+        set->buckets[found].key_index = key_index;
+        set->buckets[found].tombstone = true;
 
         found = tombstone;
     }
 
     return found;
 }
-static void resize(Set *set, float factor)
+static void resize(HashSet *set, float factor)
 {
-    assert(set->array);
+    assert(set->buckets);
 
     size_t old_capacity = set->capacity;
+    size_t new_capacity = (size_t)((float)old_capacity * factor);
+    size_t t_size = old_capacity * sizeof(struct Bucket);
+    size_t m_size = new_capacity * sizeof(struct Bucket);
 
-    Bucket* tmp = malloc(set->capacity * sizeof(Bucket));
-    memset(tmp, UNSET, set->capacity * sizeof(Bucket));
-    memcpy(tmp, set->array, set->capacity * sizeof(Bucket));
+    struct Bucket *tmp = malloc(t_size);
+    memcpy(tmp, set->buckets, t_size);
 
-    set->capacity = (size_t)((float)set->capacity * factor);
-    free(set->array);
-    set->array = malloc(set->capacity * sizeof(Bucket));
+    set->capacity = new_capacity;
 
-    assert(set->array);
-    memset(set->array, UNSET, (size_t)((float)(set->capacity * sizeof(Bucket))));
+    free(set->buckets);
+    set->buckets = malloc(m_size);
 
-    Bucket bucket;
+    assert(set->buckets);
+    memset(set->buckets, UNSET, m_size);
+
     for (int i = 0; i < old_capacity; i++)
     {
-        bucket = tmp[i];
+        struct Bucket bucket = tmp[i];
 
         if (bucket.hash == INVALID || bucket.tombstone)
             continue;
 
-        size_t re_index = get_index(bucket.hash, set->capacity);
-        re_index = probe(set, bucket.key, re_index, false);
-        set->array[re_index] = bucket;
+        size_t index = get_index(bucket.hash, set->capacity);
+        index = probe(set, key_from_index(set->keys, set->k_size, bucket.key_index), index, false);
+        set->buckets[index] = bucket;
     }
 
     free(tmp);
+
+    tmp = realloc(set->keys, set->capacity * set->k_size);
+    assert(tmp);
+    set->keys = tmp;
 }
-static Bucket *find_bucket(Set *set, void *key)
+static size_t find_bucket(HashSet *set, void *key)
 {
-    Bucket *bucket = NULL;
+    size_t index = NOT_FOUND;
 
-    hash_t hash = djb2(key, set->k_size);
-    size_t index = get_index(hash, set->capacity);
+    if (set->capacity)
+    {
+        hash_t hash = djb2(key, set->k_size);
+        index = get_index(hash, set->capacity);
+        index = probe(set, key, index, true);
+    }
 
-    index = probe(set, key, index, true);
-
-    if (index != NOT_FOUND)
-        bucket = &set->array[index];
-
-    return bucket;
+    return index;
 }
 
-void insert(Set *set, void *key)
+void insert_hash_set(HashSet *set, void *key)
 {
     if (set->nmemb == 0)
     {
-        if (set->array)
-            clear(set);
+        // TODO: this could go inside resize with a create flag or something or get its own function
+
+        if (set->buckets)
+            clear_hash_set(set);
 
         set->capacity = TABLE_MIN;
 
-        set->array = malloc(set->capacity * sizeof(Bucket));
-        memset(set->array, UNSET, set->capacity * sizeof(Bucket));
+        set->buckets = malloc(set->capacity * sizeof(struct Bucket));
+        memset(set->buckets, UNSET, set->capacity * sizeof(struct Bucket));
+        set->keys = malloc(set->capacity * set->k_size);
     }
     else
     {
         float load_factor = ((float)set->nmemb / (float)set->capacity);
+
         if (load_factor >= LF_UPPER_THRESHOLD)
             resize(set, GROW_FACTOR);
     }
 
-    assert(set->array);
+    assert(set->buckets && set->keys);
 
     hash_t hash = djb2(key, set->k_size);
     size_t index = get_index(hash, set->capacity);
     index = probe(set, key, index, false);
 
-    if (
-            !set->array[index].tombstone &&
-            (set->array[index].key == (void*)-1 || !set->k_comp(set->array[index].key, key))
-            )
+    if (!key_exists(set, index))
     {
-        Bucket bucket = create_bucket(hash, key, set->k_size);
-        set->array[index] = bucket;
-
+        set->buckets[index] = create_bucket(hash, key, set->k_size, set->keys, set->nmemb);
         set->nmemb++;
     }
 }
 
-void erase(Set* set, void *key)
+void erase_hash_set(HashSet* set, void *key)
 {
-    if(set->nmemb > 0)
-    {
-        hash_t hash = djb2(key, set->k_size);
-        size_t index = get_index(hash, set->capacity);
+    size_t index = find_bucket(set, key);
 
-        index = probe(set, key, index, true);
-        if (index != NOT_FOUND)
-        {
-            set->array[index].tombstone = true;
-            set->nmemb--;
-        }
+    if (index != NOT_FOUND)
+    {
+        void *last_key = set->keys + (set->k_size * (set->nmemb - 1));
+        size_t last_index = find_bucket(set, last_key);
+
+        struct Bucket *bucket_erase = &set->buckets[index];
+        struct Bucket *bucket_last = &set->buckets[last_index];
+
+        void *dest = key_from_index(set->keys, set->k_size, bucket_erase->key_index);
+        void *src = last_key;
+
+        memcpy(dest, src, set->k_size);
+
+        bucket_last->key_index = bucket_erase->key_index;
+        bucket_erase->tombstone = true;
+        bucket_erase->key_index = UNSET;
+//        bucket_erase->hash = UNSET; TODO: cannot do this because of some weird .hash checks I think
+        set->nmemb--;
 
         float load_factor = ((float)set->nmemb / (float)set->capacity);
         if (load_factor <= LF_LOWER_THRESHOLD && set->capacity > TABLE_MIN)
@@ -244,48 +267,45 @@ void erase(Set* set, void *key)
     }
 }
 
-void clear(Set *set)
+void clear_hash_set(HashSet *set)
 {
-    if (set->array)
-    {
-        for (size_t i = 0; i < set->capacity; i++)
-        {
-            Bucket *bucket = &set->array[i];
-            destroy_bucket(bucket);
-        }
+    if (set->buckets)
+        free(set->buckets);
 
-        free(set->array);
-    }
+    if (set->keys)
+        free(set->keys);
+
+    set->buckets = NULL;
+    set->keys = NULL;
 
     set->capacity = 0;
     set->nmemb = 0;
-    set->array = NULL;
 }
 
-size_t count(Set *set, void *key)
+size_t count_hash_set(HashSet *set, void *key)
 {
-    return (find_bucket(set, key)) ? 1 : 0;
+    return (find_bucket(set, key) != NOT_FOUND) ? 1 : 0;
 }
-void *find(Set *set, void *key)
+void *find_hash_set(HashSet *set, void *key)
 {
-    void *k = NULL;
+    void *value = NULL;
 
-    Bucket *bucket;
-    if ((bucket = find_bucket(set, key)))
-        k = bucket->key;
+    size_t index = find_bucket(set, key);
+    if (index != NOT_FOUND)
+        value = key_from_index(set->keys, set->k_size, set->buckets[index].key_index);
 
-    return k;
+    return value;
 }
-bool contains(Set* set, void *key)
+bool contains_hash_set(HashSet* set, void *key)
 {
-    return (find_bucket(set, key)) ? true : false;
+    return (find_bucket(set, key) != NOT_FOUND) ? true : false;
 }
 
-bool empty(Set* set)
+bool empty_hash_set(HashSet* set)
 {
     return (set->nmemb == 0);
 }
-size_t size(Set* set)
+size_t size_hash_set(HashSet* set)
 {
     return set->nmemb;
 }
