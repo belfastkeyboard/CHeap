@@ -15,28 +15,6 @@
 
 typedef unsigned long hash_t;
 
-// helper functions
-static hash_t djb2(const void *item, const size_t size)
-{
-    hash_t hash = 5381;
-
-    unsigned char data[size];
-    memcpy(data, item, size);
-
-    for (int i = 0; i < size; i++)
-        hash = ((hash << 5) + hash) + data[i];
-
-    return hash;
-}
-static size_t get_index(const hash_t hash, const size_t capacity)
-{
-    return hash % capacity;
-}
-static void *key_from_index(void *keys, size_t size, size_t index)
-{
-    return keys + (size * index);
-}
-
 struct Bucket
 {
     hash_t hash;
@@ -89,11 +67,31 @@ void destroy_hash_set(HashSet **set)
 }
 
 // helper functions
+static hash_t djb2(const void *item, const size_t size)
+{
+    hash_t hash = 5381;
+
+    unsigned char data[size];
+    memcpy(data, item, size);
+
+    for (int i = 0; i < size; i++)
+        hash = ((hash << 5) + hash) + data[i];
+
+    return hash;
+}
+static size_t get_index(const hash_t hash, const size_t capacity)
+{
+    return hash % capacity;
+}
+static void *key_from_index(void *keys, size_t size, size_t index)
+{
+    return keys + (size * index);
+}
 static bool key_exists(HashSet *set, size_t index)
 {
     return !set->buckets[index].tombstone && set->buckets[index].key_index != UNSET;
 }
-bool is_found(HashSet *set, struct Bucket bucket, void *key, bool skip_tombstones)
+static bool is_found(HashSet *set, struct Bucket bucket, void *key, bool skip_tombstones)
 {
     bool valid_bucket = !bucket.tombstone &&
                         bucket.key_index != UNSET &&
@@ -149,6 +147,17 @@ static size_t probe(HashSet *set, void *key, size_t index, bool skip_tombstones)
     }
 
     return found;
+}
+static void initialise(HashSet *set)
+{
+    if (set->buckets)
+        clear_hash_set(set);
+
+    set->capacity = TABLE_MIN;
+
+    set->buckets = malloc(set->capacity * sizeof(struct Bucket));
+    memset(set->buckets, UNSET, set->capacity * sizeof(struct Bucket));
+    set->keys = malloc(set->capacity * set->k_size);
 }
 static void resize(HashSet *set, float factor)
 {
@@ -206,16 +215,7 @@ void insert_hash_set(HashSet *set, void *key)
 {
     if (set->nmemb == 0)
     {
-        // TODO: this could go inside resize with a create flag or something or get its own function
-
-        if (set->buckets)
-            clear_hash_set(set);
-
-        set->capacity = TABLE_MIN;
-
-        set->buckets = malloc(set->capacity * sizeof(struct Bucket));
-        memset(set->buckets, UNSET, set->capacity * sizeof(struct Bucket));
-        set->keys = malloc(set->capacity * set->k_size);
+        initialise(set);
     }
     else
     {
