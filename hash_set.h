@@ -3,22 +3,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct Set Set;
+typedef struct HashSet HashSet;
+
 typedef int (*KeyComp)(const void *a, const void *b);
 
 __attribute__((warn_unused_result))
-Set *create_set(size_t key_size, KeyComp kc);
-void destroy_set(Set **set);
+HashSet *create_hash_set(size_t key_size, KeyComp kc);
+void destroy_hash_set(HashSet **set);
 
-void insert(Set *set, void *key);
+void insert_hash_set(HashSet *set, void *key);
 
-size_t count(Set *set, void *key);
-void *find(Set *set, void *key);
-bool contains(Set *set, void *key);
+size_t count_hash_set(HashSet *set, void *key);
+void *find_hash_set(HashSet *set, void *key);
+bool contains_hash_set(HashSet *set, void *key);
 
-void erase(Set *set, void *key);
-void clear(Set *set);
+void erase_hash_set(HashSet *set, void *key);
+void clear_hash_set(HashSet *set);
 
-bool empty(Set *set);
-size_t size(Set *set);
-
+bool empty_hash_set(HashSet *set);
+size_t size_hash_set(HashSet *set);
