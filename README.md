@@ -4,7 +4,6 @@ Library for all my memory-related functions
 - Arena
   - Static
   - Dynamic
-  - Global
 - String Builder
 - Hash Set
 - Hash Table
@@ -26,8 +25,11 @@ Library for all my memory-related functions
 - Stack: adapts a container to provide stack (LIFO data structure)
 
 ## TODO:
+- add inline to helper functions
+- add error handling to mimic C++ bad_alloc exception
+- re-hash or store hashes in buckets?
 - iterators?
-- thread safety
+- thread safety?
 - fix bugs in RB Tree
 - alternate arena type for containers that has a freeblock list?
 
