@@ -23,12 +23,9 @@ add_library(
         src/stringview.c stringview.h
         src/span.c       span.h
         src/base.c       base.h
-        src/mpool.c
-        mpool.h
-        src/linked.c
-        linked.h
-        src/hash.c
-        hash.h
+        src/mpool.c      mpool.h
+        src/linked.c     linked.h
+        src/hash.c       hash.h
 )
 
 add_executable(CHeap main.c cheap.h)
