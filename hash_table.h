@@ -8,17 +8,17 @@ typedef int (*KeyComp)(const void *a, const void *b);
 typedef bool (*ValueComp)(const void *a, const void *b);
 
 __attribute__((warn_unused_result))
-Table *create_table(size_t key_size, size_t value_size, KeyComp kc, ValueComp vc);
-void destroy_table(Table **table);
+Table *create_hash_table(size_t key_size, size_t value_size, KeyComp kc, ValueComp vc);
+void destroy_hash_table(Table **table);
 
-void insert(Table *table, void *key, void *value);
+void insert_hash_table(Table *table, void *key, void *value);
 
-size_t count(Table *table, void *key);
-void *find(Table *table, void *key);
-bool contains(Table *table, void *key);
+size_t count_hash_table(Table *table, void *key);
+void *find_hash_table(Table *table, void *key);
+bool contains_hash_table(Table *table, void *key);
 
-void erase(Table *table, void *key);
-void clear(Table *table);
+void erase_hash_table(Table *table, void *key);
+void clear_hash_table(Table *table);
 
-bool empty(Table *table);
-size_t size(Table *table);
+bool empty_hash_table(Table *table);
+size_t size_hash_table(Table *table);

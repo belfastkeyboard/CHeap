@@ -1,28 +1,40 @@
-#include "../hash_table.h"
-
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
-
-#define GROW_FACTOR 2.f
-#define SHRINK_FACTOR 0.5f
-#define LF_UPPER_THRESHOLD 0.75f
-#define LF_LOWER_THRESHOLD 0.1f
-#define TABLE_MIN 8
-
-#define UNSET (-1)
-#define INVALID UNSET
-#define NOT_FOUND INVALID
-
-typedef unsigned long hash_t;
+#include "../hash.h"
+#include "../hash_table.h"
 
 typedef struct Bucket
 {
     hash_t hash;
-    void *key;
+    void *key_index;
     void *value;
     bool tombstone;
 } Bucket;
+static Bucket create_bucket(hash_t hash, void *key, size_t k_size, void *value, size_t v_size)
+{
+    Bucket bucket = { 0 };
+
+    bucket.hash = hash;
+    bucket.tombstone = false;
+
+    bucket.key_index = malloc(k_size);
+    memcpy(bucket.key_index, key, k_size);
+
+    bucket.value = malloc(v_size);
+    memcpy(bucket.value, value, v_size);
+
+    return bucket;
+}
+static void destroy_bucket(Bucket *bucket)
+{
+    if (bucket->key_index != (void*)-1 || bucket->value != (void*)-1)
+    {
+        free(bucket->key_index);
+        free(bucket->value);
+    }
+}
+
 typedef struct Table
 {
     Bucket* array;
@@ -35,31 +47,6 @@ typedef struct Table
     size_t nmemb;
     size_t capacity;
 } Table;
-
-static Bucket create_bucket(hash_t hash, void *key, size_t k_size, void *value, size_t v_size)
-{
-    Bucket bucket = { 0 };
-
-    bucket.hash = hash;
-    bucket.tombstone = false;
-
-    bucket.key = malloc(k_size);
-    memcpy(bucket.key, key, k_size);
-
-    bucket.value = malloc(v_size);
-    memcpy(bucket.value, value, v_size);
-
-    return bucket;
-}
-static void destroy_bucket(Bucket *bucket)
-{
-    if (bucket->key != (void*)-1 || bucket->value != (void*)-1)
-    {
-        free(bucket->key);
-        free(bucket->value);
-    }
-}
-
 Table *create_table(size_t key_size, size_t value_size, KeyComp kc, ValueComp vc)
 {
     Table *table = malloc(sizeof(Table));
@@ -78,7 +65,7 @@ Table *create_table(size_t key_size, size_t value_size, KeyComp kc, ValueComp vc
 }
 void destroy_table(Table **table)
 {
-    clear(*table);
+    clear_hash_table(*table);
 
     if ((*table)->array)
         free((*table)->array);
@@ -87,22 +74,6 @@ void destroy_table(Table **table)
     *table = NULL;
 }
 
-static hash_t djb2(void *item, size_t size)
-{
-    hash_t hash = 5381;
-
-    unsigned char data[size];
-    memcpy(data, item, size);
-
-    for (int i = 0; i < size; i++)
-        hash = ((hash << 5) + hash) + data[i];
-
-    return hash;
-}
-static size_t get_index(hash_t hash, size_t capacity)
-{
-    return hash % capacity;
-}
 static size_t probe(Table *table, void *key, size_t index, bool skip_tombstones)
 {
     assert(table && table->array);
@@ -119,13 +90,13 @@ static size_t probe(Table *table, void *key, size_t index, bool skip_tombstones)
         {
             if (tombstone == INVALID && bucket.hash != INVALID && bucket.tombstone)
                 tombstone = index;
-            else if (bucket.hash == INVALID)
+            else if (bucket.hash == UNSET) // TODO: think about this, it's a bit weird
                 break;
         }
 
         if (
-            (!bucket.tombstone && bucket.key != (void*)-1 && table->k_comp(bucket.key, key)) ||
-            (!skip_tombstones && (bucket.hash == INVALID || bucket.tombstone))
+                (!bucket.tombstone && bucket.key_index != (void*)-1 && table->k_comp(bucket.key_index, key)) ||
+                (!skip_tombstones && (bucket.hash == INVALID || bucket.tombstone))
         )
             found = index;
         else
@@ -139,14 +110,14 @@ static size_t probe(Table *table, void *key, size_t index, bool skip_tombstones)
     {
         void *k, *v;
 
-        k = table->array[tombstone].key;
+        k = table->array[tombstone].key_index;
         v = table->array[tombstone].value;
 
-        table->array[tombstone].key = table->array[found].key;
+        table->array[tombstone].key_index = table->array[found].key_index;
         table->array[tombstone].value = table->array[found].value;
         table->array[tombstone].tombstone = false;
 
-        table->array[found].key = k;
+        table->array[found].key_index = k;
         table->array[found].value = v;
         table->array[found].tombstone = true;
 
@@ -177,11 +148,11 @@ static void resize(Table *table, float factor)
     {
         bucket = tmp[i];
 
-        if (bucket.hash == INVALID || bucket.tombstone)
+        if (bucket.hash == INVALID || bucket.tombstone) // TODO: think about bucket.hash == INVALID, it's a bit weird
             continue;
 
         size_t re_index = get_index(bucket.hash, table->capacity);
-        re_index = probe(table, bucket.key, re_index, false);
+        re_index = probe(table, bucket.key_index, re_index, false);
         table->array[re_index] = bucket;
     }
 
@@ -202,12 +173,12 @@ static Bucket *find_bucket(Table *table, void *key)
     return bucket;
 }
 
-void insert(Table *table, void *key, void *value)
+void insert_hash_table(Table *table, void *key, void *value)
 {
     if (table->nmemb == 0)
     {
         if (table->array)
-            clear(table);
+            clear_hash_table(table);
 
         table->capacity = TABLE_MIN;
 
@@ -245,7 +216,7 @@ void insert(Table *table, void *key, void *value)
     table->array[index] = bucket;
 }
 
-void erase(Table* table, void *key)
+void erase_hash_table(Table* table, void *key)
 {
     if(table->nmemb > 0)
     {
@@ -265,7 +236,7 @@ void erase(Table* table, void *key)
     }
 }
 
-void clear(Table *table)
+void clear_hash_table(Table *table)
 {
     if (table->array)
     {
@@ -283,11 +254,11 @@ void clear(Table *table)
     table->array = NULL;
 }
 
-size_t count(Table *table, void *key)
+size_t count_hash_table(Table *table, void *key)
 {
     return (find_bucket(table, key)) ? 1 : 0;
 }
-void *find(Table *table, void *key)
+void *find_hash_table(Table *table, void *key)
 {
     void *value = NULL;
 
@@ -297,16 +268,16 @@ void *find(Table *table, void *key)
 
     return value;
 }
-bool contains(Table* table, void *key)
+bool contains_hash_table(Table* table, void *key)
 {
     return (find_bucket(table, key)) ? true : false;
 }
 
-bool empty(Table* table)
+bool empty_hash_table(Table* table)
 {
     return (table->nmemb == 0);
 }
-size_t size(Table* table)
+size_t size_hash_table(Table* table)
 {
     return table->nmemb;
 }
