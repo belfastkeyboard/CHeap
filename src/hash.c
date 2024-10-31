@@ -25,9 +25,10 @@ void initialise_buckets(struct Bucket **buckets, size_t *capacity)
         free(*buckets);
 
     *capacity = TABLE_MIN;
-    size_t size = *capacity * sizeof(struct Bucket);
+    const size_t size = *capacity * sizeof(struct Bucket);
 
     *buckets = malloc(size);
+
     memset(*buckets, UNSET, size);
 }
 
@@ -125,8 +126,12 @@ static size_t find_bucket(KeyComp k_comp, struct Bucket *buckets, void *keys, co
 
 static void resize_underlying_data(void **data, const size_t capacity, const size_t size)
 {
-    void *tmp = realloc(*data, capacity * size);
+    const size_t new_size = capacity * size;
+
+    void *tmp = realloc(*data, new_size);
+
     assert(tmp);
+
     *data = tmp;
 }
 static void reindex_buckets(KeyComp k_comp, struct Bucket *buckets, const struct Bucket *tmp, void *keys, const size_t k_size, const size_t old_capacity, const size_t new_capacity)
@@ -152,24 +157,54 @@ static void resize_buckets(KeyComp k_comp, struct Bucket **buckets, void *keys, 
     size_t t_size = old_capacity * sizeof(struct Bucket);
     size_t m_size = new_capacity * sizeof(struct Bucket);
 
-    struct Bucket *tmp = malloc(t_size);
-    assert(tmp);
-    memcpy(tmp, *buckets, t_size);
-
     *capacity = new_capacity;
 
+    struct Bucket *tmp = malloc(t_size);
+
+    assert(tmp);
+
+    memcpy(tmp, *buckets, t_size);
     free(*buckets);
+
     *buckets = malloc(m_size);
+
     assert(*buckets);
+
     memset(*buckets, UNSET, m_size);
 
     reindex_buckets(k_comp, *buckets, tmp, keys, k_size, old_capacity, new_capacity);
 
     free(tmp);
 }
+static void should_resize(KeyComp k_comp, struct Bucket **buckets, void **keys, size_t *capacity, const size_t k_size, const size_t nmemb)
+{
+    if (nmemb == 0)
+    {
+        initialise_buckets(buckets, capacity);
+        resize_underlying_data(keys, *capacity, k_size);
+    }
+    else
+    {
+        float load_factor = ((float)nmemb / (float)*capacity);
+
+        assert(*keys);
+
+        if (load_factor >= LF_UPPER_THRESHOLD)
+        {
+            resize_buckets(k_comp, buckets, *keys, capacity, k_size, GROW_FACTOR);
+            resize_underlying_data(keys, *capacity, k_size);
+        }
+        else if (load_factor <= LF_LOWER_THRESHOLD && *capacity > TABLE_MIN)
+        {
+            resize_buckets(k_comp, buckets, *keys, capacity, k_size, SHRINK_FACTOR);
+            resize_underlying_data(keys, *capacity, k_size);
+        }
+    }
+}
 
 void hash_insert(KeyComp k_comp, struct Bucket **buckets, void **keys, size_t *capacity, const size_t k_size, size_t *nmemb, void *key)
 {
+    /*
     if (*nmemb == 0)
     {
         initialise_buckets(buckets, capacity);
@@ -179,18 +214,22 @@ void hash_insert(KeyComp k_comp, struct Bucket **buckets, void **keys, size_t *c
     {
         float load_factor = ((float)*nmemb / (float)*capacity);
 
+        assert(*keys);
+
         if (load_factor >= LF_UPPER_THRESHOLD)
         {
             resize_buckets(k_comp, buckets, *keys, capacity, k_size, GROW_FACTOR);
             resize_underlying_data(keys, *capacity, k_size);
         }
     }
+    */
+    should_resize(k_comp, buckets, keys, capacity, k_size, *nmemb);
 
-    assert(buckets && keys);
+    assert(buckets && *keys);
 
     hash_t hash = djb2(key, k_size);
     size_t index = get_index(hash, *capacity);
-    index = probe(k_comp, *buckets, keys, k_size, *capacity, key, index, false);
+    index = probe(k_comp, *buckets, *keys, k_size, *capacity, key, index, false);
 
     if (!key_exists(*buckets, index))
     {
@@ -198,17 +237,17 @@ void hash_insert(KeyComp k_comp, struct Bucket **buckets, void **keys, size_t *c
         (*nmemb)++;
     }
 }
-void hash_erase(KeyComp k_comp, struct Bucket *buckets, void *keys, size_t *capacity, const size_t k_size, void *key, size_t *nmemb)
+void hash_erase(KeyComp k_comp, struct Bucket **buckets, void **keys, size_t *capacity, const size_t k_size, void *key, size_t *nmemb)
 {
-    size_t index = find_bucket(k_comp, buckets, keys, *capacity, k_size, key);
+    size_t index = find_bucket(k_comp, *buckets, keys, *capacity, k_size, key);
 
     if (index != NOT_FOUND)
     {
         void *last_key = keys + (k_size * (*nmemb - 1));
-        size_t last_index = find_bucket(k_comp, buckets, keys, *capacity, k_size, last_key);
+        size_t last_index = find_bucket(k_comp, *buckets, keys, *capacity, k_size, last_key);
 
-        struct Bucket *bucket_erase = &buckets[index];
-        struct Bucket *bucket_last = &buckets[last_index];
+        struct Bucket *bucket_erase = &(*buckets)[index];
+        struct Bucket *bucket_last = &(*buckets)[last_index];
 
         void *dest = key_from_index(keys, k_size, bucket_erase->index);
         void *src = last_key;
@@ -222,24 +261,30 @@ void hash_erase(KeyComp k_comp, struct Bucket *buckets, void *keys, size_t *capa
 //        bucket_erase->hash = UNSET; TODO: cannot do this because of some weird .hash checks I think
         (*nmemb)--;
 
+        /*
         float load_factor = ((float)*nmemb / (float)*capacity);
         if (load_factor <= LF_LOWER_THRESHOLD && *capacity > TABLE_MIN)
         {
-            resize_buckets(k_comp, &buckets, keys, capacity, k_size, SHRINK_FACTOR);
-            resize_underlying_data(&keys, *capacity, k_size);
+            resize_buckets(k_comp, buckets, keys, capacity, k_size, SHRINK_FACTOR);
+            resize_underlying_data(keys, *capacity, k_size);
         }
+         */
+        should_resize(k_comp, buckets, keys, capacity, k_size, *nmemb);
     }
 }
 void hash_clear(struct Bucket **buckets, void **keys, size_t *capacity, size_t *nmemb)
 {
     if (*buckets)
+    {
         free(*buckets);
+        *buckets = NULL;
+    }
 
     if (*keys)
+    {
         free(*keys);
-
-    *buckets = NULL;
-    *keys = NULL;
+        *keys = NULL;
+    }
 
     *capacity = 0;
     *nmemb = 0;
