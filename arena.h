@@ -2,10 +2,6 @@
 
 #include <stddef.h>
 
-#define ARENA_NO_ERROR            0x0
-#define ARENA_REQUEST_OVERFLOW    0x1
-#define ARENA_INSUFFICIENT_MEMORY 0x2
-
 typedef struct Arena Arena;
 
 typedef enum
@@ -28,4 +24,3 @@ void clear_arena(Arena *arena);
 
 size_t memory_remaining_arena(const Arena *arena);
 ArenaType get_type_arena(const Arena *arena);
-int get_arena_error_code(void);

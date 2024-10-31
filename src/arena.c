@@ -34,8 +34,6 @@ static struct Page *destroy_page(struct Page *page)
     return prev;
 }
 
-static int arena_error = ARENA_NO_ERROR;
-
 typedef struct Arena
 {
     ArenaType type;
@@ -53,25 +51,14 @@ static void *arena_do_alloc(Arena *arena, const size_t size)
 }
 void *static_arena_alloc(Arena *arena, const size_t size)
 {
-    void *ptr = NULL;
-
-    if (size + arena->curr->offset > arena->curr->size)
-        arena_error = ARENA_INSUFFICIENT_MEMORY;
-    else
-        ptr = arena_do_alloc(arena, size);
-
-    return ptr;
+    return arena_do_alloc(arena, size);
 }
 void *dynamic_arena_alloc(Arena *arena, const size_t size)
 {
-    void *ptr = NULL;
-
     if (arena->curr->size - arena->curr->offset < size && arena->type == ARENA_DYNAMIC)
         arena->curr = construct_page(arena->curr, 2, arena->curr->size);
 
-    ptr = arena_do_alloc(arena, size);
-
-    return ptr;
+    return arena_do_alloc(arena, size);
 }
 
 Arena *create_arena(const size_t nmemb, const size_t size, const ArenaType type)
@@ -97,12 +84,12 @@ void *alloc_arena(Arena *arena, const size_t size)
 {
     void *ptr = NULL;
 
-    if (size + arena->curr->offset < size)
-        arena_error = ARENA_REQUEST_OVERFLOW;
-    else if (arena->type == ARENA_STATIC)
+    if (arena->type == ARENA_STATIC)
         ptr = static_arena_alloc(arena, size);
     else if (arena->type == ARENA_DYNAMIC)
         ptr = dynamic_arena_alloc(arena, size);
+
+    assert(ptr);
 
     return ptr;
 }
@@ -137,8 +124,4 @@ size_t memory_remaining_arena(const Arena *arena)
 ArenaType get_type_arena(const Arena *arena)
 {
     return arena->type;
-}
-int get_arena_error_code(void)
-{
-    return arena_error;
 }
