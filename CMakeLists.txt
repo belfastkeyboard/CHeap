@@ -28,5 +28,7 @@ add_library(
         src/hash.c       hash.h
 )
 
-add_executable(CHeap main.c cheap.h)
+add_executable(CHeap main.c cheap.h
+        debug_malloc.h
+        debug_malloc.c)
 target_link_libraries(CHeap PRIVATE CHeapLib)
