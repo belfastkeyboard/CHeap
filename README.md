@@ -26,12 +26,14 @@ Library for all my memory-related functions
 
 ## TODO:
 - add inline to helper functions
-- add error handling to mimic C++ bad_alloc exception
+- add error handling to mimic C++ bad_alloc exception?
 - re-hash or store hashes in buckets?
+- pull arena out of lists and implement bespoke version (separation of concerns)
 - iterators?
 - thread safety?
 - fix bugs in RB Tree
 - alternate arena type for containers that has a freeblock list?
+- support for custom allocators 
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
