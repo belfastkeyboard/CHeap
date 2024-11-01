@@ -1,8 +1,6 @@
 #include <assert.h>
 #include <malloc.h>
-#include <memory.h>
 #include <stdbool.h>
-#include "../arena.h"
 #include "../base.h"
 
 void *memory_allocate_container(size_t size)
@@ -26,17 +24,11 @@ void memory_free_container_mempool(void **container, void *array)
     memory_free_buffer(&array);
     memory_free_buffer(container);
 }
-void memory_free_container_arena(void **container, Arena *arena)
-{
-    assert(*container);
-
-    destroy_arena(&arena);
-    memory_free_buffer(container);
-}
 void memory_free_container_hash(void **container, void *buckets, void *keys, void *values)
 {
     memory_free_buffer(&buckets);
     memory_free_buffer(&keys);
+    memory_free_buffer(&values);
     memory_free_buffer(container);
 }
 

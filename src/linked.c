@@ -1,24 +1,90 @@
+#include <malloc.h>
 #include <memory.h>
 #include "../linked.h"
 
-static struct Node *create_node(Arena *arena, const size_t size, const void *value)
+struct Page
 {
-    struct Node *node = calloc_arena(arena, sizeof(struct Node));
+    void *pool;
+    size_t cursor;
+    size_t size;
 
-    node->value = alloc_arena(arena, size);
+    struct Page *prev;
+};
+__attribute__((warn_unused_result))
+static struct Page *create_page(const size_t size)
+{
+    struct Page *page = calloc(1, sizeof(struct Page));
+
+    page->pool = calloc(1, size);
+    page->size = size;
+
+    return page;
+}
+__attribute__((warn_unused_result))
+static struct Page *destroy_page(struct Page *page)
+{
+    struct Page *prev = page->prev;
+
+    free(page->pool);
+    free(page);
+
+    return prev;
+}
+static void *alloc_page(struct Page **page, const size_t size)
+{
+    struct Node *node = NULL;
+
+    if ((*page)->cursor + size > (*page)->size)
+    {
+        struct Page *new = create_page((*page)->size * 2);
+        new->prev = *page;
+        *page = new;
+    }
+
+    node = (*page)->pool + (*page)->cursor;
+    (*page)->cursor += size;
+
+    return node;
+}
+static void clear_pages(struct Page **page)
+{
+    do {
+        *page = destroy_page(*page);
+    } while ((*page)->prev);
+
+    (*page)->cursor = 0;
+}
+
+struct Node
+{
+    void *value;
+    struct Node *next;
+    struct Node *prev;
+};
+static struct Node *create_node(struct Page **page, const size_t size, const void *value)
+{
+    struct Node *node = alloc_page(page, sizeof(struct Node));
+
+    node->value = alloc_page(page, size);
     memcpy(node->value, value, size);
 
     return node;
 }
-static void destroy_node(Arena *arena, struct Node *node, const size_t size)
+
+struct Page *create_pages(size_t size)
 {
-    free_arena(arena, node->value, size);
-    free_arena(arena, node, sizeof(struct Node));
+    return create_page((sizeof(struct Node) + size) * INIT_LIST_COUNT);
+}
+void destroy_pages(struct Page **page)
+{
+    do {
+        *page = destroy_page(*page);
+    } while (*page);
 }
 
-static void create_node_singly_linked(Arena *arena, const size_t nmemb, const size_t size, const void *value, struct Node *position, struct Node **head, int prior)
+static void create_node_singly_linked(struct Page **page, const size_t nmemb, const size_t size, const void *value, struct Node *position, struct Node **head, int prior)
 {
-    struct Node *node = create_node(arena, size, value);
+    struct Node *node = create_node(page, size, value);
 
     if (prior || !nmemb)
     {
@@ -31,24 +97,17 @@ static void create_node_singly_linked(Arena *arena, const size_t nmemb, const si
         position->next = node;
     }
 }
-static void erase_node_singly_linked(Arena *arena, struct Node *position, const size_t size, struct Node **head, int prior)
+static void erase_node_singly_linked(struct Node *position, struct Node **head, int prior)
 {
     if (prior)
-    {
         *head = position->next;
-        destroy_node(arena, position, size);
-    }
     else
-    {
-        struct Node *erase = position->next;
         position->next = position->next->next;
-        destroy_node(arena, erase, size);
-    }
 }
 
-static void create_node_doubly_linked(Arena *arena, const size_t nmemb, const size_t size, const void *value, struct Node *position, struct Node **head, struct Node **tail)
+static void create_node_doubly_linked(struct Page **page, const size_t nmemb, const size_t size, const void *value, struct Node *position, struct Node **head, struct Node **tail)
 {
-    struct Node *node = create_node(arena, size, value);
+    struct Node *node = create_node(page, size, value);
 
     if (!nmemb)
     {
@@ -77,7 +136,7 @@ static void create_node_doubly_linked(Arena *arena, const size_t nmemb, const si
         node->next = position;
     }
 }
-static void erase_node_doubly_linked(Arena *arena, struct Node *position, const size_t size, struct Node **head, struct Node **tail)
+static void erase_node_doubly_linked(struct Node *position, struct Node **head, struct Node **tail)
 {
     if (position->prev)
         position->prev->next = position->next;
@@ -88,8 +147,6 @@ static void erase_node_doubly_linked(Arena *arena, struct Node *position, const 
         position->next->prev = position->prev;
     else
         *tail = position->prev;
-
-    destroy_node(arena, position, size);
 }
 
 static struct Node *seek_node(const size_t nmemb, const size_t index, struct Node *head, struct Node *tail)
@@ -117,68 +174,68 @@ static struct Node *seek_node(const size_t nmemb, const size_t index, struct Nod
     return seek;
 }
 
-void generic_push_front_singly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head, const void *value)
+void generic_push_front_singly_linked(struct Page **page, size_t *nmemb, size_t size, struct Node **head, const void *value)
 {
-    generic_insert_singly_linked(arena, nmemb, size, head, value, 0, 1);
+    generic_insert_singly_linked(page, nmemb, size, head, value, 0, 1);
 }
-size_t generic_insert_singly_linked(Arena *arena, size_t *nmemb, const size_t size, struct Node **head, const void *value, size_t index, int prior)
+size_t generic_insert_singly_linked(struct Page **page, size_t *nmemb, const size_t size, struct Node **head, const void *value, size_t index, int prior)
 {
     struct Node *seek = seek_node(*nmemb, index, *head, NULL);
-    create_node_singly_linked(arena, *nmemb, size, value, seek, head, prior);
+    create_node_singly_linked(page, *nmemb, size, value, seek, head, prior);
     (*nmemb)++;
 
     return index;
 }
 
-void generic_push_front_doubly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head, struct Node **tail, const void *value)
+void generic_push_front_doubly_linked(struct Page **page, size_t *nmemb, size_t size, struct Node **head, struct Node **tail, const void *value)
 {
-    generic_insert_doubly_linked(arena, nmemb, size, head, tail, value, 0);
+    generic_insert_doubly_linked(page, nmemb, size, head, tail, value, 0);
 }
-void generic_push_back_doubly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head, struct Node **tail, const void *value)
+void generic_push_back_doubly_linked(struct Page **page, size_t *nmemb, size_t size, struct Node **head, struct Node **tail, const void *value)
 {
-    generic_insert_doubly_linked(arena, nmemb, size, head, tail, value, *nmemb);
+    generic_insert_doubly_linked(page, nmemb, size, head, tail, value, *nmemb);
 }
-size_t generic_insert_doubly_linked(Arena *arena, size_t *nmemb, const size_t size, struct Node **head, struct Node **tail, const void *value, size_t index)
+size_t generic_insert_doubly_linked(struct Page **page, size_t *nmemb, const size_t size, struct Node **head, struct Node **tail, const void *value, size_t index)
 {
     struct Node *seek = seek_node(*nmemb, index, *head, *tail);
-    create_node_doubly_linked(arena, *nmemb, size, value, seek, head, tail);
+    create_node_doubly_linked(page, *nmemb, size, value, seek, head, tail);
     (*nmemb)++;
 
     return index;
 }
 
-void generic_pop_front_singly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head)
+void generic_pop_front_singly_linked(size_t *nmemb, struct Node **head)
 {
-    generic_erase_singly_linked(arena, nmemb, size, 0, head, 1);
+    generic_erase_singly_linked(nmemb, 0, head, 1);
 }
-size_t generic_erase_singly_linked(Arena *arena, size_t *nmemb, size_t size, size_t index, struct Node **head, int prior)
+size_t generic_erase_singly_linked(size_t *nmemb, size_t index, struct Node **head, int prior)
 {
     struct Node *seek = seek_node(*nmemb, index, *head, NULL);
-    erase_node_singly_linked(arena, seek, size, head, prior);
+    erase_node_singly_linked(seek, head, prior);
     (*nmemb)--;
 
     return index;
 }
 
-void generic_pop_front_doubly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head, struct Node **tail)
+void generic_pop_front_doubly_linked(size_t *nmemb, struct Node **head, struct Node **tail)
 {
-    generic_erase_doubly_linked(arena, nmemb, size, 0, head, tail);
+    generic_erase_doubly_linked(nmemb, 0, head, tail);
 }
-void generic_pop_back_doubly_linked(Arena *arena, size_t *nmemb, size_t size, struct Node **head, struct Node **tail)
+void generic_pop_back_doubly_linked(size_t *nmemb, struct Node **head, struct Node **tail)
 {
-    generic_erase_doubly_linked(arena, nmemb, size, *nmemb - 1, head, tail);
+    generic_erase_doubly_linked(nmemb, *nmemb - 1, head, tail);
 }
-size_t generic_erase_doubly_linked(Arena *arena, size_t *nmemb, size_t size, size_t index, struct Node **head, struct Node **tail)
+size_t generic_erase_doubly_linked(size_t *nmemb, size_t index, struct Node **head, struct Node **tail)
 {
     struct Node *seek = seek_node(*nmemb, index, *head, *tail);
-    erase_node_doubly_linked(arena, seek, size, head, tail);
+    erase_node_doubly_linked(seek, head, tail);
     (*nmemb)--;
 
     return index;
 }
-void generic_clear_linked(Arena *arena, struct Node **head, struct Node **tail, size_t *nmemb)
+void generic_clear_linked(struct Page **page, struct Node **head, struct Node **tail, size_t *nmemb)
 {
-    clear_arena(arena);
+    clear_pages(page);
 
     *head = NULL;
 

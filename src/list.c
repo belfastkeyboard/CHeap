@@ -2,9 +2,11 @@
 #include "../linked.h"
 #include "../base.h"
 
+struct Page;
+
 typedef struct List
 {
-    Arena *arena;
+    struct Page *curr;
 
     size_t nmemb;
     size_t size;
@@ -17,27 +19,28 @@ List *create_list(const size_t size)
 {
     List *list = memory_allocate_container(sizeof(List));
 
-    list->arena = create_arena(ARENA_CONTAINER_INIT_COUNT, (sizeof(struct Node) + size), ARENA_DYNAMIC);
+    list->curr = create_pages(size);
     list->size = size;
 
     return list;
 }
 void destroy_list(List **list)
 {
-    memory_free_container_arena((void**)list, (*list)->arena);
+    destroy_pages(&(*list)->curr);
+    memory_free_buffer((void**)list);
 }
 
 void push_back_list(List *list, void *value)
 {
-    generic_push_back_doubly_linked(list->arena, &list->nmemb, list->size, &list->head, &list->tail, value);
+    generic_push_back_doubly_linked(&list->curr, &list->nmemb, list->size, &list->head, &list->tail, value);
 }
 void push_front_list(List *list, void *value)
 {
-    generic_push_front_doubly_linked(list->arena, &list->nmemb, list->size, &list->head, &list->tail, value);
+    generic_push_front_doubly_linked(&list->curr, &list->nmemb, list->size, &list->head, &list->tail, value);
 }
 size_t insert_list(List *list, void *value, const size_t index)
 {
-    return generic_insert_doubly_linked(list->arena, &list->nmemb, list->size, &list->head, &list->tail, value, index);
+    return generic_insert_doubly_linked(&list->curr, &list->nmemb, list->size, &list->head, &list->tail, value, index);
 }
 
 void *front_list(List *list)
@@ -51,19 +54,19 @@ void *back_list(List *list)
 
 void pop_front_list(List *list)
 {
-    generic_pop_front_doubly_linked(list->arena, &list->nmemb, list->size, &list->head, &list->tail);
+    generic_pop_front_doubly_linked(&list->nmemb, &list->head, &list->tail);
 }
 void pop_back_list(List *list)
 {
-    generic_pop_back_doubly_linked(list->arena, &list->nmemb, list->size, &list->head, &list->tail);
+    generic_pop_back_doubly_linked(&list->nmemb, &list->head, &list->tail);
 }
 size_t erase_list(List *list, size_t index)
 {
-    return generic_erase_doubly_linked(list->arena, &list->nmemb, list->size, index, &list->head, &list->tail);
+    return generic_erase_doubly_linked(&list->nmemb, index, &list->head, &list->tail);
 }
 void clear_list(List *list)
 {
-    generic_clear_linked(list->arena, &list->head, &list->tail, &list->nmemb);
+    generic_clear_linked(&list->curr, &list->head, &list->tail, &list->nmemb);
 }
 
 bool empty_list(List *list)

@@ -72,7 +72,8 @@
     Array*:     erase_array,                                   \
     Deque*:     erase_deque,                                   \
     HashSet*:   erase_hash_set,                                \
-    HashTable*: erase_hash_table                               \
+    HashTable*: erase_hash_table,                              \
+    List*:      erase_list                                     \
 )(container, index_or_value)
 #define erase_after(container, index) _Generic((container), \
     FList*: erase_after_forward_list                        \
@@ -82,7 +83,8 @@
     Deque*:     clear_deque,                   \
     FList*:     clear_forward_list,            \
     HashSet*:   clear_hash_set,                \
-    HashTable*: clear_hash_table               \
+    HashTable*: clear_hash_table,              \
+    List*:      clear_list                     \
 )(container)
 
 #define at(type, container, index) *(type*) _Generic((container), \
@@ -99,6 +101,7 @@
 #define back(type, container) *(type*) _Generic((container), \
     Array*: back_array,                                      \
     Deque*: back_deque,                                      \
+    List*:  back_list,                                       \
     Queue*: back_queue                                       \
 )(container)
 
