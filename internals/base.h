@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "arena.h"
+#include "../arena.h"
 
 #define EMPTY 0
 #define UNSET EMPTY

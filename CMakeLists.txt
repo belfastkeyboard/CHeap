@@ -8,24 +8,25 @@ set(CMAKE_C_STANDARD 23)
 
 add_library(
     CHeapLib STATIC
-        src/arena.c      arena.h
-        src/array.c      array.h
-        src/builder.c    builder.h
-        src/deque.c      deque.h
-        src/flist.c      flist.h
-        src/hash_set.c   hash_set.h
-        src/hash_table.c hash_table.h
-        src/list.c       list.h
-        src/pqueue.c     pqueue.h
-        src/queue.c      queue.h
-        src/rbuff.c      rbuff.h
-        src/stack.c      stack.h
-        src/stringview.c stringview.h
-        src/span.c       span.h
-        src/base.c       base.h
-        src/mpool.c      mpool.h
-        src/linked.c     linked.h
-        src/hash.c       hash.h
+        src/containers/arena.c      arena.h
+        src/containers/array.c      array.h
+        src/containers/builder.c    builder.h
+        src/containers/deque.c      deque.h
+        src/containers/flist.c      flist.h
+        src/containers/hash_set.c   hash_set.h
+        src/containers/hash_table.c hash_table.h
+        src/containers/list.c       list.h
+        src/containers/pqueue.c     pqueue.h
+        src/containers/queue.c      queue.h
+        src/containers/rbuff.c      rbuff.h
+        src/containers/stack.c      stack.h
+        src/containers/stringview.c stringview.h
+        src/containers/span.c       span.h
+
+        src/internals/base.c        internals/base.h
+        src/internals/mpool.c       internals/mpool.h
+        src/internals/linked.c      internals/linked.h
+        src/internals/hash.c        internals/hash.h
 )
 
 add_executable(CHeap main.c cheap.h

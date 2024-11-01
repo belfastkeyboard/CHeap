@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
-#include "../hash.h"
+#include "../../internals/hash.h"
 
 #define GROW_FACTOR        2.0f
 #define SHRINK_FACTOR      0.5f

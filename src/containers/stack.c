@@ -1,6 +1,6 @@
-#include "../base.h"
-#include "../mpool.h"
-#include "../stack.h"
+#include "../../internals/base.h"
+#include "../../internals/mpool.h"
+#include "../../stack.h"
 
 typedef struct Stack
 {

@@ -1,6 +1,6 @@
-#include "../base.h"
-#include "../mpool.h"
-#include "../queue.h"
+#include "../../internals/base.h"
+#include "../../internals/mpool.h"
+#include "../../queue.h"
 
 typedef struct Queue
 {

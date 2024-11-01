@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
-#include "../arena.h"
+#include "../../arena.h"
 
 struct Page
 {

@@ -1,6 +1,6 @@
-#include "../flist.h"
-#include "../linked.h"
-#include "../base.h"
+#include "../../flist.h"
+#include "../../internals/linked.h"
+#include "../../internals/base.h"
 
 typedef struct ForwardList
 {

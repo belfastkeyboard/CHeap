@@ -1,6 +1,6 @@
 #include <malloc.h>
 #include <memory.h>
-#include "../linked.h"
+#include "../../internals/linked.h"
 
 struct Page
 {

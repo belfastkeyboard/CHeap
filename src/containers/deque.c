@@ -1,6 +1,6 @@
-#include "../base.h"
-#include "../mpool.h"
-#include "../deque.h"
+#include "../../internals/base.h"
+#include "../../internals/mpool.h"
+#include "../../deque.h"
 
 typedef struct DoubleEndedQueue
 {

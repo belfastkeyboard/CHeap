@@ -1,6 +1,6 @@
-#include "../hash.h"
-#include "../hash_set.h"
-#include "../base.h"
+#include "../../internals/hash.h"
+#include "../../hash_set.h"
+#include "../../internals/base.h"
 
 typedef struct HashSet
 {

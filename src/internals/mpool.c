@@ -1,8 +1,8 @@
 #include <malloc.h>
 #include <memory.h>
 #include <assert.h>
-#include "../base.h"
-#include "../mpool.h"
+#include "../../internals/base.h"
+#include "../../internals/mpool.h"
 
 void *mempool_realloc(void *array, const size_t size)
 {

@@ -1,6 +1,6 @@
-#include "../list.h"
-#include "../linked.h"
-#include "../base.h"
+#include "../../list.h"
+#include "../../internals/linked.h"
+#include "../../internals/base.h"
 
 struct Page;
 

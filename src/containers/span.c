@@ -1,5 +1,5 @@
 #include <malloc.h>
-#include "../span.h"
+#include "../../span.h"
 
 typedef struct Span
 {
