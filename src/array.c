@@ -20,7 +20,7 @@ Array *create_array(const size_t size)
 }
 void destroy_array(Array **array)
 {
-    memory_free_container_mempool((void **) array, (*array)->array);
+    memory_free_container_mempool((void **)array, (*array)->array);
 }
 
 void push_back_array(Array *array, void *const value)
