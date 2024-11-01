@@ -2,6 +2,10 @@
 
 #include <stddef.h>
 
+#define KB(x) (x * 1024)
+#define MB(x) (KB(x) * 1024)
+#define GB(x) (MB(x) * 1024)
+
 typedef struct Arena Arena;
 
 typedef enum
