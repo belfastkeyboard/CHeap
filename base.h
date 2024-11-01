@@ -13,9 +13,10 @@
 #define ARENA_CONTAINER_INIT_COUNT 8
 
 void *memory_allocate_container(size_t size);
-void memory_free_mempool(void **buffer);
+void memory_free_buffer(void **buffer);
 void memory_free_container_mempool(void **container, void *array);
 void memory_free_container_arena(void **container, Arena *arena);
+void memory_free_container_hash(void **container, void *buckets, void *keys);
 
 bool generic_empty(size_t nmemb);
 size_t generic_size(size_t nmemb);

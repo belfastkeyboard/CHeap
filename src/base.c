@@ -13,7 +13,7 @@ void *memory_allocate_container(size_t size)
 
     return ptr;
 }
-void memory_free_mempool(void **buffer)
+void memory_free_buffer(void **buffer)
 {
     if (*buffer)
         free(*buffer);
@@ -23,19 +23,21 @@ void memory_free_container_mempool(void **container, void *array)
 {
     assert(*container);
 
-    memory_free_mempool(&array);
-
-    free(*container);
-    *container = NULL;
+    memory_free_buffer(&array);
+    memory_free_buffer(container);
 }
 void memory_free_container_arena(void **container, Arena *arena)
 {
     assert(*container);
 
     destroy_arena(&arena);
-
-    free(*container);
-    *container = NULL;
+    memory_free_buffer(container);
+}
+void memory_free_container_hash(void **container, void *buckets, void *keys)
+{
+    memory_free_buffer(&buckets);
+    memory_free_buffer(&keys);
+    memory_free_buffer(container);
 }
 
 bool generic_empty(size_t nmemb)
