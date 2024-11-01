@@ -1,6 +1,7 @@
 # C Heap
-Library for simplifying memory management in C
-General idea behind the library is to reduce the number of malloc/free calls to the absolute minimum.
+Library for simplifying memory management in C.
+
+The idea behind the library is to reduce the number of malloc/free calls to the absolute minimum.
 The trade-off of this design choice is that usually memory is traded for performance.
 For example, some of the containers (linked list types) use bump allocators to group memory into related pools.
 The lists perform better than traditional implementations but allocate more memory. 
