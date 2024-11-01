@@ -9,21 +9,26 @@ The lists perform better than traditional implementations but allocate more memo
   - Static
   - Dynamic
 - String Builder
-- Hash Set
-- Hash Table
 - Ring Buffer
 - Span
 - String View
 
 ## CONTAINER LIBRARY
 
-### SEQUENCE CONTAINERS
+### Sequence containers
+Sequence containers implement data structures which can be accessed sequentially.
 - Array: dynamic contiguous array
 - Deque: double-ended queue
 - ForwardList: singly-linked list
 - List: doubly-linked list
 
-### CONTAINER ADAPTORS
+### Unordered associative containers
+Unordered associative containers implement unsorted (hashed) data structures that can be quickly searched (O(1) average, O(n) worst-case complexity).
+- Hash Set
+- Hash Table
+
+### Container adaptors
+Container adaptors provide a different interface for sequential containers.
 - PriorityQueue: adapts a container to provide priority queue
 - Queue: adapts a container to provide queue (FIFO data structure)
 - Stack: adapts a container to provide stack (LIFO data structure)
@@ -36,7 +41,8 @@ The lists perform better than traditional implementations but allocate more memo
 - thread safety?
 - fix bugs in RB Tree
 - alternate arena type for containers that has a freeblock list?
-- support for custom allocators 
+- support for custom allocators
+- fixed-size array
 - stress test all types
 
 ## CONSIDER:
