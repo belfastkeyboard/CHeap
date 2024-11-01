@@ -5,10 +5,10 @@
 
 typedef struct HashSet HashSet;
 
-typedef int (*KeyComp)(const void *a, const void *b);
+typedef int (*KComp)(const void *a, const void *b);
 
 __attribute__((warn_unused_result))
-HashSet *create_hash_set(size_t key_size, KeyComp kc);
+HashSet *create_hash_set(size_t key_size, KComp kc);
 void destroy_hash_set(HashSet **set);
 
 void insert_hash_set(HashSet *set, void *key);
