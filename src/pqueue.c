@@ -38,7 +38,7 @@ void push_pqueue(PriorityQueue *pqueue, void *value)
 
 void *front_pqueue(PriorityQueue *pqueue)
 {
-    return contiguous_random_access(pqueue->array, 0, pqueue->size);
+    return mempool_random_access(pqueue->array, 0, pqueue->size);
 }
 
 void pop_pqueue(PriorityQueue *pqueue)
