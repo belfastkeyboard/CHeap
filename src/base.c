@@ -33,7 +33,7 @@ void memory_free_container_arena(void **container, Arena *arena)
     destroy_arena(&arena);
     memory_free_buffer(container);
 }
-void memory_free_container_hash(void **container, void *buckets, void *keys)
+void memory_free_container_hash(void **container, void *buckets, void *keys, void *values)
 {
     memory_free_buffer(&buckets);
     memory_free_buffer(&keys);
