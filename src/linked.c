@@ -1,5 +1,4 @@
 #include <memory.h>
-#include "../arena.h"
 #include "../linked.h"
 
 static struct Node *create_node(Arena *arena, const size_t size, const void *value)
