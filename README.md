@@ -37,3 +37,4 @@ Library for all my memory-related functions
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
+- attempt to re-write create macro
