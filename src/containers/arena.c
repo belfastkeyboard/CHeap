@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
+#include "../../internals/base.h"
 #include "../../arena.h"
 
 struct Page
@@ -58,7 +59,7 @@ void *dynamic_arena_alloc(Arena *arena, const size_t size)
 
 Arena *create_arena(const size_t nmemb, const size_t size)
 {
-    Arena *arena = malloc(sizeof(Arena));
+    Arena *arena = memory_allocate_container(sizeof(Arena));
 
     arena->curr = construct_page(NULL, nmemb, size);
 
