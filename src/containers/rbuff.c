@@ -33,7 +33,7 @@ void destroy_ringbuffer(RingBuffer **rbuff)
     *rbuff = NULL;
 }
 
-void *read(RingBuffer *rbuff)
+void *read_ringbuffer(RingBuffer *rbuff)
 {
     void *item = rbuff->array + rbuff->read;
 
@@ -44,7 +44,7 @@ void *read(RingBuffer *rbuff)
 
     return item;
 }
-void write(RingBuffer *rbuff, void *item)
+void write_ringbuffer(RingBuffer *rbuff, void *item)
 {
     memcpy(rbuff->array + rbuff->write, item, rbuff->size);
 
@@ -53,17 +53,17 @@ void write(RingBuffer *rbuff, void *item)
     else
         rbuff->write += rbuff->size;
 }
-void clear(RingBuffer *rbuff)
+void clear_ringbuffer(RingBuffer *rbuff)
 {
     rbuff->read = 0;
     rbuff->write = 0;
 }
 
-bool empty(RingBuffer *rbuff)
+bool empty_ringbuffer(RingBuffer *rbuff)
 {
     return rbuff->read == rbuff->write;
 }
-bool full(RingBuffer *rbuff)
+bool full_ringbuffer(RingBuffer *rbuff)
 {
     return ((rbuff->write + rbuff->size) % (rbuff->capacity * rbuff->size)) == rbuff->read;
 }
