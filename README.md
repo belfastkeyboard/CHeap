@@ -7,8 +7,7 @@ For example, some of the containers (linked list types) use bump allocators to g
 The lists perform better than traditional implementations but allocate more memory. 
 
 - Arena
-  - Static
-  - Dynamic
+- Bump Allocator
 - String Builder
 - Ring Buffer
 - Span
@@ -35,15 +34,14 @@ Container adaptors provide a different interface for sequential containers.
 - Stack: adapts a container to provide stack (LIFO data structure)
 
 ## TODO:
-- add inline to helper functions
-- add error handling to mimic C++ bad_alloc exception?
+- fixed-size array
+- alternate arena type with a freeblock list?
 - re-hash or store hashes in buckets?
+- support for custom allocators
+- add error handling to mimic C++ bad_alloc exception?
 - iterators?
 - thread safety?
 - fix bugs in RB Tree
-- alternate arena type for containers that has a freeblock list?
-- support for custom allocators
-- fixed-size array
 - stress test all types
 
 ## CONSIDER:
