@@ -27,13 +27,15 @@ add_library(
         src/internals/mpool.c       internals/mpool.h
         src/internals/linked.c      internals/linked.h
         src/internals/hash.c        internals/hash.h
-        src/containers/bump.c
-        bump.h
+        src/containers/bump.c       bump.h
+        src/containers/string_t.c   string_t.h
 )
 
 add_executable(CHeap main.c cheap.h
         debug_malloc.h
         debug_malloc.c
         src/containers/bump.c
-        bump.h)
+        bump.h
+        src/containers/string_t.c
+        string_t.h)
 target_link_libraries(CHeap PRIVATE CHeapLib)
