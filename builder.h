@@ -4,8 +4,6 @@
 
 #define NOT_FOUND ((size_t)-1)
 
-// TODO: add support for arenas
-
 void create_string_builder(void);
 void destroy_string_builder(void);
 
