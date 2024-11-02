@@ -8,10 +8,9 @@ The lists perform better than traditional implementations but allocate more memo
 
 - Arena
 - Bump Allocator
-- String Builder
 - Ring Buffer
 - Span
-- String View
+- String
 
 ## CONTAINER LIBRARY
 
@@ -35,6 +34,7 @@ Container adaptors provide a different interface for sequential containers.
 
 ## TODO:
 - fixed-size array
+- string builder
 - alternate arena type with a freeblock list?
 - re-hash or store hashes in buckets?
 - support for custom allocators
