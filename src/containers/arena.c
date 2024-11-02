@@ -11,6 +11,11 @@ struct Page
     size_t size;
     size_t offset;
 };
+typedef struct Arena
+{
+    struct Page *curr;
+} Arena;
+
 __attribute__((warn_unused_result))
 static struct Page *construct_page(struct Page *prev, const size_t nmemb, const size_t size)
 {
@@ -34,12 +39,6 @@ static struct Page *destroy_page(struct Page *page)
     return prev;
 }
 
-typedef struct Arena
-{
-    ArenaType type;
-    struct Page *curr;
-} Arena;
-
 // helper functions
 static void *arena_do_alloc(Arena *arena, const size_t size)
 {
@@ -49,24 +48,19 @@ static void *arena_do_alloc(Arena *arena, const size_t size)
 
     return ptr;
 }
-void *static_arena_alloc(Arena *arena, const size_t size)
-{
-    return arena_do_alloc(arena, size);
-}
 void *dynamic_arena_alloc(Arena *arena, const size_t size)
 {
-    if (arena->curr->size - arena->curr->offset < size && arena->type == ARENA_DYNAMIC)
+    if (arena->curr->size - arena->curr->offset < size)
         arena->curr = construct_page(arena->curr, 2, arena->curr->size);
 
     return arena_do_alloc(arena, size);
 }
 
-Arena *create_arena(const size_t nmemb, const size_t size, const ArenaType type)
+Arena *create_arena(const size_t nmemb, const size_t size)
 {
     Arena *arena = malloc(sizeof(Arena));
 
     arena->curr = construct_page(NULL, nmemb, size);
-    arena->type = type;
 
     return arena;
 }
@@ -84,10 +78,7 @@ void *alloc_arena(Arena *arena, const size_t size)
 {
     void *ptr = NULL;
 
-    if (arena->type == ARENA_STATIC)
-        ptr = static_arena_alloc(arena, size);
-    else if (arena->type == ARENA_DYNAMIC)
-        ptr = dynamic_arena_alloc(arena, size);
+    ptr = dynamic_arena_alloc(arena, size);
 
     assert(ptr);
 
@@ -103,11 +94,8 @@ void free_arena(Arena *arena, void *ptr, const size_t size)
     if (size <= arena->curr->offset && arena->curr->base + arena->curr->offset - size == ptr)
         arena->curr->offset -= size;
 
-    if (arena->type == ARENA_DYNAMIC)
-    {
-        if (arena->curr->offset == 0 && arena->curr->prev)
-            arena->curr = destroy_page(arena->curr);
-    }
+    if (arena->curr->offset == 0 && arena->curr->prev)
+        arena->curr = destroy_page(arena->curr);
 }
 void clear_arena(Arena *arena)
 {
@@ -115,13 +103,4 @@ void clear_arena(Arena *arena)
         arena->curr = destroy_page(arena->curr);
 
     arena->curr->offset = 0;
-}
-
-size_t memory_remaining_arena(const Arena *arena)
-{
-    return arena->curr->size - arena->curr->offset;
-}
-ArenaType get_type_arena(const Arena *arena)
-{
-    return arena->type;
 }
