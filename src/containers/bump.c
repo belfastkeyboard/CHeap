@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <string.h>
+#include "../../internals/base.h"
 #include "../../bump.h"
 
 typedef struct BumpAlloc
@@ -12,41 +13,41 @@ typedef struct BumpAlloc
 
 BumpAlloc *create_bump_allocator(const size_t size)
 {
-    BumpAlloc *b_alloc = malloc(sizeof(BumpAlloc));
+    BumpAlloc *b_alloc = memory_allocate_container(sizeof(BumpAlloc));
 
     b_alloc->ptr = malloc(size);
     b_alloc->size = size;
 
     return b_alloc;
 }
-void destroy_bump_allocator(BumpAlloc **b_alloc)
+void destroy_bump_allocator(BumpAlloc **bump)
 {
-    free((*b_alloc)->ptr);
-    free(*b_alloc);
-    *b_alloc = NULL;
+    free((*bump)->ptr);
+    free(*bump);
+    *bump = NULL;
 }
 
-void *bump_allocator_alloc(BumpAlloc *b_alloc, const size_t size)
+void *bump_alloc(BumpAlloc *bump, size_t size)
 {
-    assert(b_alloc->offset + size <= b_alloc->size);
+    assert(bump->offset + size <= bump->size);
 
-    void *ptr = (b_alloc->ptr + b_alloc->offset);
+    void *ptr = (bump->ptr + bump->offset);
 
-    b_alloc->offset += size;
+    bump->offset += size;
 
     return ptr;
 }
-void *bump_allocator_calloc(BumpAlloc *b_alloc, const size_t size)
+void *bump_calloc(BumpAlloc *bump, size_t size)
 {
-    return memset(bump_allocator_alloc(b_alloc, size), 0, size);
+    return memset(bump_alloc(bump, size), 0, size);
 }
-void *bump_allocator_salloc(BumpAlloc *b_alloc, const char *string)
+void *bump_salloc(BumpAlloc *bump, const char *string)
 {
     size_t len = strlen(string);
-    return strncpy(bump_allocator_calloc(b_alloc, len + 1), string, len);
+    return strncpy(bump_calloc(bump, len + 1), string, len);
 }
 
-void bump_allocator_clear(BumpAlloc *b_alloc)
+void bump_clear(BumpAlloc *bump)
 {
-    b_alloc->offset = 0;
+    bump->offset = 0;
 }
