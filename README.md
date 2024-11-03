@@ -9,7 +9,6 @@ The lists perform better than traditional implementations but allocate more memo
 - Arena
 - Bump Allocator
 - Ring Buffer
-- Span
 - String
 
 ## CONTAINER LIBRARY
@@ -44,6 +43,7 @@ Container adaptors provide a different interface for sequential containers.
 - thread safety?
 - fix bugs in RB Tree
 - stress test all types
+- view types
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
