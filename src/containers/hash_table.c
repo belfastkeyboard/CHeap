@@ -1,5 +1,5 @@
 #include "../../internals/hash.h"
-#include "../../hash_set.h"
+#include "../../hash_table.h"
 #include "../../internals/base.h"
 
 typedef struct HashTable
@@ -16,7 +16,11 @@ typedef struct HashTable
     size_t nmemb;
     size_t capacity;
 } HashTable;
-HashTable *create_hash_table(size_t key_size, size_t value_size, KComp kc)
+
+
+HashTable *create_hash_table(size_t key_size,
+                             size_t value_size,
+                             KComp kc)
 {
     HashTable *table = memory_allocate_container(sizeof(HashTable));
 
@@ -27,43 +31,100 @@ HashTable *create_hash_table(size_t key_size, size_t value_size, KComp kc)
 
     return table;
 }
+
 void destroy_hash_table(HashTable **table)
 {
-    memory_free_container_hash((void **)table, (*table)->buckets, (*table)->keys, (*table)->values);
+    memory_free_container_hash((void **)table,
+                               (*table)->buckets,
+                               (*table)->keys,
+                               (*table)->values);
 }
 
-void insert_hash_table(HashTable *table, void *key, void *value)
+
+void insert_hash_table(HashTable *table,
+                       void *key,
+                       void *value)
 {
-    hash_insert(&table->buckets, &table->keys, &table->values, table->k_size, table->v_size, table->k_comp, &table->nmemb, &table->capacity, key, value);
+    hash_insert(&table->buckets,
+                &table->keys,
+                &table->values,
+                table->k_size,
+                table->v_size,
+                table->k_comp,
+                &table->nmemb,
+                &table->capacity,
+                key,
+                value);
 }
 
-size_t count_hash_table(HashTable *table, void *key)
+
+size_t count_hash_table(HashTable *table,
+                        void *key)
 {
-    return hash_count(table->buckets, table->keys, table->k_size, table->k_comp, table->capacity, key);
-}
-void *find_hash_table(HashTable *table, void *key)
-{
-    return hash_find(table->buckets, table->keys, table->values, table->k_size, table->v_size, table->k_comp, table->capacity, table->nmemb, key);
-}
-bool contains_hash_table(HashTable* table, void *key)
-{
-    return hash_contains(table->buckets, table->keys, table->k_size, table->k_comp, table->capacity, key);
+    return hash_count(table->buckets,
+                      table->keys,
+                      table->k_size,
+                      table->k_comp,
+                      table->capacity,
+                      key);
 }
 
-void erase_hash_table(HashTable* table, void *key)
+void *find_hash_table(HashTable *table,
+                      void *key)
 {
-    hash_erase(&table->buckets, &table->keys, &table->values, table->k_size, table->v_size, table->k_comp, &table->nmemb, &table->capacity, key);
+    return hash_find(table->buckets,
+                     table->keys,
+                     table->values,
+                     table->k_size,
+                     table->v_size,
+                     table->k_comp,
+                     table->capacity,
+                     table->nmemb,
+                     key);
 }
+
+bool contains_hash_table(HashTable* table,
+                         void *key)
+{
+    return hash_contains(table->buckets,
+                         table->keys,
+                         table->k_size,
+                         table->k_comp,
+                         table->capacity,
+                         key);
+}
+
+
+void erase_hash_table(HashTable* table,
+                      void *key)
+{
+    hash_erase(&table->buckets,
+               &table->keys,
+               &table->values,
+               table->k_size,
+               table->v_size,
+               table->k_comp,
+               &table->nmemb,
+               &table->capacity,
+               key);
+}
+
 
 void clear_hash_table(HashTable *table)
 {
-    hash_clear(&table->buckets, &table->keys, &table->values, &table->nmemb, &table->capacity);
+    hash_clear(&table->buckets,
+               &table->keys,
+               &table->values,
+               &table->nmemb,
+               &table->capacity);
 }
+
 
 bool empty_hash_table(HashTable* table)
 {
     return generic_empty(table->nmemb);
 }
+
 size_t size_hash_table(HashTable* table)
 {
     return generic_size(table->nmemb);

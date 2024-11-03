@@ -11,7 +11,9 @@ typedef struct RingBuffer
     size_t read;
 } RingBuffer;
 
-RingBuffer *create_ringbuffer(size_t capacity, size_t size)
+
+RingBuffer *create_ringbuffer(size_t capacity,
+                              size_t size)
 {
     RingBuffer *rbuff = malloc(sizeof(RingBuffer));
 
@@ -24,6 +26,7 @@ RingBuffer *create_ringbuffer(size_t capacity, size_t size)
 
     return rbuff;
 }
+
 void destroy_ringbuffer(RingBuffer **rbuff)
 {
     if ((*rbuff)->array)
@@ -33,36 +36,52 @@ void destroy_ringbuffer(RingBuffer **rbuff)
     *rbuff = NULL;
 }
 
+
 void *read_ringbuffer(RingBuffer *rbuff)
 {
     void *item = rbuff->array + rbuff->read;
 
     if (rbuff->read >= (rbuff->capacity - 1) * rbuff->size)
+    {
         rbuff->read = 0;
+    }
     else
+    {
         rbuff->read += rbuff->size;
+    }
 
     return item;
 }
-void write_ringbuffer(RingBuffer *rbuff, void *item)
+
+void write_ringbuffer(RingBuffer *rbuff,
+                      void *item)
 {
-    memcpy(rbuff->array + rbuff->write, item, rbuff->size);
+    memcpy(rbuff->array + rbuff->write,
+           item,
+           rbuff->size);
 
     if (rbuff->write >= (rbuff->capacity - 1) * rbuff->size)
+    {
         rbuff->write = 0;
+    }
     else
+    {
         rbuff->write += rbuff->size;
+    }
 }
+
 void clear_ringbuffer(RingBuffer *rbuff)
 {
     rbuff->read = 0;
     rbuff->write = 0;
 }
 
+
 bool empty_ringbuffer(RingBuffer *rbuff)
 {
     return rbuff->read == rbuff->write;
 }
+
 bool full_ringbuffer(RingBuffer *rbuff)
 {
     return ((rbuff->write + rbuff->size) % (rbuff->capacity * rbuff->size)) == rbuff->read;

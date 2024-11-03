@@ -10,6 +10,7 @@ String create_string(const char *text)
     return string;
 }
 
+
 void print_string(String string)
 {
     printf("%s", string.text);

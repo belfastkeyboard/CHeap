@@ -10,6 +10,7 @@ typedef struct Stack
     size_t size;
 } Stack;
 
+
 Stack *create_stack(const size_t size)
 {
     Stack *stack = memory_allocate_container(sizeof(Stack));
@@ -18,30 +19,44 @@ Stack *create_stack(const size_t size)
 
     return stack;
 }
+
 void destroy_stack(Stack **stack)
 {
-    memory_free_container_mempool((void **) stack, (*stack)->array);
+    memory_free_container_mempool((void **) stack,
+                                  (*stack)->array);
 }
 
-void push_stack(Stack *stack, void* value)
+
+void push_stack(Stack *stack,
+                void* value)
 {
-    generic_mempool_push_back(&stack->array, value, &stack->capacity, &stack->nmemb, stack->size);
+    generic_mempool_push_back(&stack->array,
+                              value,
+                              &stack->capacity,
+                              &stack->nmemb,
+                              stack->size);
 }
+
 
 void pop_stack(Stack *stack)
 {
     generic_mempool_pop_back(&stack->nmemb);
 }
 
+
 void *top_stack(Stack *stack)
 {
-    return mempool_random_access(stack->array, stack->nmemb - 1, stack->size);
+    return mempool_random_access(stack->array,
+                                 stack->nmemb - 1,
+                                 stack->size);
 }
+
 
 bool empty_stack(Stack *stack)
 {
     return generic_empty(stack->nmemb);
 }
+
 size_t size_stack(Stack *stack)
 {
     return generic_size(stack->nmemb);
