@@ -33,6 +33,7 @@ Container adaptors provide a different interface for sequential containers.
 - Stack: adapts a container to provide stack (LIFO data structure)
 
 ## TODO:
+- remove casts from 'getter' functions
 - fixed-size array
 - string builder
 - alternate arena type with a freeblock list?
@@ -48,5 +49,6 @@ Container adaptors provide a different interface for sequential containers.
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
 - attempt to re-write create macro to accept hash table without having to write 'sizeof'
 - separate linked list pages into array(node) + array(data) for even faster iteration?
-- all the sequential containers have code duplication in the struct that could be reduced to the base.h file
+- all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
+- consider creating spans on the stack instead
 
