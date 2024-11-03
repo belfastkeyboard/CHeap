@@ -87,22 +87,22 @@
     List*:      clear_list                     \
 )(container)
 
-#define at(type, container, index) *(type*) _Generic((container), \
-    Array*: at_array                                              \
+#define at(type, container, index) _Generic((container), \
+    Array*: at_array                                     \
 )(container, index)
-#define front(type, container) *(type*) _Generic((container), \
-    Array*:  front_array,                                     \
-    Deque*:  front_deque,                                     \
-    FList*:  front_forward_list,                              \
-    List*:   front_list,                                      \
-    PQueue*: front_pqueue,                                    \
-    Queue*:  front_queue                                      \
+#define front(type, container) _Generic((container), \
+    Array*:  front_array,                            \
+    Deque*:  front_deque,                            \
+    FList*:  front_forward_list,                     \
+    List*:   front_list,                             \
+    PQueue*: front_pqueue,                           \
+    Queue*:  front_queue                             \
 )(container)
-#define back(type, container) *(type*) _Generic((container), \
-    Array*: back_array,                                      \
-    Deque*: back_deque,                                      \
-    List*:  back_list,                                       \
-    Queue*: back_queue                                       \
+#define back(type, container) _Generic((container), \
+    Array*: back_array,                             \
+    Deque*: back_deque,                             \
+    List*:  back_list,                              \
+    Queue*: back_queue                              \
 )(container)
 
 #define empty(container) _Generic((container), \
