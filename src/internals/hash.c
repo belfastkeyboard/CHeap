@@ -42,13 +42,13 @@ static hash_t djb2(const void *item,
     return hash;
 }
 
-static inline size_t get_index(const hash_t hash,
+static size_t get_index(const hash_t hash,
                                const size_t capacity)
 {
     return hash % capacity;
 }
 
-static inline void *data_from_index(void *data,
+static void *data_from_index(void *data,
                                     const size_t size,
                                     const size_t index)
 {
@@ -56,7 +56,7 @@ static inline void *data_from_index(void *data,
 }
 
 
-static inline bool key_exists(struct Bucket *buckets,
+static bool key_exists(struct Bucket *buckets,
                               size_t index)
 {
     return !buckets[index].tombstone && buckets[index].index != UNSET;
