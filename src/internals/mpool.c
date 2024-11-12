@@ -194,8 +194,8 @@ void *generic_mempool_access_front(void *array,
 }
 
 void *generic_mempool_access_back(void *array,
-                                  size_t size,
-                                  size_t nmemb)
+                                  size_t nmemb,
+                                  size_t size)
 {
     return mempool_random_access(array,
                                  nmemb - 1,
