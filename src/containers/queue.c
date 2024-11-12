@@ -39,16 +39,15 @@ void push_queue(Queue *queue,
 
 void *front_queue(Queue *queue)
 {
-    return mempool_random_access(queue->array,
-                                 0,
-                                 queue->size);
+    return generic_mempool_access_front(queue->array,
+                                        queue->nmemb);
 }
 
 void *back_queue(Queue *queue)
 {
-    return mempool_random_access(queue->array,
-                                 queue->nmemb - 1,
-                                 queue->size);
+    return generic_mempool_access_back(queue->array,
+                                       queue->nmemb,
+                                       queue->size);
 }
 
 void pop_queue(Queue *queue)

@@ -46,9 +46,9 @@ void pop_stack(Stack *stack)
 
 void *top_stack(Stack *stack)
 {
-    return mempool_random_access(stack->array,
-                                 stack->nmemb - 1,
-                                 stack->size);
+    return generic_mempool_access_back(stack->array,
+                                       stack->nmemb,
+                                       stack->size);
 }
 
 

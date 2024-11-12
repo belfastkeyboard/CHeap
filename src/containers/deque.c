@@ -62,16 +62,19 @@ void insert_deque(Deque *deque,
 
 void *front_deque(Deque *deque)
 {
-    return mempool_random_access(deque->array,
-                                 0,
-                                 deque->size);
+
+
+    return generic_mempool_access_front(deque->array,
+                                        deque->nmemb);
 }
 
 void *back_deque(Deque *deque)
 {
-    return mempool_random_access(deque->array,
-                                 deque->nmemb - 1,
-                                 deque->size);
+
+
+    return generic_mempool_access_back(deque->array,
+                                       deque->nmemb,
+                                       deque->size);
 }
 
 

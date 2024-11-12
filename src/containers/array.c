@@ -76,23 +76,23 @@ void clear_array(Array *array)
 void *at_array(Array *array,
                size_t index)
 {
-    return mempool_random_access(array->array,
-                                 index,
-                                 array->size);
+    return generic_mempool_random_access(array->array,
+                                         index,
+                                         array->nmemb,
+                                         array->size);
 }
 
 void *front_array(Array *array)
 {
-    return mempool_random_access(array->array,
-                                 0,
-                                 array->size);
+    return generic_mempool_access_front(array->array,
+                                        array->nmemb);
 }
 
 void *back_array(Array *array)
 {
-    return mempool_random_access(array->array,
-                                 array->nmemb - 1,
-                                 array->size);
+    return generic_mempool_access_back(array->array,
+                                       array->nmemb,
+                                       array->size);
 }
 
 
@@ -125,6 +125,6 @@ void shrink_to_fit_array(Array *array)
 {
     generic_mempool_shrink_to_fit(&array->array,
                                   &array->capacity,
-                                  &array->nmemb,
+                                  array->nmemb,
                                   array->size);
 }

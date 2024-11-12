@@ -26,10 +26,6 @@ void mempool_clear(void *array,
                    size_t capacity,
                    size_t size);
 
-void *mempool_random_access(void *array,
-                            size_t index,
-                            size_t size);
-
 
 void generic_mempool_push_back(void **array,
                                void *value,
@@ -68,6 +64,19 @@ void generic_mempool_clear(void **array,
                            size_t size);
 
 
+void *generic_mempool_access_front(void *array,
+                                   size_t nmemb);
+
+void *generic_mempool_access_back(void *array,
+                                  size_t nmemb,
+                                  size_t size);
+
+void *generic_mempool_random_access(void *array,
+                                    size_t index,
+                                    size_t nmemb,
+                                    size_t size);
+
+
 void generic_mempool_reserve(void **array,
                              size_t *capacity,
                              size_t size,
@@ -75,5 +84,5 @@ void generic_mempool_reserve(void **array,
 
 void generic_mempool_shrink_to_fit(void **array,
                                    size_t *capacity,
-                                   const size_t *nmemb,
+                                   size_t nmemb,
                                    size_t size);

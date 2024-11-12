@@ -60,9 +60,8 @@ void push_pqueue(PriorityQueue *pqueue,
 
 void *front_pqueue(PriorityQueue *pqueue)
 {
-    return mempool_random_access(pqueue->array,
-                                 0,
-                                 pqueue->size);
+    return generic_mempool_access_front(pqueue->array,
+                                        pqueue->nmemb);
 }
 
 
