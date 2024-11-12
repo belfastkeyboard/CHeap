@@ -54,7 +54,7 @@ size_t mempool_remove(void *array,
 
     memmove(array + index * size,
             array + (index + 1) * size,
-            (nmemb - index) * size);
+            (nmemb - index - 1) * size);
 
     return index - 1;
 }
