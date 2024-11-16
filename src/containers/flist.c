@@ -52,7 +52,7 @@ size_t insert_after_forward_list(FList *flist,
 }
 
 
-const void *front_forward_list(const FList *flist)
+void *front_forward_list(const FList *flist)
 {
     return generic_access_linked(flist->head);
 }

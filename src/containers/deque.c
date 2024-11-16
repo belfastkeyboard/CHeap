@@ -60,13 +60,13 @@ void insert_deque(Deque *deque,
 }
 
 
-const void *front_deque(const Deque *deque)
+void *front_deque(const Deque *deque)
 {
     return generic_mempool_access_front(deque->array,
                                         deque->nmemb);
 }
 
-const void *back_deque(const Deque *deque)
+void *back_deque(const Deque *deque)
 {
     return generic_mempool_access_back(deque->array,
                                        deque->nmemb,

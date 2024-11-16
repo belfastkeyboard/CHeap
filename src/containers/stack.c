@@ -44,7 +44,7 @@ void pop_stack(Stack *stack)
 }
 
 
-const void *top_stack(const Stack *stack)
+void *top_stack(const Stack *stack)
 {
     return generic_mempool_access_back(stack->array,
                                        stack->nmemb,

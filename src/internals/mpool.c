@@ -105,9 +105,9 @@ void mempool_clear(void *array,
            capacity * size);
 }
 
-const void *mempool_random_access(const void *array,
-                                  const size_t index,
-                                  const size_t size)
+void *mempool_random_access(void *array,
+                            const size_t index,
+                            const size_t size)
 {
     assert(array);
 
@@ -276,27 +276,27 @@ void generic_mempool_clear(void **array,
 
 
 
-const void *generic_mempool_access_front(const void *array,
-                                         const size_t size)
+void *generic_mempool_access_front(void *array,
+                                   const size_t size)
 {
     return mempool_random_access(array,
                                  0,
                                  size);
 }
 
-const void *generic_mempool_access_back(const void *array,
-                                        const size_t nmemb,
-                                        const size_t size)
+void *generic_mempool_access_back(void *array,
+                                  const size_t nmemb,
+                                  const size_t size)
 {
     return mempool_random_access(array,
                                  nmemb - 1,
                                  size);
 }
 
-const void *generic_mempool_random_access(const void *array,
-                                          const size_t index,
-                                          const size_t nmemb,
-                                          const size_t size)
+void *generic_mempool_random_access(void *array,
+                                    const size_t index,
+                                    const size_t nmemb,
+                                    const size_t size)
 {
     assert(index < nmemb);
 

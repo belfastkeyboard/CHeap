@@ -59,7 +59,7 @@ void push_pqueue(PriorityQueue *pqueue,
 }
 
 
-const void *front_pqueue(const PriorityQueue *pqueue)
+void *front_pqueue(const PriorityQueue *pqueue)
 {
     return generic_mempool_access_front(pqueue->array,
                                         pqueue->nmemb);

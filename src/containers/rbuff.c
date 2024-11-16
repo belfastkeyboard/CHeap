@@ -36,7 +36,7 @@ void destroy_ringbuffer(RingBuffer **rbuff)
 }
 
 
-const void *read_ringbuffer(RingBuffer *rbuff)
+void *read_ringbuffer(RingBuffer *rbuff)
 {
     void *item = rbuff->array + rbuff->read;
 

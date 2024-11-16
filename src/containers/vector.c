@@ -108,7 +108,7 @@ void clear_vector(Vector *vector)
 }
 
 
-const void *at_vector(const Vector *vector,
+void *at_vector(const Vector *vector,
                 const size_t index)
 {
     return generic_mempool_random_access(vector->array,
@@ -117,13 +117,13 @@ const void *at_vector(const Vector *vector,
                                          vector->size);
 }
 
-const void *front_vector(const Vector *vector)
+void *front_vector(const Vector *vector)
 {
     return generic_mempool_access_front(vector->array,
                                         vector->nmemb);
 }
 
-const void *back_vector(const Vector *vector)
+void *back_vector(const Vector *vector)
 {
     return generic_mempool_access_back(vector->array,
                                        vector->nmemb,

@@ -67,12 +67,12 @@ size_t insert_list(List *list,
 }
 
 
-const void *front_list(const List *list)
+void *front_list(const List *list)
 {
     return generic_access_linked(list->head);
 }
 
-const void *back_list(const List *list)
+void *back_list(const List *list)
 {
     return generic_access_linked(list->tail);
 }

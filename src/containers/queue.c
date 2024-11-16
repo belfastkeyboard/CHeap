@@ -37,13 +37,13 @@ void push_queue(Queue *queue,
                               queue->size);
 }
 
-const void *front_queue(const Queue *queue)
+void *front_queue(const Queue *queue)
 {
     return generic_mempool_access_front(queue->array,
                                         queue->nmemb);
 }
 
-const void *back_queue(const Queue *queue)
+void *back_queue(const Queue *queue)
 {
     return generic_mempool_access_back(queue->array,
                                        queue->nmemb,
