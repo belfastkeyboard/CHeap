@@ -43,21 +43,21 @@ static hash_t djb2(const void *item,
 }
 
 static size_t get_index(const hash_t hash,
-                               const size_t capacity)
+                        const size_t capacity)
 {
     return hash % capacity;
 }
 
 static void *data_from_index(void *data,
-                                    const size_t size,
-                                    const size_t index)
+                             const size_t size,
+                             const size_t index)
 {
     return data + size * index;
 }
 
 
 static bool key_exists(struct Bucket *buckets,
-                              size_t index)
+                       size_t index)
 {
     return !buckets[index].tombstone && buckets[index].index != UNSET;
 }
@@ -105,9 +105,13 @@ static size_t probe(struct Bucket *buckets,
         if (skip_tombstones)
         {
             if (tombstone == INVALID && bucket.hash != INVALID && bucket.tombstone)
+            {
                 tombstone = index;
+            }
             else if (bucket.hash == INVALID)
+            {
                 break;
+            }
         }
 
         if (is_found(keys,
@@ -116,12 +120,18 @@ static size_t probe(struct Bucket *buckets,
                      bucket,
                      key,
                      skip_tombstones))
+        {
             found = index;
+        }
         else
+        {
             index = (index + 1) % capacity;
+        }
 
         if (++count > capacity)
+        {
             break;
+        }
     }
 
     if (tombstone != INVALID && found != NOT_FOUND)
@@ -221,8 +231,11 @@ static void reindex_buckets(struct Bucket *buckets,
     {
         struct Bucket bucket = tmp[i];
 
-        if (bucket.hash == INVALID || bucket.tombstone)
+        if (bucket.hash == INVALID ||
+            bucket.tombstone)
+        {
             continue;
+        }
 
         size_t index = get_index(bucket.hash,
                                  new_capacity);
@@ -254,9 +267,13 @@ static float get_resize_factor(const size_t nmemb,
         float load_factor = (float)nmemb / (float)capacity;
 
         if (load_factor >= LF_UPPER_THRESHOLD)
+        {
             factor = GROW_FACTOR;
+        }
         else if (load_factor <= LF_LOWER_THRESHOLD && capacity_to_shrink)
+        {
             factor = SHRINK_FACTOR;
+        }
     }
 
     return factor;
