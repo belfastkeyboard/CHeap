@@ -1,15 +1,21 @@
 # C Heap
 Library for simplifying memory management in C.
 
-The idea behind the library is to reduce the number of malloc/free calls to the absolute minimum.
-The trade-off of this design choice is that usually memory is traded for performance.
-For example, some of the containers (linked list types) use bump allocators to group memory into related pools.
-The lists perform better than traditional implementations but allocate more memory. 
+- Enforced memory safety.
+  - For performance reasons there are no memory safety checks in release builds
+  (i.e. uses asserts for runtime safety checks)
+- Reduced calls to malloc/free
+  - Architecting memory to avoid manually allocating memory as often results in improved performance 
+  and less memory fragmentation
+  - Fewer calls to malloc/free reduces opportunities for leaks, double free, or other incorrect handling
+  of memory
+  - This architectural philosophy comes with some trade-offs e.g. linked lists use bump allocation to 
+  group memory into pages which tends to improve memory-caching (one of the frequent criticisms of the
+  linked list) but results in increased memory overhead.  
 
+## ALLOCATION LIBRARY
 - Arena
 - Bump Allocator
-- Ring Buffer
-- String
 
 ## CONTAINER LIBRARY
 
@@ -19,6 +25,7 @@ Sequence containers implement data structures which can be accessed sequentially
 - Deque: double-ended queue
 - ForwardList: singly-linked list
 - List: doubly-linked list
+- Ring Buffer: fixed-size circular buffer
 
 ### Unordered associative containers
 Unordered associative containers implement unsorted (hashed) data structures that can be quickly searched (O(1) average, O(n) worst-case complexity).
@@ -31,19 +38,24 @@ Container adaptors provide a different interface for sequential containers.
 - Queue: adapts a container to provide queue (FIFO data structure)
 - Stack: adapts a container to provide stack (LIFO data structure)
 
+## STRINGS LIBRARY
+- String
+
+## RANGES LIBRARY
+Very WIP. Ranges in C++ operate on iterators which currently do not exist in CHeap.
+I do plan to add iterators at some point.
+Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
+
 ## TODO:
-- remove casts from 'getter' functions
 - fixed-size array
 - string builder
+- iterators
 - alternate arena type with a freeblock list?
-- re-hash or store hashes in buckets?
 - support for custom allocators
-- add error handling to mimic C++ bad_alloc exception?
-- iterators?
 - thread safety?
 - fix bugs in RB Tree
+- add error handling to mimic C++ bad_alloc exception?
 - stress test all types
-- view types
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
@@ -51,4 +63,5 @@ Container adaptors provide a different interface for sequential containers.
 - separate linked list pages into array(node) + array(data) for even faster iteration?
 - all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
 - consider creating spans on the stack instead
+- re-hash or store hashes in buckets? (reduced memory overhead vs reduced time to hash)
 
