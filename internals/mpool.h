@@ -1,26 +1,18 @@
 #pragma once
 
 #include <stddef.h>
+#include "../range.h"
 
 __attribute__((warn_unused_result()))
 void *mempool_realloc(void *array,
                       size_t size);
 
-__attribute__((warn_unused_result()))
-void *mempool_resize(void *array,
-                     size_t *capacity,
-                     size_t size);
-
-void mempool_insert(void *array,
-                    size_t index,
-                    void *value,
-                    size_t nmemb,
-                    size_t size);
 
 size_t mempool_remove(void *array,
                       size_t index,
                       size_t nmemb,
                       size_t size);
+
 
 void mempool_clear(void *array,
                    size_t capacity,
@@ -45,6 +37,19 @@ void generic_mempool_insert(void **array,
                             size_t *capacity,
                             size_t *nmemb,
                             size_t size);
+
+void generic_mempool_range_insert(void **array,
+                                  size_t index,
+                                  size_t *capacity,
+                                  size_t *nmemb,
+                                  size_t size,
+                                  Range range);
+
+Range generic_mempool_get_range(void *array,
+                                size_t capacity,
+                                size_t size,
+                                size_t start,
+                                size_t end);
 
 
 void generic_mempool_pop_back(size_t *nmemb);

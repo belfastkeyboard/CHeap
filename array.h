@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "range.h"
+
 
 typedef struct Array Array;
 
@@ -18,6 +20,14 @@ void push_back_array(Array *array,
 void insert_array(Array *array,
                   void *value,
                   size_t index);
+
+void insert_range_array(Array *array,
+                        size_t index,
+                        Range range);
+
+Range get_range_array(Array *array,
+                     size_t begin,
+                     size_t end);
 
 
 void pop_back_array(Array *array);

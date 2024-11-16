@@ -49,6 +49,29 @@ void insert_array(Array *array,
                            array->size);
 }
 
+void insert_range_array(Array *array,
+                        size_t index,
+                        Range range)
+{
+    generic_mempool_range_insert(&array->array,
+                                 index,
+                                 &array->capacity,
+                                 &array->nmemb,
+                                 array->size,
+                                 range);
+}
+
+Range get_range_array(Array *array,
+                      const size_t begin,
+                      const size_t end)
+{
+    return generic_mempool_get_range(array->array,
+                                     array->capacity,
+                                     array->size,
+                                     begin,
+                                     end);
+}
+
 
 void pop_back_array(Array *array)
 {

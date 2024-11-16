@@ -15,34 +15,50 @@ void *mempool_realloc(void *array,
     return tmp;
 }
 
-void *mempool_resize(void *array,
-                     size_t *capacity,
-                     const size_t size)
+__attribute__((warn_unused_result()))
+static void *mempool_resize(void *array,
+                            size_t *capacity,
+                            const size_t size)
 {
-    *capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH : SEQUENTIAL_INIT;
+    *capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH :
+                                      SEQUENTIAL_INIT;
 
     return mempool_realloc(array,
                            *capacity * size);
 }
 
-void mempool_insert(void *array,
-                    const size_t index,
-                    void *value,
-                    const size_t nmemb,
-                    const size_t size)
+__attribute__((warn_unused_result()))
+static void *mempool_range_resize(void *array,
+                                  size_t *capacity,
+                                  const size_t size,
+                                  const size_t r_nmemb)
 {
-    assert(index < nmemb + 1);
+    *capacity = (*capacity + r_nmemb > *capacity * SEQUENTIAL_GROWTH) ? *capacity + r_nmemb :
+                                                                       *capacity * SEQUENTIAL_GROWTH;
+
+    return mempool_realloc(array,
+                           *capacity * size);
+}
+
+static void mempool_insert(void *array,
+                           const size_t index,
+                           void *value,
+                           const size_t nmemb,
+                           const size_t size,
+                           const size_t shift)
+{
+    assert(array && value && index < nmemb + 1 && shift > 0);
 
     if (index < nmemb)
     {
-        memmove(array + (index + 1) * size,
+        memmove(array + (index + shift) * size, // TODO: could 1 here be changed to the number in the range?
                 array + index * size,
                 (nmemb - index) * size);
     }
 
     memcpy(array + index * size,
            value,
-           size);
+           shift * size);
 }
 
 size_t mempool_remove(void *array,
@@ -127,9 +143,54 @@ void generic_mempool_insert(void **array,
                    index,
                    value,
                    *nmemb,
-                   size);
+                   size,
+                   1);
 
     (*nmemb)++;
+}
+
+void generic_mempool_range_insert(void **array,
+                                  const size_t index,
+                                  size_t *capacity,
+                                  size_t *nmemb,
+                                  const size_t size,
+                                  const Range range)
+{
+    assert(size == range.size);
+
+    if (*nmemb + range.nmemb >= *capacity)
+    {
+        *array = mempool_range_resize(*array,
+                                      capacity,
+                                      size,
+                                      range.nmemb);
+    }
+
+    mempool_insert(*array,
+                   index,
+                   range.array,
+                   *nmemb,
+                   range.size,
+                   range.nmemb);
+
+    *nmemb += range.nmemb;
+}
+
+Range generic_mempool_get_range(void *array,
+                                const size_t capacity,
+                                const size_t size,
+                                const size_t start,
+                                const size_t end)
+{
+    assert(array && start < capacity && end <= capacity);
+
+    Range range = {
+        .array = array + start * size,
+        .nmemb = 1 + end - start,
+        .size = size
+    };
+
+    return range;
 }
 
 
