@@ -5,7 +5,7 @@ Library for simplifying memory management in C.
   - For performance reasons there are no memory safety checks in release builds
   (i.e. uses asserts for runtime safety checks)
 - Reduced calls to malloc/free
-  - Architecting memory to avoid manually allocating memory as often results in improved performance 
+  - Architecting memory to avoid malloc/free calls when possible results in improved performance 
   and less memory fragmentation
   - Fewer calls to malloc/free reduces opportunities for leaks, double free, or other incorrect handling
   of memory
