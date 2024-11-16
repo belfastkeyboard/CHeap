@@ -22,7 +22,7 @@ Allocators provide an interface for safe memory management and lifetime control.
 
 ### Sequence containers
 Sequence containers implement data structures which can be accessed sequentially.
-- Array: dynamic contiguous array
+- Vector: dynamic contiguous array
 - Deque: double-ended queue
 - Forward List: singly-linked list
 - List: doubly-linked list

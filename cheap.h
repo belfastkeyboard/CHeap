@@ -1,6 +1,6 @@
 #pragma once
 
-#include "array.h"
+#include "vector.h"
 #include "deque.h"
 #include "list.h"
 #include "flist.h"
@@ -14,7 +14,7 @@
 
 // TODO: possibly use macro to avoid having to call create on hash table with sizeof for value type
 #define create(container_type, storage_type, ...) _Generic((container_type), \
-    Array*:     create_array,                                                \
+    Vector*:    create_vector,                                               \
     Deque*:     create_deque,                                                \
     FList*:     create_forward_list,                                         \
     HashSet*:   create_hash_set,                                             \
@@ -24,8 +24,9 @@
     Queue*:     create_queue,                                                \
     Stack*:     create_stack                                                 \
 )(sizeof(storage_type), ##__VA_ARGS__)
+
 #define destroy(container) _Generic((container), \
-    Array**:     destroy_array,                  \
+    Vector**:    destroy_vector,                 \
     Deque**:     destroy_deque,                  \
     FList**:     destroy_forward_list,           \
     HashSet**:   destroy_hash_set,               \
@@ -36,50 +37,59 @@
     Stack**:     destroy_stack                   \
 )(container)
 
+
 // sequence containers
 #define push_front(container, value) _Generic((container), \
     Deque*: push_front_deque,                              \
     FList*: push_front_forward_list,                       \
     List*:  push_front_list                                \
 )(container, value)
+
 #define push_back(container, value) _Generic((container), \
-    Array*: push_back_array,                              \
-    Deque*: push_back_deque,                              \
-    List*:  push_back_list                                \
+    Vector*: push_back_vector,                            \
+    Deque*:  push_back_deque,                             \
+    List*:   push_back_list                               \
 )(container, value)
+
 #define insert(container, value, ...) _Generic((container), \
-    Array*:     insert_array,                               \
+    Vector*:    insert_vector,                              \
     Deque*:     insert_deque,                               \
     HashSet*:   insert_hash_set,                            \
     HashTable*: insert_hash_table,                          \
     List*:      insert_list                                 \
 )(container, value, ##__VA_ARGS__)
+
 #define insert_after(container, value, index) _Generic((container), \
     FList*: insert_after_forward_list                               \
 )(container, value, index)
+
 
 #define pop_front(container) _Generic((container), \
     Deque*: pop_front_deque,                       \
     FList*: pop_front_forward_list,                \
     List*:  pop_front_list                         \
 )(container)
+
 #define pop_back(container) _Generic((container), \
-    Array*: pop_back_array,                       \
-    Deque*: pop_back_deque,                       \
-    List*:  pop_back_list                         \
+    Vector*: pop_back_vector,                     \
+    Deque*:  pop_back_deque,                      \
+    List*:   pop_back_list                        \
 )(container)
+
 #define erase(container, index_or_value) _Generic((container), \
-    Array*:     erase_array,                                   \
+    Vector*:    erase_vector,                                  \
     Deque*:     erase_deque,                                   \
     HashSet*:   erase_hash_set,                                \
     HashTable*: erase_hash_table,                              \
     List*:      erase_list                                     \
 )(container, index_or_value)
+
 #define erase_after(container, index) _Generic((container), \
     FList*: erase_after_forward_list                        \
 )(container, index)
+
 #define clear(container) _Generic((container), \
-    Array*:     clear_array,                   \
+    Vector*:    clear_vector,                  \
     Deque*:     clear_deque,                   \
     FList*:     clear_forward_list,            \
     HashSet*:   clear_hash_set,                \
@@ -88,25 +98,28 @@
 )(container)
 
 #define at(type, container, index) _Generic((container), \
-    Array*: at_array                                     \
+    Vector*: at_vector                                   \
 )(container, index)
+
 #define front(type, container) _Generic((container), \
-    Array*:  front_array,                            \
+    Vector*: front_vector,                           \
     Deque*:  front_deque,                            \
     FList*:  front_forward_list,                     \
     List*:   front_list,                             \
     PQueue*: front_pqueue,                           \
     Queue*:  front_queue                             \
 )(container)
+
 #define back(type, container) _Generic((container), \
-    Array*: back_array,                             \
-    Deque*: back_deque,                             \
-    List*:  back_list,                              \
-    Queue*: back_queue                              \
+    Vector*: back_vector,                           \
+    Deque*:  back_deque,                            \
+    List*:   back_list,                             \
+    Queue*:  back_queue                             \
 )(container)
 
+
 #define empty(container) _Generic((container), \
-    Array*:     empty_array,                   \
+    Vector*:    empty_vector,                  \
     Deque*:     empty_deque,                   \
     FList*:     empty_forward_list,            \
     HashSet*:   empty_hash_set,                \
@@ -116,8 +129,9 @@
     Queue*:     empty_queue,                   \
     Stack*:     empty_stack                    \
 )(container)
+
 #define size(container) _Generic((container), \
-    Array*:     size_array,                   \
+    Vector*:    size_vector,                  \
     Deque*:     size_deque,                   \
     FList*:     size_forward_list,            \
     HashSet*:   size_hash_set,                \
@@ -127,15 +141,18 @@
     Queue*:     size_queue,                   \
     Stack*:     size_stack                    \
 )(container)
+
 #define capacity(container) _Generic((container), \
-    Array*: capacity_array                        \
+    Vector*: capacity_vector                      \
 )(container)
 
+
 #define reserve(container, new_cap) _Generic((container), \
-    Array*: reserve_array                                 \
+    Vector*: reserve_vector                               \
 )(container, new_cap)
+
 #define shrink_to_fit(container) _Generic((container), \
-    Array*: shrink_to_fit_array                        \
+    Vector*: shrink_to_fit_vector                      \
 )(container)
 
 // iterator insert
@@ -147,14 +164,17 @@
     HashSet*:   count_hash_set                        \
     HashTable*: count_hash_table                      \
 )(container, value)
+
 #define find(container, value) _Generic((container), \
     HashSet*:   find_hash_set,                       \
     HashTable*: find_hash_table                      \
 )(container, value)
+
 #define contains(container, value) _Generic((container), \
     HashSet*:   contains_hash_set                        \
     HashTable*: contains_hash_table                      \
 )(container, value)
+
 
 // container adaptors
 #define push(container, value) _Generic((container), \
@@ -163,15 +183,18 @@
     Stack*:  push_stack                              \
 )(container, value)
 
+
 #define pop(container) _Generic((container), \
     PQueue*: pop_pqueue,                     \
     Queue*:  pop_queue,                      \
     Stack*:  pop_stack                       \
 )(container)
 
+
 #define top(type, container) *(type*) _Generic((container), \
     Stack*: top_stack                                       \
 )(container)
+
 
 // extra
 #define set_comparator(container, comparator) _Generic((container), \
