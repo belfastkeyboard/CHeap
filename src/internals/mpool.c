@@ -15,6 +15,16 @@ void *mempool_realloc(void *array,
     return tmp;
 }
 
+void *mempool_alloc(const size_t nmemb,
+                    const size_t size)
+{
+    void *tmp = malloc(nmemb * size);
+
+    assert(tmp);
+
+    return tmp;
+}
+
 __attribute__((warn_unused_result()))
 static void *mempool_resize(void *array,
                             size_t *capacity,
@@ -59,6 +69,14 @@ static void mempool_insert(void *array,
     memcpy(array + index * size,
            value,
            shift * size);
+}
+
+static void mempool_set(void *array,
+                        const void *value,
+                        const size_t index,
+                        const size_t size)
+{
+    memcpy(array + index * size, value, size);
 }
 
 size_t mempool_remove(void *array,
@@ -148,6 +166,18 @@ void generic_mempool_insert(void **array,
 
     (*nmemb)++;
 }
+
+void generic_mempool_set(void *array,
+                         const void *value,
+                         const size_t index,
+                         const size_t nmemb,
+                         const size_t size)
+{
+    assert(index < nmemb);
+
+    mempool_set(array, value, index, size);
+}
+
 
 void generic_mempool_range_insert(void **array,
                                   const size_t index,

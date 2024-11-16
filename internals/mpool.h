@@ -4,6 +4,10 @@
 #include "../range.h"
 
 __attribute__((warn_unused_result()))
+void *mempool_alloc(size_t nmemb,
+                    size_t size);
+
+__attribute__((warn_unused_result()))
 void *mempool_realloc(void *array,
                       size_t size);
 
@@ -37,6 +41,13 @@ void generic_mempool_insert(void **array,
                             size_t *capacity,
                             size_t *nmemb,
                             size_t size);
+
+void generic_mempool_set(void *array,
+                         const void *value,
+                         size_t index,
+                         size_t nmemb,
+                         size_t size);
+
 
 void generic_mempool_range_insert(void **array,
                                   size_t index,
