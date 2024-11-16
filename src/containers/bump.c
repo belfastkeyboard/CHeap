@@ -31,7 +31,7 @@ void destroy_bump_allocator(BumpAlloc **bump)
 
 
 void *bump_alloc(BumpAlloc *bump,
-                 size_t size)
+                 const size_t size)
 {
     assert(bump->offset + size <= bump->size);
 
@@ -43,12 +43,14 @@ void *bump_alloc(BumpAlloc *bump,
 }
 
 void *bump_calloc(BumpAlloc *bump,
-                  size_t size)
+                  const size_t size)
 {
-    return memset(bump_alloc(bump,
-                             size),
-                             0,
-                             size);
+    void *ptr = bump_alloc(bump,
+                           size);
+
+    return memset(ptr,
+                  0,
+                  size);
 }
 
 void *bump_salloc(BumpAlloc *bump,
@@ -56,10 +58,14 @@ void *bump_salloc(BumpAlloc *bump,
 {
     size_t len = strlen(string);
 
-    return strncpy(bump_calloc(bump,
-                               len + 1),
-                               string,
-                               len);
+    void *ptr = bump_calloc(bump,
+                            len + 1);
+
+    assert(ptr);
+
+    return strncpy(ptr,
+                   string,
+                   len);
 }
 
 

@@ -13,15 +13,15 @@ void destroy_queue(Queue **queue);
 
 
 void push_queue(Queue *queue,
-                void *value);
+                const void *value);
 
-void *front_queue(Queue *queue);
+void *front_queue(const Queue *queue);
 
-void *back_queue(Queue *queue);
+void *back_queue(const Queue *queue);
 
 void pop_queue(Queue *queue);
 
 
-bool empty_queue(Queue *queue);
+bool empty_queue(const Queue *queue);
 
-size_t size_queue(Queue *queue);
+size_t size_queue(const Queue *queue);

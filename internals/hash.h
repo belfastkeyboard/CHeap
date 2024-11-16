@@ -18,8 +18,8 @@ void hash_insert(struct Bucket **buckets,
                  KComp k_comp,
                  size_t *nmemb,
                  size_t *capacity,
-                 void *key,
-                 void *value);
+                 const void *key,
+                 const void *value);
 
 void hash_erase(struct Bucket **buckets,
                 void **keys,
@@ -29,7 +29,7 @@ void hash_erase(struct Bucket **buckets,
                 KComp k_comp,
                 size_t *nmemb,
                 size_t *capacity,
-                void *key);
+                const void *key);
 
 void hash_clear(struct Bucket **buckets,
                 void **keys,
@@ -43,7 +43,7 @@ size_t hash_count(struct Bucket *buckets,
                   size_t k_size,
                   KComp k_comp,
                   size_t capacity,
-                  void *key);
+                  const void *key);
 
 void *hash_find(struct Bucket *buckets,
                 void *keys,
@@ -53,11 +53,11 @@ void *hash_find(struct Bucket *buckets,
                 KComp k_comp,
                 size_t capacity,
                 size_t nmemb,
-                void *key);
+                const void *key);
 
 bool hash_contains(struct Bucket *buckets,
                    void *keys,
                    size_t k_size,
                    KComp k_comp,
                    size_t capacity,
-                   void *key);
+                   const void *key);

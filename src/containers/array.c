@@ -41,7 +41,7 @@ void set_array(Array *array,
 }
 
 
-void *at_array(const Array *array,
+const void *at_array(const Array *array,
                size_t index)
 {
     return generic_mempool_random_access(array->array,
@@ -50,13 +50,13 @@ void *at_array(const Array *array,
                                          array->size);
 }
 
-void *front_array(const Array *array)
+const void *front_array(const Array *array)
 {
     return generic_mempool_access_front(array->array,
                                         array->nmemb);
 }
 
-void *back_array(const Array *array)
+const void *back_array(const Array *array)
 {
     return generic_mempool_access_back(array->array,
                                        array->nmemb,

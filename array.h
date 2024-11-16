@@ -19,7 +19,7 @@ void set_array(Array *array,
 
 
 void *at_array(const Array *array,
-               size_t index);
+                     size_t index);
 
 void *front_array(const Array *array);
 

@@ -15,10 +15,10 @@ void destroy_vector(Vector **vector);
 
 
 void push_back_vector(Vector *vector,
-                      void *value);
+                      const void *value);
 
 void insert_vector(Vector *vector,
-                   void *value,
+                   const void *value,
                    size_t index);
 
 

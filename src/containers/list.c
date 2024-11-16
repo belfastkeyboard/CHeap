@@ -7,10 +7,8 @@ struct Page;
 typedef struct List
 {
     struct Page *curr;
-
     size_t nmemb;
     size_t size;
-
     struct Node *head;
     struct Node *tail;
 } List;
@@ -34,7 +32,7 @@ void destroy_list(List **list)
 
 
 void push_back_list(List *list,
-                    void *value)
+                    const void *value)
 {
     generic_push_back_doubly_linked(&list->curr,
                                     &list->nmemb,
@@ -45,7 +43,7 @@ void push_back_list(List *list,
 }
 
 void push_front_list(List *list,
-                     void *value)
+                     const void *value)
 {
     generic_push_front_doubly_linked(&list->curr,
                                      &list->nmemb,
@@ -56,7 +54,7 @@ void push_front_list(List *list,
 }
 
 size_t insert_list(List *list,
-                   void *value,
+                   const void *value,
                    const size_t index)
 {
     return generic_insert_doubly_linked(&list->curr,
@@ -69,12 +67,12 @@ size_t insert_list(List *list,
 }
 
 
-void *front_list(List *list)
+const void *front_list(const List *list)
 {
     return generic_access_linked(list->head);
 }
 
-void *back_list(List *list)
+const void *back_list(const List *list)
 {
     return generic_access_linked(list->tail);
 }
@@ -95,7 +93,7 @@ void pop_back_list(List *list)
 }
 
 size_t erase_list(List *list,
-                  size_t index)
+                  const size_t index)
 {
     return generic_erase_doubly_linked(&list->nmemb,
                                        index,
@@ -112,12 +110,12 @@ void clear_list(List *list)
 }
 
 
-bool empty_list(List *list)
+bool empty_list(const List *list)
 {
     return generic_empty(list->nmemb);
 }
 
-size_t size_list(List *list)
+size_t size_list(const List *list)
 {
     return generic_size(list->nmemb);
 }

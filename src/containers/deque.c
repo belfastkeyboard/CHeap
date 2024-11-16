@@ -28,7 +28,7 @@ void destroy_deque(Deque **deque)
 
 
 void push_front_deque(Deque *deque,
-                      void *value)
+                      const void *value)
 {
     generic_mempool_push_front(&deque->array,
                                value,
@@ -38,7 +38,7 @@ void push_front_deque(Deque *deque,
 }
 
 void push_back_deque(Deque *deque,
-                     void *value)
+                     const void *value)
 {
     generic_mempool_push_back(&deque->array,
                               value,
@@ -48,7 +48,7 @@ void push_back_deque(Deque *deque,
 }
 
 void insert_deque(Deque *deque,
-                  void *const value,
+                  const void *value,
                   const size_t index)
 {
     generic_mempool_insert(&deque->array,
@@ -60,18 +60,14 @@ void insert_deque(Deque *deque,
 }
 
 
-void *front_deque(Deque *deque)
+const void *front_deque(const Deque *deque)
 {
-
-
     return generic_mempool_access_front(deque->array,
                                         deque->nmemb);
 }
 
-void *back_deque(Deque *deque)
+const void *back_deque(const Deque *deque)
 {
-
-
     return generic_mempool_access_back(deque->array,
                                        deque->nmemb,
                                        deque->size);
@@ -108,12 +104,12 @@ void clear_deque(Deque *deque)
 }
 
 
-bool empty_deque(Deque *deque)
+bool empty_deque(const Deque *deque)
 {
     return generic_empty(deque->nmemb);
 }
 
-size_t size_deque(Deque *deque)
+size_t size_deque(const Deque *deque)
 {
     return generic_size(deque->nmemb);
 }

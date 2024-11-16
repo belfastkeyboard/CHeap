@@ -28,7 +28,7 @@ void destroy_queue(Queue **queue)
 
 
 void push_queue(Queue *queue,
-                void *value)
+                const void *value)
 {
     generic_mempool_push_back(&queue->array,
                               value,
@@ -37,13 +37,13 @@ void push_queue(Queue *queue,
                               queue->size);
 }
 
-void *front_queue(Queue *queue)
+const void *front_queue(const Queue *queue)
 {
     return generic_mempool_access_front(queue->array,
                                         queue->nmemb);
 }
 
-void *back_queue(Queue *queue)
+const void *back_queue(const Queue *queue)
 {
     return generic_mempool_access_back(queue->array,
                                        queue->nmemb,
@@ -58,12 +58,12 @@ void pop_queue(Queue *queue)
 }
 
 
-bool empty_queue(Queue *queue)
+bool empty_queue(const Queue *queue)
 {
     return generic_empty(queue->nmemb);
 }
 
-size_t size_queue(Queue *queue)
+size_t size_queue(const Queue *queue)
 {
     return generic_size(queue->nmemb);
 }

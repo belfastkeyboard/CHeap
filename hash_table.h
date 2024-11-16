@@ -18,26 +18,26 @@ void destroy_hash_table(HashTable **table);
 
 
 void insert_hash_table(HashTable *table,
-                       void *key,
-                       void *value);
+                       const void *key,
+                       const void *value);
 
 
 size_t count_hash_table(HashTable *table,
-                        void *key);
+                        const void *key);
 
 void *find_hash_table(HashTable *table,
-                      void *key);
+                      const void *key);
 
 bool contains_hash_table(HashTable *table,
-                         void *key);
+                         const void *key);
 
 
 void erase_hash_table(HashTable *table,
-                      void *key);
+                      const void *key);
 
 void clear_hash_table(HashTable *table);
 
 
-bool empty_hash_table(HashTable *table);
+bool empty_hash_table(const HashTable *table);
 
-size_t size_hash_table(HashTable *table);
+size_t size_hash_table(const HashTable *table);

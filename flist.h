@@ -12,14 +12,14 @@ void destroy_forward_list(FList **flist);
 
 
 void push_front_forward_list(FList *flist,
-                             void *value);
+                             const void *value);
 
 size_t insert_after_forward_list(FList *flist,
-                                 void *value,
+                                 const void *value,
                                  size_t index);
 
 
-void *front_forward_list(FList *flist);
+void *front_forward_list(const FList *flist);
 
 
 void pop_front_forward_list(FList *flist);
@@ -30,6 +30,6 @@ size_t erase_after_forward_list(FList *flist,
 void clear_forward_list(FList *flist);
 
 
-bool empty_forward_list(FList *flist);
+bool empty_forward_list(const FList *flist);
 
-size_t size_forward_list(FList *flist);
+size_t size_forward_list(const FList *flist);

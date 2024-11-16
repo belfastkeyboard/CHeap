@@ -13,19 +13,19 @@ void destroy_deque(Deque **deque);
 
 
 void push_front_deque(Deque *deque,
-                      void *value);
+                      const void *value);
 
 void push_back_deque(Deque *deque,
-                     void *value);
+                     const void *value);
 
 void insert_deque(Deque *deque,
-                  void *value,
+                  const void *value,
                   size_t index);
 
 
-void *front_deque(Deque *deque);
+void *front_deque(const Deque *deque);
 
-void *back_deque(Deque *deque);
+void *back_deque(const Deque *deque);
 
 
 void pop_front_deque(Deque *deque);
@@ -38,6 +38,6 @@ size_t erase_deque(Deque *deque,
 void clear_deque(Deque *deque);
 
 
-bool empty_deque(Deque *deque);
+bool empty_deque(const Deque *deque);
 
-size_t size_deque(Deque *deque);
+size_t size_deque(const Deque *deque);

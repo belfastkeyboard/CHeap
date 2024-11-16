@@ -24,19 +24,19 @@ void mempool_clear(void *array,
 
 
 void generic_mempool_push_back(void **array,
-                               void *value,
+                               const void *value,
                                size_t *capacity,
                                size_t *nmemb,
                                size_t size);
 
 void generic_mempool_push_front(void **array,
-                                void *value,
+                                const void *value,
                                 size_t *capacity,
                                 size_t *nmemb,
                                 size_t size);
 
 void generic_mempool_insert(void **array,
-                            void *value,
+                            const void *value,
                             size_t index,
                             size_t *capacity,
                             size_t *nmemb,
@@ -56,7 +56,7 @@ void generic_mempool_range_insert(void **array,
                                   size_t size,
                                   const Range *range);
 
-Range generic_mempool_get_range(void *array,
+Range generic_mempool_get_range(const void *array,
                                 size_t capacity,
                                 size_t size,
                                 size_t start,
@@ -80,17 +80,17 @@ void generic_mempool_clear(void **array,
                            size_t size);
 
 
-void *generic_mempool_access_front(void *array,
-                                   size_t nmemb);
+const void *generic_mempool_access_front(const void *array,
+                                         size_t nmemb);
 
-void *generic_mempool_access_back(void *array,
-                                  size_t nmemb,
-                                  size_t size);
+const void *generic_mempool_access_back(const void *array,
+                                        size_t nmemb,
+                                        size_t size);
 
-void *generic_mempool_random_access(void *array,
-                                    size_t index,
-                                    size_t nmemb,
-                                    size_t size);
+const void *generic_mempool_random_access(const void *array,
+                                          size_t index,
+                                          size_t nmemb,
+                                          size_t size);
 
 
 void generic_mempool_reserve(void **array,

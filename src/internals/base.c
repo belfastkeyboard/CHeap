@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "../../internals/base.h"
 
-void *memory_allocate_container(size_t size)
+void *memory_allocate_container(const size_t size)
 {
     void *ptr = calloc(1,
                        size);
@@ -42,17 +42,17 @@ void memory_free_container_hash(void **container,
 }
 
 
-bool generic_empty(size_t nmemb)
+bool generic_empty(const size_t nmemb)
 {
     return (nmemb == EMPTY);
 }
 
-size_t generic_size(size_t nmemb)
+size_t generic_size(const size_t nmemb)
 {
     return nmemb;
 }
 
-size_t generic_capacity(size_t capacity)
+size_t generic_capacity(const size_t capacity)
 {
     return capacity;
 }

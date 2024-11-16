@@ -11,7 +11,7 @@ String create_string(const char *text)
 }
 
 
-void print_string(String string)
+void print_string(const String string)
 {
     printf("%s", string.text);
 }

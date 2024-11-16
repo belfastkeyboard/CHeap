@@ -5,10 +5,8 @@
 typedef struct ForwardList
 {
     struct Page *curr;
-
     size_t nmemb;
     size_t size;
-
     struct Node *head;
 } ForwardList, FList;
 
@@ -31,7 +29,7 @@ void destroy_forward_list(FList **flist)
 
 
 void push_front_forward_list(FList *flist,
-                             void *value)
+                             const void *value)
 {
     generic_push_front_singly_linked(&flist->curr,
                                      &flist->nmemb,
@@ -41,7 +39,7 @@ void push_front_forward_list(FList *flist,
 }
 
 size_t insert_after_forward_list(FList *flist,
-                                 void *value,
+                                 const void *value,
                                  size_t index)
 {
     return generic_insert_singly_linked(&flist->curr,
@@ -54,7 +52,7 @@ size_t insert_after_forward_list(FList *flist,
 }
 
 
-void *front_forward_list(FList *flist)
+const void *front_forward_list(const FList *flist)
 {
     return generic_access_linked(flist->head);
 }
@@ -67,7 +65,7 @@ void pop_front_forward_list(FList *flist)
 }
 
 size_t erase_after_forward_list(FList *flist,
-                                size_t index)
+                                const size_t index)
 {
     return generic_erase_singly_linked(&flist->nmemb,
                                        index,
@@ -84,12 +82,12 @@ void clear_forward_list(FList *flist)
 }
 
 
-bool empty_forward_list(FList *flist)
+bool empty_forward_list(const FList *flist)
 {
     return generic_empty(flist->nmemb);
 }
 
-size_t size_forward_list(FList *flist)
+size_t size_forward_list(const FList *flist)
 {
     return generic_size(flist->nmemb);
 }

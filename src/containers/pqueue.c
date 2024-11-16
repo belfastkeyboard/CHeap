@@ -14,9 +14,9 @@ typedef struct PriorityQueue
 
 
 static void update(void *array,
-                   size_t nmemb,
-                   size_t size,
-                   CompareFunc fnc)
+                   const size_t nmemb,
+                   const size_t size,
+                   const CompareFunc fnc)
 {
     qsort(array,
           nmemb,
@@ -26,11 +26,12 @@ static void update(void *array,
 
 
 PriorityQueue *create_pqueue(const size_t size,
-                             CompareFunc comparator)
+                             const CompareFunc comparator)
 {
     PriorityQueue *pqueue = memory_allocate_container(sizeof(PriorityQueue));
 
     pqueue->fnc = comparator;
+    pqueue->size = size;
 
     return pqueue;
 }
@@ -43,7 +44,7 @@ void destroy_pqueue(PriorityQueue **pqueue)
 
 
 void push_pqueue(PriorityQueue *pqueue,
-                 void *value)
+                 const void *value)
 {
     generic_mempool_push_back(&pqueue->array,
                               value,
@@ -58,7 +59,7 @@ void push_pqueue(PriorityQueue *pqueue,
 }
 
 
-void *front_pqueue(PriorityQueue *pqueue)
+const void *front_pqueue(const PriorityQueue *pqueue)
 {
     return generic_mempool_access_front(pqueue->array,
                                         pqueue->nmemb);
@@ -78,19 +79,19 @@ void pop_pqueue(PriorityQueue *pqueue)
 }
 
 
-bool empty_pqueue(PriorityQueue *pqueue)
+bool empty_pqueue(const PriorityQueue *pqueue)
 {
     return generic_empty(pqueue->nmemb);
 }
 
-size_t size_pqueue(PriorityQueue *pqueue)
+size_t size_pqueue(const PriorityQueue *pqueue)
 {
     return generic_size(pqueue->nmemb);
 }
 
 
 void set_comparator_pqueue(PriorityQueue *pqueue,
-                           CompareFunc comparator)
+                           const CompareFunc comparator)
 {
     pqueue->fnc = comparator;
 

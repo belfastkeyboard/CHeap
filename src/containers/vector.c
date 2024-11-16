@@ -28,7 +28,7 @@ void destroy_vector(Vector **vector)
 
 
 void push_back_vector(Vector *vector,
-                      void *value)
+                      const void *value)
 {
     generic_mempool_push_back(&vector->array,
                               value,
@@ -38,7 +38,7 @@ void push_back_vector(Vector *vector,
 }
 
 void insert_vector(Vector *vector,
-                   void *value,
+                   const void *value,
                    const size_t index)
 {
     generic_mempool_insert(&vector->array,
@@ -108,7 +108,7 @@ void clear_vector(Vector *vector)
 }
 
 
-void *at_vector(const Vector *vector,
+const void *at_vector(const Vector *vector,
                 const size_t index)
 {
     return generic_mempool_random_access(vector->array,
@@ -117,13 +117,13 @@ void *at_vector(const Vector *vector,
                                          vector->size);
 }
 
-void *front_vector(const Vector *vector)
+const void *front_vector(const Vector *vector)
 {
     return generic_mempool_access_front(vector->array,
                                         vector->nmemb);
 }
 
-void *back_vector(const Vector *vector)
+const void *back_vector(const Vector *vector)
 {
     return generic_mempool_access_back(vector->array,
                                        vector->nmemb,

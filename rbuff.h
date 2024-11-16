@@ -14,15 +14,15 @@ void destroy_ringbuffer(RingBuffer **rbuff);
 
 
 // call !empty() before read() to ensure no value is read twice
-void *read(RingBuffer *rbuff);
+void *read_ringbuffer(RingBuffer *rbuff);
 
 // call !full() before write() to ensure no data is overwritten before being read
-void write(RingBuffer *rbuff,
-           void *item);
+void write_ringbuffer(RingBuffer *rbuff,
+           const void *item);
 
-void clear(RingBuffer *rbuff);
+void clear_ringbuffer(RingBuffer *rbuff);
 
 
-bool empty(RingBuffer *rbuff);
+bool empty_ringbuffer(const RingBuffer *rbuff);
 
-bool full(RingBuffer *rbuff);
+bool full_ringbuffer(const RingBuffer *rbuff);

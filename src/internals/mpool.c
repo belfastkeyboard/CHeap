@@ -52,7 +52,7 @@ static void *mempool_range_resize(void *array,
 
 static void mempool_insert(void *array,
                            const size_t index,
-                           void *value,
+                           const void *value,
                            const size_t nmemb,
                            const size_t size,
                            const size_t shift)
@@ -105,9 +105,9 @@ void mempool_clear(void *array,
            capacity * size);
 }
 
-void *mempool_random_access(void *array,
-                            const size_t index,
-                            const size_t size)
+const void *mempool_random_access(const void *array,
+                                  const size_t index,
+                                  const size_t size)
 {
     assert(array);
 
@@ -116,7 +116,7 @@ void *mempool_random_access(void *array,
 
 
 void generic_mempool_push_back(void **array,
-                               void *value,
+                               const void *value,
                                size_t *capacity,
                                size_t *nmemb,
                                const size_t size)
@@ -130,7 +130,7 @@ void generic_mempool_push_back(void **array,
 }
 
 void generic_mempool_push_front(void **array,
-                                void *value,
+                                const void *value,
                                 size_t *capacity,
                                 size_t *nmemb,
                                 const size_t size)
@@ -144,7 +144,7 @@ void generic_mempool_push_front(void **array,
 }
 
 void generic_mempool_insert(void **array,
-                            void *value,
+                            const void *value,
                             const size_t index,
                             size_t *capacity,
                             size_t *nmemb,
@@ -206,7 +206,7 @@ void generic_mempool_range_insert(void **array,
     *nmemb += range->nmemb;
 }
 
-Range generic_mempool_get_range(void *array,
+Range generic_mempool_get_range(const void *array,
                                 const size_t capacity,
                                 const size_t size,
                                 const size_t start,
@@ -246,20 +246,20 @@ void generic_mempool_pop_front(void **array,
 }
 
 size_t generic_mempool_erase(void **array,
-                             size_t index,
+                             const size_t index,
                              size_t *nmemb,
                              const size_t size)
 {
     assert(*array && index < *nmemb);
 
-    index = mempool_remove(*array,
-                           index,
-                           *nmemb,
-                           size);
+    const size_t new_index = mempool_remove(*array,
+                                            index,
+                                            *nmemb,
+                                            size);
 
     (*nmemb)--;
 
-    return index;
+    return new_index;
 }
 
 void generic_mempool_clear(void **array,
@@ -276,27 +276,27 @@ void generic_mempool_clear(void **array,
 
 
 
-void *generic_mempool_access_front(void *array,
-                                   size_t size)
+const void *generic_mempool_access_front(const void *array,
+                                         const size_t size)
 {
     return mempool_random_access(array,
                                  0,
                                  size);
 }
 
-void *generic_mempool_access_back(void *array,
-                                  size_t nmemb,
-                                  size_t size)
+const void *generic_mempool_access_back(const void *array,
+                                        const size_t nmemb,
+                                        const size_t size)
 {
     return mempool_random_access(array,
                                  nmemb - 1,
                                  size);
 }
 
-void *generic_mempool_random_access(void *array,
-                                    const size_t index,
-                                    const size_t nmemb,
-                                    const size_t size)
+const void *generic_mempool_random_access(const void *array,
+                                          const size_t index,
+                                          const size_t nmemb,
+                                          const size_t size)
 {
     assert(index < nmemb);
 

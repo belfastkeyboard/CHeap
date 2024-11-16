@@ -26,7 +26,7 @@ void *calloc_arena(Arena *arena,
 
 
 void free_arena(Arena *arena,
-                void *ptr,
+                const void *ptr,
                 size_t size);
 
 void clear_arena(Arena *arena);

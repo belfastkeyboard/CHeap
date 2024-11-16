@@ -6,14 +6,13 @@ typedef struct RingBuffer
     void *array;
     size_t capacity;
     size_t size;
-
     size_t write;
     size_t read;
 } RingBuffer;
 
 
-RingBuffer *create_ringbuffer(size_t capacity,
-                              size_t size)
+RingBuffer *create_ringbuffer(const size_t capacity,
+                              const size_t size)
 {
     RingBuffer *rbuff = malloc(sizeof(RingBuffer));
 
@@ -37,7 +36,7 @@ void destroy_ringbuffer(RingBuffer **rbuff)
 }
 
 
-void *read_ringbuffer(RingBuffer *rbuff)
+const void *read_ringbuffer(RingBuffer *rbuff)
 {
     void *item = rbuff->array + rbuff->read;
 
@@ -54,7 +53,7 @@ void *read_ringbuffer(RingBuffer *rbuff)
 }
 
 void write_ringbuffer(RingBuffer *rbuff,
-                      void *item)
+                      const void *item)
 {
     memcpy(rbuff->array + rbuff->write,
            item,
@@ -77,12 +76,12 @@ void clear_ringbuffer(RingBuffer *rbuff)
 }
 
 
-bool empty_ringbuffer(RingBuffer *rbuff)
+bool empty_ringbuffer(const RingBuffer *rbuff)
 {
     return rbuff->read == rbuff->write;
 }
 
-bool full_ringbuffer(RingBuffer *rbuff)
+bool full_ringbuffer(const RingBuffer *rbuff)
 {
     return ((rbuff->write + rbuff->size) % (rbuff->capacity * rbuff->size)) == rbuff->read;
 }

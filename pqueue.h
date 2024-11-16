@@ -17,18 +17,18 @@ void destroy_pqueue(PQueue **pqueue);
 
 
 void push_pqueue(PQueue *pqueue,
-                 void *value);
+                 const void *value);
 
 
 void pop_pqueue(PQueue *pqueue);
 
 
-void *front_pqueue(PQueue *pqueue);
+void *front_pqueue(const PQueue *pqueue);
 
 
-bool empty_pqueue(PQueue *pqueue);
+bool empty_pqueue(const PQueue *pqueue);
 
-size_t size_pqueue(PQueue *pqueue);
+size_t size_pqueue(const PQueue *pqueue);
 
 
 void set_comparator_pqueue(PQueue *pqueue,

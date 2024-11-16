@@ -13,15 +13,15 @@ void destroy_stack(Stack **stack);
 
 
 void push_stack(Stack *stack,
-                void* value);
+                const void* value);
 
 
-void *top_stack(Stack *stack);
+void *top_stack(const Stack *stack);
 
 
 void pop_stack(Stack *stack);
 
 
-bool empty_stack(Stack *stack);
+bool empty_stack(const Stack *stack);
 
-size_t size_stack(Stack *stack);
+size_t size_stack(const Stack *stack);

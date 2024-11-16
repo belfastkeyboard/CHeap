@@ -6,18 +6,15 @@ typedef struct HashSet
 {
     struct Bucket *buckets;
     void *keys;
-
     size_t k_size;
-
     KComp k_comp;
-
     size_t nmemb;
     size_t capacity;
 } HashSet;
 
 
-HashSet *create_hash_set(size_t key_size,
-                         KComp kc)
+HashSet *create_hash_set(const size_t key_size,
+                         const KComp kc)
 {
     HashSet *set = memory_allocate_container(sizeof(HashSet));
 
@@ -37,7 +34,7 @@ void destroy_hash_set(HashSet **set)
 
 
 void insert_hash_set(HashSet *set,
-                     void *key)
+                     const void *key)
 {
     hash_insert(&set->buckets,
                 &set->keys,
@@ -53,7 +50,7 @@ void insert_hash_set(HashSet *set,
 
 
 size_t count_hash_set(HashSet *set,
-                      void *key)
+                      const void *key)
 {
     return hash_count(set->buckets,
                       set->keys,
@@ -64,7 +61,7 @@ size_t count_hash_set(HashSet *set,
 }
 
 void *find_hash_set(HashSet *set,
-                    void *key)
+                    const void *key)
 {
     return hash_find(set->buckets,
                      set->keys,
@@ -78,7 +75,7 @@ void *find_hash_set(HashSet *set,
 }
 
 bool contains_hash_set(HashSet *set,
-                       void *key)
+                       const void *key)
 {
     return hash_contains(set->buckets,
                          set->keys,
@@ -90,7 +87,7 @@ bool contains_hash_set(HashSet *set,
 
 
 void erase_hash_set(HashSet* set,
-                    void *key)
+                    const void *key)
 {
     hash_erase(&set->buckets,
                &set->keys,
@@ -114,12 +111,12 @@ void clear_hash_set(HashSet *set)
 }
 
 
-bool empty_hash_set(HashSet* set)
+bool empty_hash_set(const HashSet* set)
 {
     return generic_empty(set->nmemb);
 }
 
-size_t size_hash_set(HashSet* set)
+size_t size_hash_set(const HashSet* set)
 {
     return generic_size(set->nmemb);
 }

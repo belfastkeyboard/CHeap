@@ -28,7 +28,7 @@ void destroy_stack(Stack **stack)
 
 
 void push_stack(Stack *stack,
-                void* value)
+                const void* value)
 {
     generic_mempool_push_back(&stack->array,
                               value,
@@ -44,7 +44,7 @@ void pop_stack(Stack *stack)
 }
 
 
-void *top_stack(Stack *stack)
+const void *top_stack(const Stack *stack)
 {
     return generic_mempool_access_back(stack->array,
                                        stack->nmemb,
@@ -52,12 +52,12 @@ void *top_stack(Stack *stack)
 }
 
 
-bool empty_stack(Stack *stack)
+bool empty_stack(const Stack *stack)
 {
     return generic_empty(stack->nmemb);
 }
 
-size_t size_stack(Stack *stack)
+size_t size_stack(const Stack *stack)
 {
     return generic_size(stack->nmemb);
 }

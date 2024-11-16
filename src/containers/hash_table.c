@@ -7,20 +7,17 @@ typedef struct HashTable
     struct Bucket *buckets;
     void *keys;
     void *values;
-
     size_t k_size;
     size_t v_size;
-
     KComp k_comp;
-
     size_t nmemb;
     size_t capacity;
 } HashTable;
 
 
-HashTable *create_hash_table(size_t key_size,
-                             size_t value_size,
-                             KComp kc)
+HashTable *create_hash_table(const size_t key_size,
+                             const size_t value_size,
+                             const KComp kc)
 {
     HashTable *table = memory_allocate_container(sizeof(HashTable));
 
@@ -42,8 +39,8 @@ void destroy_hash_table(HashTable **table)
 
 
 void insert_hash_table(HashTable *table,
-                       void *key,
-                       void *value)
+                       const void *key,
+                       const void *value)
 {
     hash_insert(&table->buckets,
                 &table->keys,
@@ -59,7 +56,7 @@ void insert_hash_table(HashTable *table,
 
 
 size_t count_hash_table(HashTable *table,
-                        void *key)
+                        const void *key)
 {
     return hash_count(table->buckets,
                       table->keys,
@@ -70,7 +67,7 @@ size_t count_hash_table(HashTable *table,
 }
 
 void *find_hash_table(HashTable *table,
-                      void *key)
+                      const void *key)
 {
     return hash_find(table->buckets,
                      table->keys,
@@ -84,7 +81,7 @@ void *find_hash_table(HashTable *table,
 }
 
 bool contains_hash_table(HashTable* table,
-                         void *key)
+                         const void *key)
 {
     return hash_contains(table->buckets,
                          table->keys,
@@ -96,7 +93,7 @@ bool contains_hash_table(HashTable* table,
 
 
 void erase_hash_table(HashTable* table,
-                      void *key)
+                      const void *key)
 {
     hash_erase(&table->buckets,
                &table->keys,
@@ -120,12 +117,12 @@ void clear_hash_table(HashTable *table)
 }
 
 
-bool empty_hash_table(HashTable* table)
+bool empty_hash_table(const HashTable* table)
 {
     return generic_empty(table->nmemb);
 }
 
-size_t size_hash_table(HashTable* table)
+size_t size_hash_table(const HashTable* table)
 {
     return generic_size(table->nmemb);
 }

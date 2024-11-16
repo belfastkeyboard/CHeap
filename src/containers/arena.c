@@ -50,7 +50,7 @@ static struct Page *destroy_page(struct Page *page)
 
 
 // helper functions
-static void *arena_do_alloc(Arena *arena,
+static void *arena_do_alloc(const Arena *arena,
                             const size_t size)
 {
     void *ptr = (arena->curr->base + arena->curr->offset);
@@ -112,17 +112,21 @@ void *alloc_arena(Arena *arena,
 }
 
 void *calloc_arena(Arena *arena,
-                   size_t size)
+                   const size_t size)
 {
-    return memset(alloc_arena(arena,
-                              size),
-                              0,
-                              size);
+    void *ptr = alloc_arena(arena,
+                            size);
+
+    assert(ptr);
+
+    return memset(ptr,
+                  0,
+                  size);
 }
 
 
 void free_arena(Arena *arena,
-                void *ptr,
+                const void *ptr,
                 const size_t size)
 {
     if (size <= arena->curr->offset && arena->curr->base + arena->curr->offset - size == ptr)

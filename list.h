@@ -13,19 +13,19 @@ void destroy_list(List **list);
 
 
 void push_back_list(List *list,
-                    void *value);
+                    const void *value);
 
 void push_front_list(List *list,
-                     void *value);
+                     const void *value);
 
 size_t insert_list(List *list,
-                   void *value,
+                   const void *value,
                    size_t index);
 
 
-void *front_list(List *list);
+void *front_list(const List *list);
 
-void *back_list(List *list);
+void *back_list(const List *list);
 
 
 void pop_front_list(List *list);
@@ -38,6 +38,6 @@ size_t erase_list(List *list,
 void clear_list(List *list);
 
 
-bool empty_list(List *list);
+bool empty_list(const List *list);
 
-size_t size_list(List *list);
+size_t size_list(const List *list);
