@@ -21,9 +21,13 @@ void insert_array(Array *array,
                   void *value,
                   size_t index);
 
+
+void push_back_range_array(Array *array,
+                           Range *range);
+
 void insert_range_array(Array *array,
                         size_t index,
-                        Range range);
+                        Range *range);
 
 Range get_range_array(Array *array,
                      size_t begin,

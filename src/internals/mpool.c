@@ -51,7 +51,7 @@ static void mempool_insert(void *array,
 
     if (index < nmemb)
     {
-        memmove(array + (index + shift) * size, // TODO: could 1 here be changed to the number in the range?
+        memmove(array + (index + shift) * size,
                 array + index * size,
                 (nmemb - index) * size);
     }
@@ -154,26 +154,26 @@ void generic_mempool_range_insert(void **array,
                                   size_t *capacity,
                                   size_t *nmemb,
                                   const size_t size,
-                                  const Range range)
+                                  const Range *range)
 {
-    assert(size == range.size);
+    assert(size == range->size);
 
-    if (*nmemb + range.nmemb >= *capacity)
+    if (*nmemb + range->nmemb >= *capacity)
     {
         *array = mempool_range_resize(*array,
                                       capacity,
                                       size,
-                                      range.nmemb);
+                                      range->nmemb);
     }
 
     mempool_insert(*array,
                    index,
-                   range.array,
+                   range->array,
                    *nmemb,
-                   range.size,
-                   range.nmemb);
+                   range->size,
+                   range->nmemb);
 
-    *nmemb += range.nmemb;
+    *nmemb += range->nmemb;
 }
 
 Range generic_mempool_get_range(void *array,

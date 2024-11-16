@@ -43,7 +43,7 @@ void generic_mempool_range_insert(void **array,
                                   size_t *capacity,
                                   size_t *nmemb,
                                   size_t size,
-                                  Range range);
+                                  const Range *range);
 
 Range generic_mempool_get_range(void *array,
                                 size_t capacity,
