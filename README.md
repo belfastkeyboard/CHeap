@@ -1,7 +1,7 @@
 # C Heap
 Library for simplifying memory management in C.
 
-- Enforced memory safety.
+- Enforced memory safety
   - For performance reasons there are no memory safety checks in release builds
   (i.e. uses asserts for runtime safety checks)
 - Reduced calls to malloc/free
@@ -10,10 +10,11 @@ Library for simplifying memory management in C.
   - Fewer calls to malloc/free reduces opportunities for leaks, double free, or other incorrect handling
   of memory
   - This architectural philosophy comes with some trade-offs e.g. linked lists use bump allocation to 
-  group memory into pages which tends to improve memory-caching (one of the frequent criticisms of the
+  group memory into pages which tends to improve caching (one of the frequent criticisms of the
   linked list) but results in increased memory overhead.  
 
 ## ALLOCATION LIBRARY
+Allocators provide an interface for safe memory management and lifetime control.
 - Arena
 - Bump Allocator
 
@@ -23,7 +24,7 @@ Library for simplifying memory management in C.
 Sequence containers implement data structures which can be accessed sequentially.
 - Array: dynamic contiguous array
 - Deque: double-ended queue
-- ForwardList: singly-linked list
+- Forward List: singly-linked list
 - List: doubly-linked list
 - Ring Buffer: fixed-size circular buffer
 
@@ -34,7 +35,7 @@ Unordered associative containers implement unsorted (hashed) data structures tha
 
 ### Container adaptors
 Container adaptors provide a different interface for sequential containers.
-- PriorityQueue: adapts a container to provide priority queue
+- Priority Queue: adapts a container to provide priority queue
 - Queue: adapts a container to provide queue (FIFO data structure)
 - Stack: adapts a container to provide stack (LIFO data structure)
 
@@ -64,4 +65,3 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
 - consider creating spans on the stack instead
 - re-hash or store hashes in buckets? (reduced memory overhead vs reduced time to hash)
-
