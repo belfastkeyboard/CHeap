@@ -4,26 +4,6 @@
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
 
-void *mempool_realloc(void *array,
-                      const size_t size)
-{
-    void *tmp = realloc(array,
-                        size);
-
-    assert(tmp);
-
-    return tmp;
-}
-
-void *mempool_alloc(const size_t nmemb,
-                    const size_t size)
-{
-    void *tmp = malloc(nmemb * size);
-
-    assert(tmp);
-
-    return tmp;
-}
 
 __attribute__((warn_unused_result()))
 static void *mempool_resize(void *array,
@@ -31,7 +11,7 @@ static void *mempool_resize(void *array,
                             const size_t size)
 {
     *capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH :
-                                      SEQUENTIAL_INIT;
+                SEQUENTIAL_INIT;
 
     return mempool_realloc(array,
                            *capacity * size);
@@ -44,11 +24,12 @@ static void *mempool_range_resize(void *array,
                                   const size_t r_nmemb)
 {
     *capacity = (*capacity + r_nmemb > *capacity * SEQUENTIAL_GROWTH) ? *capacity + r_nmemb :
-                                                                       *capacity * SEQUENTIAL_GROWTH;
+                *capacity * SEQUENTIAL_GROWTH;
 
     return mempool_realloc(array,
                            *capacity * size);
 }
+
 
 static void mempool_insert(void *array,
                            const size_t index,
@@ -79,6 +60,38 @@ static void mempool_set(void *array,
     memcpy(array + index * size, value, size);
 }
 
+static void *mempool_random_access(void *array,
+                                   const size_t index,
+                                   const size_t size)
+{
+    assert(array);
+
+    return array + index * size;
+}
+
+
+void *mempool_realloc(void *array,
+                      const size_t size)
+{
+    void *tmp = realloc(array,
+                        size);
+
+    assert(tmp);
+
+    return tmp;
+}
+
+void *mempool_alloc(const size_t nmemb,
+                    const size_t size)
+{
+    void *tmp = malloc(nmemb * size);
+
+    assert(tmp);
+
+    return tmp;
+}
+
+
 size_t mempool_remove(void *array,
                       const size_t index,
                       const size_t nmemb,
@@ -103,15 +116,6 @@ void mempool_clear(void *array,
     memset(array,
            UNSET,
            capacity * size);
-}
-
-void *mempool_random_access(void *array,
-                            const size_t index,
-                            const size_t size)
-{
-    assert(array);
-
-    return array + index * size;
 }
 
 
