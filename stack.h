@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "range.h"
 
 typedef struct Stack Stack;
 
@@ -14,6 +15,9 @@ void destroy_stack(Stack **stack);
 
 void push_stack(Stack *stack,
                 const void* value);
+
+void push_range_stack(Stack *stack,
+                      const Range *range);
 
 
 void *top_stack(const Stack *stack);
