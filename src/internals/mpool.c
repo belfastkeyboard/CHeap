@@ -11,7 +11,7 @@ static void *mempool_resize(void *array,
                             const size_t size)
 {
     *capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH :
-                SEQUENTIAL_INIT;
+                                      SEQUENTIAL_INIT;
 
     return mempool_realloc(array,
                            *capacity * size);
@@ -24,7 +24,7 @@ static void *mempool_range_resize(void *array,
                                   const size_t r_nmemb)
 {
     *capacity = (*capacity + r_nmemb > *capacity * SEQUENTIAL_GROWTH) ? *capacity + r_nmemb :
-                *capacity * SEQUENTIAL_GROWTH;
+                                                                        *capacity * SEQUENTIAL_GROWTH;
 
     return mempool_realloc(array,
                            *capacity * size);
