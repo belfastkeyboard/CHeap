@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "range.h"
 
 typedef struct Queue Queue;
 
@@ -14,6 +15,9 @@ void destroy_queue(Queue **queue);
 
 void push_queue(Queue *queue,
                 const void *value);
+
+void push_range_queue(Queue *queue,
+                      const Range *range);
 
 void *front_queue(const Queue *queue);
 

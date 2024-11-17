@@ -37,6 +37,18 @@ void push_queue(Queue *queue,
                               queue->size);
 }
 
+void push_range_queue(Queue *queue,
+                      const Range *range)
+{
+    generic_mempool_range_insert(&queue->array,
+                                 queue->nmemb,
+                                 &queue->capacity,
+                                 &queue->nmemb,
+                                 queue->size,
+                                 range);
+}
+
+
 void *front_queue(const Queue *queue)
 {
     return generic_mempool_access_front(queue->array,
