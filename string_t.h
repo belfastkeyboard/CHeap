@@ -2,14 +2,9 @@
 
 #include <stddef.h>
 
-typedef struct String
-{
-    const char *text;
-    size_t len;
-} String;
+typedef struct String String;
 
-// allocate a buffer with an allocator
-String create_string(const char *text);
-
+String *create_string(const char *text);
+void destroy_string(String **string);
 
 void print_string(String string);
