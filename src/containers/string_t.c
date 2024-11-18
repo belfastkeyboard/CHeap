@@ -80,7 +80,7 @@ void destroy_string(String **string)
 }
 
 
-void print_string(const String string)
+void print(const String *string)
 {
-    printf("%s", "YUP!");
+    printf("%s", string->text);
 }
