@@ -49,7 +49,6 @@ I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
-- fixed-size array
 - string builder
 - iterators
 - alternate arena type with a freeblock list?
