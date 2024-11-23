@@ -16,7 +16,7 @@ Library for simplifying memory management in C.
 ## ALLOCATION LIBRARY
 Allocators provide an interface for safe memory management and lifetime control.
 - Arena
-- Bump Allocator
+- Bump allocator
 
 ## CONTAINER LIBRARY
 
@@ -27,7 +27,7 @@ Sequence containers implement data structures which can be accessed sequentially
 - Deque: double-ended queue
 - Forward List: singly-linked list
 - List: doubly-linked list
-- Ring Buffer: fixed-size circular buffer
+- Ring Buffer: fixed-capacity circular buffer
 
 ### Unordered associative containers
 Unordered associative containers implement unsorted (hashed) data structures that can be quickly searched (O(1) average, O(n) worst-case complexity).
