@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "../../internals/cassert.h"
 #include <malloc.h>
 #include <memory.h>
 #include "../../internals/hash.h"
@@ -92,7 +92,8 @@ static size_t probe(struct Bucket *buckets,
                     size_t index,
                     const bool skip_tombstones)
 {
-    assert(buckets);
+    CHEAP_ASSERT(buckets,
+                 "Buckets cannot be NULL.");
 
     size_t found = NOT_FOUND;
     size_t tombstone = INVALID;
@@ -286,7 +287,8 @@ static void resize_buckets(struct Bucket **buckets,
                            size_t *capacity,
                            const float factor)
 {
-    assert(*buckets);
+    CHEAP_ASSERT(*buckets,
+                 "Buckets cannot be NULL.");
 
     size_t old_capacity = *capacity;
     size_t new_capacity = (size_t)((float)old_capacity * factor);
@@ -297,7 +299,8 @@ static void resize_buckets(struct Bucket **buckets,
 
     struct Bucket *tmp = malloc(t_size);
 
-    assert(tmp);
+    CHEAP_ASSERT(tmp,
+                 "Failed to allocate memory.");
 
     memcpy(tmp,
            *buckets,
@@ -307,7 +310,8 @@ static void resize_buckets(struct Bucket **buckets,
 
     *buckets = malloc(m_size);
 
-    assert(*buckets);
+    CHEAP_ASSERT(*buckets,
+                 "Failed to allocate memory,");
 
     memset(*buckets,
            UNSET,
@@ -333,7 +337,8 @@ static void resize_underlying_data(void **data,
     void *tmp = realloc(*data,
                         new_size);
 
-    assert(tmp);
+    CHEAP_ASSERT(tmp,
+                 "Failed to reallocate memory.");
 
     *data = tmp;
 }
@@ -410,7 +415,8 @@ void hash_insert(struct Bucket **buckets,
                   *nmemb,
                   capacity);
 
-    assert(buckets && *keys);
+    CHEAP_ASSERT(buckets && *keys,
+                 "Buckets and keys cannot be NULL.");
 
     hash_t hash = djb2(key,
                        k_size);

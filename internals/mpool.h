@@ -3,24 +3,10 @@
 #include <stddef.h>
 #include "../range.h"
 
-__attribute__((warn_unused_result()))
-void *mempool_alloc(size_t nmemb,
-                    size_t size);
 
 __attribute__((warn_unused_result()))
-void *mempool_realloc(void *array,
-                      size_t size);
-
-
-size_t mempool_remove(void *array,
-                      size_t index,
-                      size_t nmemb,
-                      size_t size);
-
-
-void mempool_clear(void *array,
-                   size_t capacity,
-                   size_t size);
+void *generic_mempool_alloc(size_t nmemb,
+                            size_t size);
 
 
 void generic_mempool_push_back(void **array,
@@ -74,10 +60,7 @@ size_t generic_mempool_erase(void **array,
                              size_t *nmemb,
                              size_t size);
 
-void generic_mempool_clear(void **array,
-                           size_t capacity,
-                           size_t *nmemb,
-                           size_t size);
+void generic_mempool_clear(size_t *nmemb);
 
 
 void *generic_mempool_access_front(void *array,

@@ -15,7 +15,7 @@ Array *create_array(const size_t size,
 {
     Array *array = memory_allocate_container(sizeof(Array));
 
-    array->array = mempool_alloc(nmemb, size);
+    array->array = generic_mempool_alloc(nmemb, size);
     array->nmemb = nmemb;
     array->size = size;
 

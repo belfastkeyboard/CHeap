@@ -1,6 +1,6 @@
-#include <assert.h>
 #include <malloc.h>
 #include <memory.h>
+#include "../../internals/cassert.h"
 #include "../../internals/base.h"
 #include "../../arena.h"
 
@@ -106,7 +106,7 @@ void *alloc_arena(Arena *arena,
     ptr = dynamic_arena_alloc(arena,
                               size);
 
-    assert(ptr);
+    CHEAP_ASSERT(ptr, "Arena unable to acquire memory.");
 
     return ptr;
 }
@@ -116,8 +116,6 @@ void *calloc_arena(Arena *arena,
 {
     void *ptr = alloc_arena(arena,
                             size);
-
-    assert(ptr);
 
     return memset(ptr,
                   0,

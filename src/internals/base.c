@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "../../internals/cassert.h"
 #include <malloc.h>
 #include <stdbool.h>
 #include "../../internals/base.h"
@@ -8,7 +8,8 @@ void *memory_allocate_container(const size_t size)
     void *ptr = calloc(1,
                        size);
 
-    assert(ptr);
+    CHEAP_ASSERT(ptr,
+                 "Failed to allocate container.");
 
     return ptr;
 }
@@ -24,7 +25,8 @@ void memory_free_buffer(void **buffer)
 void memory_free_container_mempool(void **container,
                                    void *array)
 {
-    assert(*container);
+    CHEAP_ASSERT(*container,
+                 "Container cannot be NULL.");
 
     memory_free_buffer(&array);
     memory_free_buffer(container);
@@ -35,6 +37,9 @@ void memory_free_container_hash(void **container,
                                 void *keys,
                                 void *values)
 {
+    CHEAP_ASSERT(*container,
+                 "Container cannot be NULL.");
+
     memory_free_buffer(&buckets);
     memory_free_buffer(&keys);
     memory_free_buffer(&values);

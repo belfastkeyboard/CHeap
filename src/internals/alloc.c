@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "../../internals/cassert.h"
 #include <malloc.h>
 #include <memory.h>
 #include "../../internals/alloc.h"
@@ -41,7 +41,8 @@ static void rebase(struct Block *prev, struct Block *curr)
 
 static void *malloc_free_list_search(const size_t size)
 {
-    assert(allocator.blocks);
+    CHEAP_ASSERT(allocator.blocks,
+                 "Free blocks list cannot be NULL.");
 
     struct Block *curr = allocator.blocks;
     struct Block *prev = NULL;
@@ -98,7 +99,8 @@ static void *malloc_free_list_search(const size_t size)
 
 static void *malloc_bump_alloc(const size_t size)
 {
-    assert(allocator.curr + size + sizeof(struct Block) <= allocator.size);
+    CHEAP_ASSERT(allocator.curr + size + sizeof(struct Block) <= allocator.size,
+                 "Bump allocator has insufficient available memory.");
 
     struct Block* block = allocator.memory + allocator.curr;
     void *memory = allocator.memory + allocator.curr + sizeof(struct Block);
@@ -112,8 +114,11 @@ static void *malloc_bump_alloc(const size_t size)
 
 void open_cheap_context(const size_t size)
 {
-    assert(!allocator.memory &&
-           size > 16);
+    CHEAP_ASSERT(!allocator.memory,
+                 "CHeap allocator context is already open.");
+
+    CHEAP_ASSERT(size > 16,
+                 "Must allocate more than 16 bytes.");
 
     allocator = (struct Cheap_Allocator){
         .memory = NULL,
@@ -124,12 +129,14 @@ void open_cheap_context(const size_t size)
 
     allocator.memory = malloc(size);
 
-    assert(allocator.memory);
+    CHEAP_ASSERT(allocator.memory,
+                 "Failed to allocate memory.");
 }
 
 void close_cheap_context(void)
 {
-    assert(allocator.blocks);
+    CHEAP_ASSERT(allocator.memory,
+                 "Cheap context is already closed.");
 
     free(allocator.memory);
 
@@ -139,7 +146,8 @@ void close_cheap_context(void)
 
 void *cheap_malloc_impl(size_t size)
 {
-    assert(allocator.memory);
+    CHEAP_ASSERT(allocator.memory,
+                 "Trying to allocate memory without opening CHeap context.");
 
     void *memory = NULL;
 
@@ -152,7 +160,8 @@ void *cheap_malloc_impl(size_t size)
         memory = malloc_free_list_search(size);
     }
 
-    assert(memory);
+    CHEAP_ASSERT(memory,
+                 "CHeap allocator failed to provision memory.");
 
     return memory;
 }
@@ -166,8 +175,11 @@ void *cheap_calloc_impl(size_t size)
 
 void *cheap_realloc_impl(void *ptr, const size_t size)
 {
-    assert(allocator.memory &&
-           ptr + size <= allocator.memory + allocator.size);
+    CHEAP_ASSERT(allocator.memory,
+                 "Trying to reallocate memory without opening CHeap context.");
+
+    CHEAP_ASSERT(ptr + size <= allocator.memory + allocator.size,
+                 "Insufficient memory to reallocate.");
 
     struct Block *block = ptr - sizeof(struct Block);
 
@@ -192,24 +204,29 @@ void *cheap_realloc_impl(void *ptr, const size_t size)
 
 void cheap_free_impl(void *ptr)
 {
-    assert(allocator.memory && ptr);
+    CHEAP_ASSERT(allocator.memory,
+                 "Trying to free memory without opening CHeap context.");
 
-    struct Block *block = ptr - sizeof(struct Block);
+    if (ptr)
+    {
+        struct Block *block = ptr - sizeof(struct Block);
 
-    if (ptr + block->size == allocator.memory + allocator.curr)
-    {
-        allocator.curr -= block->size + sizeof(struct Block);
-    }
-    else
-    {
-        block->next = allocator.blocks;
-        allocator.blocks = block;
+        if (ptr + block->size == allocator.memory + allocator.curr)
+        {
+            allocator.curr -= block->size + sizeof(struct Block);
+        }
+        else
+        {
+            block->next = allocator.blocks;
+            allocator.blocks = block;
+        }
     }
 }
 
 void cheap_clear_impl(void)
 {
-    assert(allocator.memory);
+    CHEAP_ASSERT(allocator.memory,
+                 "Trying to clear memory without opening CHeap context.");
 
     allocator.curr = 0;
     allocator.blocks = NULL;

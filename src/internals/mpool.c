@@ -1,8 +1,35 @@
+#include "../../internals/cassert.h"
 #include <malloc.h>
 #include <memory.h>
-#include <assert.h>
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
+
+
+__attribute__((warn_unused_result()))
+static void *mempool_alloc(const size_t nmemb,
+                           const size_t size)
+{
+    void *tmp = malloc(nmemb * size);
+
+    CHEAP_ASSERT(tmp,
+                 "Failed to allocate additional memory.");
+
+    return tmp;
+}
+
+
+__attribute__((warn_unused_result()))
+static void *mempool_realloc(void *array,
+                             const size_t size)
+{
+    void *tmp = realloc(array,
+                        size);
+
+    CHEAP_ASSERT(tmp,
+                 "Failed to reallocate memory.");
+
+    return tmp;
+}
 
 
 __attribute__((warn_unused_result()))
@@ -38,7 +65,11 @@ static void mempool_insert(void *array,
                            const size_t size,
                            const size_t shift)
 {
-    assert(array && value && index < nmemb + 1 && shift > 0);
+    CHEAP_ASSERT(index < nmemb + 1,
+                 "Index out of bounds.");
+
+    CHEAP_ASSERT(shift > 0,
+                 "Attempting to shift elements by 0 bytes.");
 
     if (index < nmemb)
     {
@@ -57,47 +88,34 @@ static void mempool_set(void *array,
                         const size_t index,
                         const size_t size)
 {
-    memcpy(array + index * size, value, size);
+    CHEAP_ASSERT(array &&
+                 value,
+                 "Array and value cannot be NULL.");
+
+    memcpy(array + index * size,
+           value,
+           size);
 }
+
 
 static void *mempool_random_access(void *array,
                                    const size_t index,
                                    const size_t size)
 {
-    assert(array);
+    CHEAP_ASSERT(array,
+                 "Array cannot be NULL");
 
     return array + index * size;
 }
 
 
-void *mempool_realloc(void *array,
-                      const size_t size)
+static size_t mempool_remove(void *array,
+                             const size_t index,
+                             const size_t nmemb,
+                             const size_t size)
 {
-    void *tmp = realloc(array,
-                        size);
-
-    assert(tmp);
-
-    return tmp;
-}
-
-void *mempool_alloc(const size_t nmemb,
-                    const size_t size)
-{
-    void *tmp = malloc(nmemb * size);
-
-    assert(tmp);
-
-    return tmp;
-}
-
-
-size_t mempool_remove(void *array,
-                      const size_t index,
-                      const size_t nmemb,
-                      const size_t size)
-{
-    assert(array && index < nmemb);
+    CHEAP_ASSERT(index < nmemb,
+                 "Index out of bounds.");
 
     memmove(array + index * size,
             array + (index + 1) * size,
@@ -106,16 +124,12 @@ size_t mempool_remove(void *array,
     return index - 1;
 }
 
-// TODO: is this operation necessary or is setting nmemb to 0 enough?
-void mempool_clear(void *array,
-                   const size_t capacity,
-                   const size_t size)
-{
-    assert(array);
 
-    memset(array,
-           UNSET,
-           capacity * size);
+void *generic_mempool_alloc(size_t nmemb,
+                            size_t size)
+{
+    return mempool_alloc(nmemb,
+                         size);
 }
 
 
@@ -125,6 +139,9 @@ void generic_mempool_push_back(void **array,
                                size_t *nmemb,
                                const size_t size)
 {
+    CHEAP_ASSERT(value,
+                 "Value cannot be NULL.");
+
     generic_mempool_insert(array,
                            value,
                            *nmemb,
@@ -139,6 +156,9 @@ void generic_mempool_push_front(void **array,
                                 size_t *nmemb,
                                 const size_t size)
 {
+    CHEAP_ASSERT(value,
+                 "Value cannot be NULL.");
+
     generic_mempool_insert(array,
                            value,
                            0,
@@ -154,6 +174,9 @@ void generic_mempool_insert(void **array,
                             size_t *nmemb,
                             const size_t size)
 {
+    CHEAP_ASSERT(value,
+                 "Value cannot be NULL.");
+
     if (*nmemb >= *capacity)
     {
         *array = mempool_resize(*array,
@@ -177,9 +200,13 @@ void generic_mempool_set(void *array,
                          const size_t nmemb,
                          const size_t size)
 {
-    assert(index < nmemb);
+    CHEAP_ASSERT(index < nmemb,
+                 "Index out of bounds.");
 
-    mempool_set(array, value, index, size);
+    mempool_set(array,
+                value,
+                index,
+                size);
 }
 
 
@@ -190,7 +217,8 @@ void generic_mempool_range_insert(void **array,
                                   const size_t size,
                                   const Range *range)
 {
-    assert(size == range->size);
+    CHEAP_ASSERT(size == range->size,
+                 "Type size mismatch.");
 
     if (*nmemb + range->nmemb >= *capacity)
     {
@@ -199,6 +227,9 @@ void generic_mempool_range_insert(void **array,
                                       size,
                                       range->nmemb);
     }
+
+    CHEAP_ASSERT(range->array,
+                 "Range array cannot be NULL.");
 
     mempool_insert(*array,
                    index,
@@ -216,12 +247,17 @@ Range generic_mempool_get_range(const void *array,
                                 const size_t start,
                                 const size_t end)
 {
-    assert(array && start < capacity && end <= capacity);
+    CHEAP_ASSERT(array,
+                 "Array cannot be NULL.");
+
+    CHEAP_ASSERT(start < capacity &&
+                 end <= capacity,
+                 "Requested indices out of bounds.");
 
     Range range = {
-        .array = array + start * size,
-        .nmemb = 1 + end - start,
-        .size = size
+            .array = array + start * size,
+            .nmemb = 1 + end - start,
+            .size = size
     };
 
     return range;
@@ -230,7 +266,8 @@ Range generic_mempool_get_range(const void *array,
 
 void generic_mempool_pop_back(size_t *nmemb)
 {
-    assert(*nmemb);
+    CHEAP_ASSERT(*nmemb,
+                 "Cannot pop back empty container.");
 
     (*nmemb)--;
 }
@@ -239,7 +276,8 @@ void generic_mempool_pop_front(void **array,
                                size_t *nmemb,
                                const size_t size)
 {
-    assert(*nmemb);
+    CHEAP_ASSERT(*nmemb,
+                 "Cannot pop front empty container.");
 
     mempool_remove(*array,
                    0,
@@ -250,31 +288,25 @@ void generic_mempool_pop_front(void **array,
 }
 
 size_t generic_mempool_erase(void **array,
-                             const size_t index,
+                             size_t index,
                              size_t *nmemb,
                              const size_t size)
 {
-    assert(*array && index < *nmemb);
+    CHEAP_ASSERT(*array,
+                 "Array cannot be NULL.");
 
-    const size_t new_index = mempool_remove(*array,
-                                            index,
-                                            *nmemb,
-                                            size);
+    index = mempool_remove(*array,
+                           index,
+                           *nmemb,
+                           size);
 
     (*nmemb)--;
 
-    return new_index;
+    return index;
 }
 
-void generic_mempool_clear(void **array,
-                           const size_t capacity,
-                           size_t *nmemb,
-                           const size_t size)
+void generic_mempool_clear(size_t *nmemb)
 {
-    mempool_clear(*array,
-                  capacity,
-                  size);
-
     *nmemb = 0;
 }
 
@@ -302,7 +334,8 @@ void *generic_mempool_random_access(void *array,
                                     const size_t nmemb,
                                     const size_t size)
 {
-    assert(index < nmemb);
+    CHEAP_ASSERT(index < nmemb,
+                 "Index out of bounds.");
 
     return mempool_random_access(array,
                                  index,

@@ -1,6 +1,6 @@
-#include <assert.h>
 #include <malloc.h>
 #include <string.h>
+#include "../../internals/cassert.h"
 #include "../../internals/base.h"
 #include "../../bump.h"
 
@@ -33,7 +33,7 @@ void destroy_bump_allocator(BumpAlloc **bump)
 void *bump_alloc(BumpAlloc *bump,
                  const size_t size)
 {
-    assert(bump->offset + size <= bump->size);
+    CHEAP_ASSERT(bump->offset + size <= bump->size, "Bump allocator has insufficient memory.");
 
     void *ptr = (bump->ptr + bump->offset);
 
@@ -60,8 +60,6 @@ void *bump_salloc(BumpAlloc *bump,
 
     void *ptr = bump_calloc(bump,
                             len + 1);
-
-    assert(ptr);
 
     return strncpy(ptr,
                    string,
