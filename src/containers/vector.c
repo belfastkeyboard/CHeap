@@ -101,10 +101,7 @@ size_t erase_vector(Vector *vector,
 
 void clear_vector(Vector *vector)
 {
-    generic_mempool_clear(&vector->array,
-                          vector->capacity,
-                          &vector->nmemb,
-                          vector->size);
+    generic_mempool_clear(&vector->nmemb);
 }
 
 

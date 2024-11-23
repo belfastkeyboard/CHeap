@@ -97,10 +97,7 @@ size_t erase_deque(Deque *deque,
 
 void clear_deque(Deque *deque)
 {
-    generic_mempool_clear(&deque->array,
-                          deque->capacity,
-                          &deque->nmemb,
-                          deque->size);
+    generic_mempool_clear(&deque->nmemb);
 }
 
 
