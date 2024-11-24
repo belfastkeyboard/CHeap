@@ -174,8 +174,9 @@ void *cheap_malloc_impl(size_t size)
 void *cheap_calloc_impl(const size_t nmemb,
                         const size_t size)
 {
-    CHEAP_ASSERT(size > 0 &&
-                 nmemb > SIZE_MAX / size,
+    CHEAP_ASSERT(!size ||
+                 (size &&
+                 nmemb <= SIZE_MAX / size),
                  "Overflow detected.");
 
     size_t total = nmemb * size;
@@ -193,27 +194,39 @@ void *cheap_realloc_impl(void *ptr,
     CHEAP_ASSERT(allocator.memory,
                  "Trying to reallocate memory without opening CHeap context.");
 
-    CHEAP_ASSERT(ptr + size <= allocator.memory + allocator.size,
-                 "Insufficient memory to reallocate.");
-
-    struct Block *block = ptr - sizeof(struct Block);
-
-    if (ptr + block->size == allocator.memory + allocator.curr)
+    if (!ptr)
     {
-        allocator.curr += size - block->size;
-        block->size = size;
+        ptr = cheap_malloc_impl(size);
+    }
+    else if (!size)
+    {
+        cheap_free_impl(ptr);
+        ptr = NULL;
     }
     else
     {
-        void *tmp = cheap_malloc_impl(size);
+        CHEAP_ASSERT(ptr + size <= allocator.memory + allocator.size,
+                     "Insufficient memory to reallocate.");
 
-        memcpy(ptr,
-               tmp,
-               block->size);
+        struct Block *block = ptr - sizeof(struct Block);
 
-        cheap_free_impl(ptr);
+        if (ptr + block->size == allocator.memory + allocator.curr)
+        {
+            allocator.curr += size - block->size;
+            block->size = size;
+        }
+        else
+        {
+            void *tmp = cheap_malloc_impl(size);
 
-        ptr = tmp;
+            memcpy(ptr,
+                   tmp,
+                   block->size);
+
+            cheap_free_impl(ptr);
+
+            ptr = tmp;
+        }
     }
 
     return ptr;
@@ -226,6 +239,10 @@ void cheap_free_impl(void *ptr)
 
     if (ptr)
     {
+        CHEAP_ASSERT(ptr >= allocator.memory &&
+                     ptr <= allocator.memory + allocator.size,
+                     "Invalid pointer.");
+
         struct Block *block = ptr - sizeof(struct Block);
 
         if (ptr + block->size == allocator.memory + allocator.curr)
