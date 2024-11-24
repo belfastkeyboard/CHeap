@@ -1,5 +1,6 @@
 #include <memory.h>
 #include "../../rbuff.h"
+#include "../../internals/alloc.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
 

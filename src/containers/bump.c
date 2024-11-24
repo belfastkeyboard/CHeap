@@ -1,6 +1,7 @@
 #include <string.h>
-#include "../../internals/cassert.h"
+#include "../../internals/alloc.h"
 #include "../../internals/base.h"
+#include "../../internals/cassert.h"
 #include "../../bump.h"
 
 #ifndef CHEAP_ALLOC

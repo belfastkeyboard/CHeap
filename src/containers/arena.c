@@ -1,6 +1,7 @@
 #include <memory.h>
-#include "../../internals/cassert.h"
+#include "../../internals/alloc.h"
 #include "../../internals/base.h"
+#include "../../internals/cassert.h"
 #include "../../arena.h"
 
 #ifndef CHEAP_ALLOC
