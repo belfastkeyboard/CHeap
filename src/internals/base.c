@@ -1,25 +1,22 @@
-#include "../../internals/cassert.h"
-#include <malloc.h>
 #include <stdbool.h>
+#include "../../internals/alloc.h"
 #include "../../internals/base.h"
+#include "../../internals/cassert.h"
+
+#ifndef CHEAP_ALLOC
+    #include <malloc.h>
+#endif
+
 
 void *memory_allocate_container(const size_t size)
 {
-    void *ptr = calloc(1,
-                       size);
+    void *ptr = CHEAP_CALLOC(1,
+                             size);
 
     CHEAP_ASSERT(ptr,
                  "Failed to allocate container.");
 
     return ptr;
-}
-
-void memory_free_buffer(void **buffer)
-{
-    if (*buffer)
-        free(*buffer);
-
-    *buffer = NULL;
 }
 
 void memory_free_container_mempool(void **container,
@@ -31,6 +28,18 @@ void memory_free_container_mempool(void **container,
     memory_free_buffer(&array);
     memory_free_buffer(container);
 }
+
+
+void memory_free_buffer(void **buffer)
+{
+    if (*buffer)
+    {
+        CHEAP_FREE(*buffer);
+    }
+
+    *buffer = NULL;
+}
+
 
 void memory_free_container_hash(void **container,
                                 void *buckets,

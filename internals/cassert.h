@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef NDEBUG
     #define CHEAP_ASSERT(expr, msg) ((void)0)

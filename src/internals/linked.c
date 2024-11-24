@@ -1,6 +1,10 @@
-#include <malloc.h>
 #include <memory.h>
+#include "../../internals/alloc.h"
 #include "../../internals/linked.h"
+
+#ifndef CHEAP_ALLOC
+    #include <malloc.h>
+#endif
 
 #define INIT_LIST_COUNT 8
 
@@ -24,11 +28,11 @@ struct Node
 __attribute__((warn_unused_result))
 static struct Page *create_page(const size_t size)
 {
-    struct Page *page = calloc(1,
-                               sizeof(struct Page));
+    struct Page *page = CHEAP_CALLOC(1,
+                                     sizeof(struct Page));
 
-    page->pool = calloc(1,
-                        size);
+    page->pool = CHEAP_CALLOC(1,
+                              size);
 
     page->size = size;
 
@@ -40,8 +44,8 @@ static struct Page *destroy_page(struct Page *page)
 {
     struct Page *prev = page->prev;
 
-    free(page->pool);
-    free(page);
+    CHEAP_FREE(page->pool);
+    CHEAP_FREE(page);
 
     return prev;
 }

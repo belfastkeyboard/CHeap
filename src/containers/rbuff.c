@@ -1,5 +1,8 @@
 #include <memory.h>
 #include "../../rbuff.h"
+#include "../../internals/base.h"
+#include "../../internals/cassert.h"
+
 
 typedef struct RingBuffer
 {
@@ -14,25 +17,29 @@ typedef struct RingBuffer
 RingBuffer *create_ringbuffer(const size_t capacity,
                               const size_t size)
 {
-    RingBuffer *rbuff = malloc(sizeof(RingBuffer));
+    RingBuffer *rbuff = memory_allocate_container(sizeof(RingBuffer));
 
-    rbuff->capacity = capacity;
-    rbuff->size = size;
+    CHEAP_ASSERT(rbuff,
+                 "Failed to allocate memory.");
 
-    rbuff->array = malloc(capacity * size);
-    rbuff->write = 0;
-    rbuff->read = 0;
+    *rbuff = (RingBuffer){
+        .array = CHEAP_MALLOC(capacity * size),
+        .capacity = capacity,
+        .size = size,
+        .write = 0,
+        .read = 0
+    };
+
+    CHEAP_ASSERT(rbuff->array,
+                 "Failed to allocate memory.");
 
     return rbuff;
 }
 
 void destroy_ringbuffer(RingBuffer **rbuff)
 {
-    if ((*rbuff)->array)
-        free((*rbuff)->array);
-
-    free(*rbuff);
-    *rbuff = NULL;
+    memory_free_container_mempool((void **)rbuff,
+                                  (*rbuff)->array);
 }
 
 

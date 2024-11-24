@@ -1,7 +1,9 @@
-#include "../../internals/cassert.h"
-#include <malloc.h>
 #include <memory.h>
+#include <stdint.h>
+#include "../../internals/cassert.h"
 #include "../../internals/alloc.h"
+#include "../../context.h"
+
 
 struct Block
 {
@@ -21,12 +23,45 @@ struct Cheap_Allocator
 static struct Cheap_Allocator allocator;
 
 
+void open_cheap_context(const size_t size)
+{
+    CHEAP_ASSERT(!allocator.memory,
+                 "CHeap allocator context is already open.");
+
+    CHEAP_ASSERT(size > 16,
+                 "Must allocate more than 16 bytes.");
+
+    allocator = (struct Cheap_Allocator){
+            .memory = NULL,
+            .size   = size,
+            .curr   = 0,
+            .blocks = NULL
+    };
+
+    allocator.memory = malloc(size);
+
+    CHEAP_ASSERT(allocator.memory,
+                 "Failed to allocate memory.");
+}
+
+void close_cheap_context(void)
+{
+    CHEAP_ASSERT(allocator.memory,
+                 "Cheap context is already closed.");
+
+    free(allocator.memory);
+
+    allocator = (struct Cheap_Allocator){ 0 };
+}
+
+
 static struct Block *next_block(struct Block *block)
 {
     return (void*)block + block->size + sizeof(struct Block);
 }
 
-static void rebase(struct Block *prev, struct Block *curr)
+static void rebase(struct Block *prev,
+        struct Block *curr)
 {
     if (prev)
     {
@@ -65,7 +100,8 @@ static void *malloc_free_list_search(const size_t size)
                 curr->next = block;
             }
 
-            rebase(prev, curr);
+            rebase(prev,
+                   curr);
 
             memory = (void*)curr + sizeof(struct Block);
         }
@@ -82,7 +118,8 @@ static void *malloc_free_list_search(const size_t size)
             {
                 allocator.curr -= curr->size + sizeof(struct Block);
 
-                rebase(prev, curr);
+                rebase(prev,
+                       curr);
 
                 curr = curr->next;
             }
@@ -112,38 +149,6 @@ static void *malloc_bump_alloc(const size_t size)
 }
 
 
-void open_cheap_context(const size_t size)
-{
-    CHEAP_ASSERT(!allocator.memory,
-                 "CHeap allocator context is already open.");
-
-    CHEAP_ASSERT(size > 16,
-                 "Must allocate more than 16 bytes.");
-
-    allocator = (struct Cheap_Allocator){
-        .memory = NULL,
-        .size   = size,
-        .curr   = 0,
-        .blocks = NULL
-    };
-
-    allocator.memory = malloc(size);
-
-    CHEAP_ASSERT(allocator.memory,
-                 "Failed to allocate memory.");
-}
-
-void close_cheap_context(void)
-{
-    CHEAP_ASSERT(allocator.memory,
-                 "Cheap context is already closed.");
-
-    free(allocator.memory);
-
-    allocator = (struct Cheap_Allocator){ 0 };
-}
-
-
 void *cheap_malloc_impl(size_t size)
 {
     CHEAP_ASSERT(allocator.memory,
@@ -166,14 +171,24 @@ void *cheap_malloc_impl(size_t size)
     return memory;
 }
 
-void *cheap_calloc_impl(size_t size)
+void *cheap_calloc_impl(const size_t nmemb,
+                        const size_t size)
 {
-    void *memory = cheap_malloc_impl(size);
+    CHEAP_ASSERT(size > 0 &&
+                 nmemb > SIZE_MAX / size,
+                 "Overflow detected.");
 
-    return memset(memory, 0, size);
+    size_t total = nmemb * size;
+
+    void *memory = cheap_malloc_impl(total);
+
+    return memset(memory,
+                  0,
+                  total);
 }
 
-void *cheap_realloc_impl(void *ptr, const size_t size)
+void *cheap_realloc_impl(void *ptr,
+                         const size_t size)
 {
     CHEAP_ASSERT(allocator.memory,
                  "Trying to reallocate memory without opening CHeap context.");
@@ -192,7 +207,9 @@ void *cheap_realloc_impl(void *ptr, const size_t size)
     {
         void *tmp = cheap_malloc_impl(size);
 
-        memcpy(ptr, tmp, block->size);
+        memcpy(ptr,
+               tmp,
+               block->size);
 
         cheap_free_impl(ptr);
 

@@ -7,6 +7,9 @@ set(CMAKE_C_STANDARD 23)
 # uncomment to compile release build, which removes asserts and compiles with optimisation
 #set(BUILD Release)
 
+# uncomment to compile with the CHeap allocator (replace stdlib alloc/free functions with CHeap variants)
+#add_compile_definitions(CHEAP_ALLOC)
+
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.c")

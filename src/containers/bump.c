@@ -1,8 +1,11 @@
-#include <malloc.h>
 #include <string.h>
 #include "../../internals/cassert.h"
 #include "../../internals/base.h"
 #include "../../bump.h"
+
+#ifndef CHEAP_ALLOC
+    #include <malloc.h>
+#endif
 
 typedef struct BumpAlloc
 {
@@ -16,7 +19,7 @@ BumpAlloc *create_bump_allocator(const size_t size)
 {
     BumpAlloc *b_alloc = memory_allocate_container(sizeof(BumpAlloc));
 
-    b_alloc->ptr = malloc(size);
+    b_alloc->ptr = CHEAP_MALLOC(size);
     b_alloc->size = size;
 
     return b_alloc;
@@ -24,9 +27,8 @@ BumpAlloc *create_bump_allocator(const size_t size)
 
 void destroy_bump_allocator(BumpAlloc **bump)
 {
-    free((*bump)->ptr);
-    free(*bump);
-    *bump = NULL;
+    memory_free_container_mempool((void **)bump,
+                                  (*bump)->ptr);
 }
 
 

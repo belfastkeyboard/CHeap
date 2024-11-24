@@ -1,7 +1,11 @@
-#include "../../internals/cassert.h"
-#include <malloc.h>
 #include <memory.h>
+#include "../../internals/alloc.h"
+#include "../../internals/cassert.h"
 #include "../../internals/hash.h"
+
+#ifndef CHEAP_ALLOC
+    #include <malloc.h>
+#endif
 
 #define GROW_FACTOR        2.0f
 #define SHRINK_FACTOR      0.5f
@@ -208,12 +212,12 @@ static void initialise_buckets(struct Bucket **buckets,
                                size_t *capacity)
 {
     if (*buckets)
-        free(*buckets);
+        CHEAP_FREE(*buckets);
 
     *capacity = TABLE_MIN;
     const size_t size = *capacity * sizeof(struct Bucket);
 
-    *buckets = malloc(size);
+    *buckets = CHEAP_MALLOC(size);
 
     memset(*buckets,
            UNSET,
@@ -297,7 +301,7 @@ static void resize_buckets(struct Bucket **buckets,
 
     *capacity = new_capacity;
 
-    struct Bucket *tmp = malloc(t_size);
+    struct Bucket *tmp = CHEAP_MALLOC(t_size);
 
     CHEAP_ASSERT(tmp,
                  "Failed to allocate memory.");
@@ -306,9 +310,9 @@ static void resize_buckets(struct Bucket **buckets,
            *buckets,
            t_size);
 
-    free(*buckets);
+    CHEAP_FREE(*buckets);
 
-    *buckets = malloc(m_size);
+    *buckets = CHEAP_MALLOC(m_size);
 
     CHEAP_ASSERT(*buckets,
                  "Failed to allocate memory,");
@@ -325,7 +329,7 @@ static void resize_buckets(struct Bucket **buckets,
                     old_capacity,
                     new_capacity);
 
-    free(tmp);
+    CHEAP_FREE(tmp);
 }
 
 static void resize_underlying_data(void **data,
@@ -334,8 +338,8 @@ static void resize_underlying_data(void **data,
 {
     const size_t new_size = capacity * size;
 
-    void *tmp = realloc(*data,
-                        new_size);
+    void *tmp = CHEAP_REALLOC(*data,
+                              new_size);
 
     CHEAP_ASSERT(tmp,
                  "Failed to reallocate memory.");
@@ -543,19 +547,19 @@ void hash_clear(struct Bucket **buckets,
 {
     if (*buckets)
     {
-        free(*buckets);
+        CHEAP_FREE(*buckets);
         *buckets = NULL;
     }
 
     if (*keys)
     {
-        free(*keys);
+        CHEAP_FREE(*keys);
         *keys = NULL;
     }
 
     if (values && *values)
     {
-        free(*values);
+        CHEAP_FREE(*values);
         *values = NULL;
     }
 

@@ -1,8 +1,11 @@
-#include <malloc.h>
 #include <memory.h>
 #include "../../internals/cassert.h"
 #include "../../internals/base.h"
 #include "../../arena.h"
+
+#ifndef CHEAP_ALLOC
+    #include <malloc.h>
+#endif
 
 struct Page
 {
@@ -24,12 +27,12 @@ static struct Page *construct_page(struct Page *prev,
                                    const size_t nmemb,
                                    const size_t size)
 {
-    struct Page *page = malloc(sizeof(struct Page));
+    struct Page *page = CHEAP_MALLOC(sizeof(struct Page));
 
     page->prev = prev;
 
-    page->base = calloc(nmemb,
-                        size);
+    page->base = CHEAP_CALLOC(nmemb,
+                              size);
 
     page->size = nmemb * size;
     page->offset = 0;
@@ -42,8 +45,8 @@ static struct Page *destroy_page(struct Page *page)
 {
     struct Page *prev = page->prev;
 
-    free(page->base);
-    free(page);
+    CHEAP_FREE(page->base);
+    CHEAP_FREE(page);
 
     return prev;
 }
@@ -93,7 +96,7 @@ void destroy_arena(Arena **arena)
         (*arena)->curr = destroy_page((*arena)->curr);
     } while ((*arena)->curr);
 
-    free(*arena);
+    CHEAP_FREE(*arena);
     *arena = NULL;
 }
 
