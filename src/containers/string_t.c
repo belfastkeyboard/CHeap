@@ -135,7 +135,9 @@ void insert(String *dest,
     strncpy(dest->text + index, src->text, src->len);
 }
 
-char *replace(const char *string, const char *search, const char *replace)
+char *replace(String *string,
+              const String *search,
+              const String *replace)
 {
     size_t n = count(string, search);
     size_t s = strlen(search);
