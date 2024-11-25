@@ -135,11 +135,8 @@ void insert(String *dest,
     strncpy(dest->text + index, src->text, src->len);
 }
 
-/*
 char *replace(const char *string, const char *search, const char *replace)
 {
-    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
-
     size_t n = count(string, search);
     size_t s = strlen(search);
     size_t r = strlen(replace);
@@ -173,6 +170,8 @@ char *replace(const char *string, const char *search, const char *replace)
 
     return string_builder->buffer;
 }
+
+/*
 char *join(char **strings, size_t size, const char *delim)
 {
     char *string = strings[0];

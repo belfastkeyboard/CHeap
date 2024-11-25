@@ -15,8 +15,11 @@ void insert(String *dest,
             const String *src,
             size_t index);
 
+char *replace(String *string,
+              const String *find,
+              const String *replace);
+
 /*
-char *replace(const char *string, const char *find, const char *replace);
 char *join(char **strings, size_t size, const char *delim);
 char *lpad(const char *string, size_t pad);
 char *rpad(const char *string, size_t pad);
