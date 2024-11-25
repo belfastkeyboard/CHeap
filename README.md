@@ -13,6 +13,12 @@ Library for simplifying memory management in C.
   group memory into pages which tends to improve caching (one of the frequent criticisms of the
   linked list) but results in increased memory overhead.  
 
+## MANAGEMENT CONTEXT
+Open and close a CHeap memory management context.
+All CHeap allocations make use of a custom allocator rather than standard library memory management.
+All memory is freed upon context closure, simplifying memory management and reducing opportunities for
+memory leakage.
+
 ## ALLOCATION LIBRARY
 Allocators provide an interface for safe memory management and lifetime control.
 - Arena
@@ -52,10 +58,9 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - string builder
 - iterators
 - alternate arena type with a freeblock list?
-- support for custom allocators
 - thread safety?
+- enforce alignment in CHeap allocator
 - fix bugs in RB Tree
-- add error handling to mimic C++ bad_alloc exception?
 - stress test all types
 
 ## CONSIDER:
