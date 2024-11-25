@@ -25,8 +25,7 @@ char *lpad(const char *string, size_t pad);
 char *rpad(const char *string, size_t pad);
 */
 
-size_t count(const String *string,
-             const String *value); // Returns the number of times a specified value occurs in a string
+
 
 void print(const String *string);
 
@@ -57,8 +56,15 @@ void print(const String *string);
  * bool is_printable(const char *string); // Returns True if all characters in the string are printable
  * bool is_space(const char *string); // Returns True if all characters in the string are whitespaces
  *
- * size_t find(const char *string, const char *value); // Searches the string for a specified value and returns the position of where it was found
+ * */
+
+size_t count(const String *string,
+             const String *value); // Returns the number of times a specified value occurs in a string
+
+size_t find(String *string,
+            const String *value); // Searches the string for a specified value and returns the position of where it was found
+
+/*
  * size_t rfind(const char *string, const char *value); // Searches the string for a specified value and returns the last position of where it was found
  * size_t word_count(const char *string);
  *
- * */

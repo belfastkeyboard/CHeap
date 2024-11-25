@@ -139,15 +139,21 @@ char *replace(String *string,
               const String *search,
               const String *replace)
 {
-    size_t n = count(string, search);
-    size_t s = strlen(search);
-    size_t r = strlen(replace);
-    size_t len = strlen(string) - (s - r) * n;
+    size_t n = count(string,
+                     search);
 
-    if (len + 1 > string_builder->size)
-        string_builder->buffer = realloc_string(len + 1);
+    size_t s = search->len;
+    size_t r = replace->len;
+    size_t len = string->len - (s - r) * n;
 
-    char *buffer = calloc(len, sizeof(char));
+    if (len + 1 > string->capacity)
+    {
+        string_resize(string,
+                      len + 1);
+    }
+
+    char *buffer = calloc(len,
+                          sizeof(char));
 
     strcpy(string_builder->buffer, string);
 
@@ -172,6 +178,8 @@ char *replace(String *string,
 
     return string_builder->buffer;
 }
+
+
 
 /*
 char *join(char **strings, size_t size, const char *delim)
@@ -226,3 +234,379 @@ void print(const String *string)
 {
     printf("%s", string->text);
 }
+
+/*
+char *join(char **strings, size_t size, const char *delim)
+{
+    char *string = strings[0];
+
+    for (size_t i = 1; i < size; i++)
+    {
+        string = append(string, delim);
+        string = append(string, strings[i]);
+    }
+
+    return  string;
+}
+
+char *lpad(const char *string, size_t pad)
+{
+    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
+
+    size_t len = strlen(string);
+
+    char *copy = strdup(string);
+
+    if (len + pad + 1 > string_builder->size)
+        string_builder->buffer = realloc_string(len + pad + 1);
+
+    memset(string_builder->buffer, ' ', pad);
+    string_builder->buffer[pad] = '\0';
+    strcat(string_builder->buffer, copy);
+
+    free(copy);
+
+    return string_builder->buffer;
+}
+
+char *rpad(const char *string, size_t pad)
+{
+    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
+
+    size_t len = strlen(string);
+
+    if (len + pad + 1 > string_builder->size)
+        string_builder->buffer = realloc_string(len + pad + 1);
+
+    memmove(string_builder->buffer, string, len);
+    memset(string_builder->buffer + len, ' ', pad);
+    string_builder->buffer[len + pad] = '\0';
+
+    return string_builder->buffer;
+}
+
+void reverse(char *string)
+{
+    char *copy = strdup(string);
+
+    size_t len = strlen(copy);
+
+    for (size_t i = len - 1, j = 0; i < len; i--, j++)
+        string[j] = copy[i];
+
+    free(copy);
+}
+
+void capitalise(char *string)
+{
+    char c = string[0];
+    c = (char)toupper((unsigned char)c);
+    string[0] = c;
+}
+
+void lower(char *string)
+{
+    size_t len = strlen(string);
+    for (size_t i = 0; i < len; i++)
+    {
+        char c = string[i];
+        c = (char)tolower((unsigned char)c);
+        string[i] = c;
+    }
+}
+
+void upper(char *string)
+{
+    size_t len = strlen(string);
+    for (size_t i = 0; i < len; i++)
+    {
+        char c = string[i];
+        c = (char)toupper((unsigned char)c);
+        string[i] = c;
+    }
+}
+
+void title(char *string)
+{
+    size_t len = strlen(string);
+    for (size_t i = 0; i < len; i++)
+    {
+        if (i == 0)
+        {
+            char c = string[i];
+            c = (char)toupper((unsigned char)c);
+            string[i] = c;
+        }
+        else if (string[i] == ' ')
+        {
+            char c = string[i+1];
+            c = (char)toupper((unsigned char)c);
+            string[i+1] = c;
+        }
+    }
+}
+
+void swapcase(char *string)
+{
+    size_t len = strlen(string);
+    for (size_t i = 0; i < len; i++)
+    {
+        char c = string[i];
+        if (isupper(c))
+            string[i] = (char)tolower((unsigned char)c);
+        else if (islower(c))
+            string[i] = (char)toupper((unsigned char)c);
+    }
+}
+
+void lstrip(char *string)
+{
+    size_t count = 0;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; isspace(string[i]); i++)
+        count++;
+
+    if (count)
+    {
+        memmove(string, string+count, len-count);
+        string[len-count] = '\0';
+    }
+}
+
+void rstrip(char *string)
+{
+    size_t count = 0;
+    size_t len = strlen(string);
+
+    for (size_t i = len-1; isspace(string[i]) || i > len; i--)
+        count++;
+
+    if (count)
+    {
+        string[len-count] = '\0';
+    }
+}
+
+void strip(char *string)
+{
+    rstrip(string);
+    lstrip(string);
+}
+
+void truncate(char *string, size_t size)
+{
+    if (strlen(string) > size)
+    {
+        string[size] = '\0';
+
+        size_t len = strlen(string);
+
+        for (size_t i = len-1; i < len && i > len - 4; i--)
+            string[i] = '.';
+    }
+}
+
+bool is_lower(const char *string)
+{
+    bool result = true;
+
+    while (result && *string)
+    {
+        char c = *string;
+        if (isalpha(c))
+            result = islower(c);
+        string++;
+    }
+
+    return result;
+}
+bool is_upper(const char *string)
+{
+    bool result = true;
+
+    while (result && *string)
+    {
+        char c = *string;
+        if (isalpha(c))
+            result = isupper(c);
+        string++;
+    }
+
+    return result;
+}
+bool is_title(const char *string)
+{
+    bool result = true;
+
+    size_t len = strlen(string);
+    bool check_upper = true;
+
+    for (size_t i = 0; result && i < len; i++)
+    {
+        char c = string[i];
+
+        if (isalpha(c))
+        {
+            result = (check_upper) ? isupper(c) : islower(c);
+            check_upper = false;
+        }
+        else if (isblank(c))
+        {
+            check_upper = true;
+        }
+    }
+
+    return result;
+}
+bool starts_with(const char *string, const char *prefix)
+{
+    return strncmp(string, prefix, strlen(prefix)) == 0;
+}
+bool ends_with(const char *string, const char *suffix)
+{
+    return strcmp(&string[strlen(string) - strlen(suffix)], suffix) == 0;
+}
+bool is_alnum(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+    {
+        result = isalnum(string[i]);
+    }
+
+    return result;
+}
+bool is_alpha(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+    {
+        result = isalpha(string[i]);
+    }
+
+    return result;
+}
+bool is_ascii(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+    {
+        result = isascii(string[i]);
+    }
+
+    return result;
+}
+bool is_decimal(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+        result = isdigit(string[i]);
+
+    return result;
+}
+bool is_printable(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+        result = isprint(string[i]);
+
+    return result;
+}
+bool is_space(const char *string)
+{
+    bool result = true;
+    size_t len = strlen(string);
+
+    for (size_t i = 0; result && i < len; i++)
+        result = isspace(string[i]);
+
+    return result;
+}
+
+*/
+
+size_t count(const String *string,
+             const String *value)
+{
+    size_t count = 0;
+    size_t len = value->len;
+
+    const char *substr = string->text;
+
+    while ((substr = strstr(substr, value->text)))
+    {
+        count++;
+        substr += len;
+    }
+
+    return count;
+}
+
+size_t find(String *string,
+            const String *value)
+{
+    size_t count = NOT_FOUND;
+    char *substr = NULL;
+
+    if (string)
+    {
+        if ((substr = strstr(string, value)))
+            count = substr - string;
+    }
+
+    return count;
+}
+
+/*
+size_t rfind(const char *string, const char *value)
+{
+    size_t count = NOT_FOUND;
+    size_t len = strlen(value);
+    const char *substr = string;
+
+    while ((substr = strstr(substr, value)))
+    {
+        count = substr - string;
+        substr += len;
+    }
+
+    return count;
+}
+size_t word_count(const char *string)
+{
+    size_t count = 0;
+    size_t len = strlen(string);
+    bool on_word = false;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        char c = string[i];
+
+        if (isspace(c))
+        {
+            if (on_word)
+                on_word = false;
+        }
+        else
+        {
+            if (!on_word)
+            {
+                on_word = true;
+                count++;
+            }
+        }
+    }
+
+    return count;
+}*/
