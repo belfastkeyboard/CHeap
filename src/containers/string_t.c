@@ -7,6 +7,7 @@
 
 #define SHORT_STRING_LEN 16
 #define GROWTH_POLICY    2
+#define NOT_FOUND        ((size_t)-1)
 
 
 typedef struct String
@@ -45,6 +46,21 @@ static size_t resize_policy(size_t capacity,
     }
 
     return null_terminate(capacity);
+}
+
+static size_t l_find(const char *string,
+                     const char *value)
+{
+    size_t index = NOT_FOUND;
+    const char *substr = string;
+
+    if (substr)
+    {
+        if ((substr = strstr(substr, value)))
+            index = substr - string;
+    }
+
+    return index;
 }
 
 
@@ -105,9 +121,9 @@ static void string_resize(String *string,
         strncpy(tmp, string->stack, string->len);
 
         string->heap = tmp;
-        string->text = string->heap;
     }
 
+    string->text = string->heap;
     string->capacity = new_capacity;
 }
 
@@ -135,51 +151,58 @@ void insert(String *dest,
     strncpy(dest->text + index, src->text, src->len);
 }
 
-char *replace(String *string,
+String *replace(String *string,
               const String *search,
               const String *replace)
 {
-    size_t n = count(string,
-                     search);
+    size_t index = NOT_FOUND;
+    ssize_t diff = (ssize_t)(replace->len - search->len);
 
-    size_t s = search->len;
-    size_t r = replace->len;
-    size_t len = string->len - (s - r) * n;
-
-    if (len + 1 > string->capacity)
+    while ((index = l_find(string->text, search->text)) != NOT_FOUND)
     {
-        string_resize(string,
-                      len + 1);
+        if (string->len + diff >= string->capacity)
+        {
+            string_resize(string, string->len + diff);
+        }
+
+        memmove(string->text + index + replace->len, string->text + index + search->len, string->len - index);
+        strncpy(string->text + index, replace->text, replace->len);
+        string->len += diff;
     }
 
-    char *buffer = calloc(len,
-                          sizeof(char));
-
-    strcpy(string_builder->buffer, string);
-
-    for (size_t i = 0; i < n; i++)
-    {
-        size_t index = find(string_builder->buffer, search);
-
-        if (index == NOT_FOUND)
-            continue;
-
-        char *ptr = NULL;
-
-        ptr = stpncpy(buffer, string_builder->buffer, index);
-        ptr = stpncpy(ptr, replace, r);
-        strcat(ptr, &string_builder->buffer[index + s]);
-
-        strcpy(string_builder->buffer, buffer);
-        memset(buffer, 0, len);
-    }
-
-    free(buffer);
-
-    return string_builder->buffer;
+    return string;
 }
 
+String *lpad(String *string,
+             const size_t pad)
+{
+    if (string->len + pad > string->capacity)
+    {
+        string_resize(string, string->len + pad);
+    }
 
+    memmove(string->text + pad, string->text, string->len);
+    memset(string->text, ' ', pad);
+
+    string->len += pad;
+
+    return string;
+}
+
+String *rpad(String *string,
+           const size_t pad)
+{
+    if (string->len + pad > string->capacity)
+    {
+        string_resize(string, string->len + pad);
+    }
+
+    memset(string->text + string->len, ' ', pad);
+
+    string->len += pad;
+
+    return string;
+}
 
 /*
 char *join(char **strings, size_t size, const char *delim)
@@ -194,41 +217,7 @@ char *join(char **strings, size_t size, const char *delim)
 
     return  string;
 }
-char *lpad(const char *string, size_t pad)
-{
-    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
 
-    size_t len = strlen(string);
-
-    char *copy = strdup(string);
-
-    if (len + pad + 1 > string_builder->size)
-        string_builder->buffer = realloc_string(len + pad + 1);
-
-    memset(string_builder->buffer, ' ', pad);
-    string_builder->buffer[pad] = '\0';
-    strcat(string_builder->buffer, copy);
-
-    free(copy);
-
-    return string_builder->buffer;
-}
-char *rpad(const char *string, size_t pad)
-{
-    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
-
-    size_t len = strlen(string);
-
-    if (len + pad + 1 > string_builder->size)
-        string_builder->buffer = realloc_string(len + pad + 1);
-
-    memmove(string_builder->buffer, string, len);
-    memset(string_builder->buffer + len, ' ', pad);
-    string_builder->buffer[len + pad] = '\0';
-
-    return string_builder->buffer;
-}
-*/
 
 void print(const String *string)
 {
@@ -553,19 +542,11 @@ size_t count(const String *string,
     return count;
 }
 
+
 size_t find(String *string,
             const String *value)
 {
-    size_t count = NOT_FOUND;
-    char *substr = NULL;
-
-    if (string)
-    {
-        if ((substr = strstr(string, value)))
-            count = substr - string;
-    }
-
-    return count;
+    return l_find(string->text, value->text);
 }
 
 /*

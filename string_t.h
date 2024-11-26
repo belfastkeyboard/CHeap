@@ -4,7 +4,9 @@
 
 typedef struct String String;
 
+
 String *create_string(const char *text);
+
 void destroy_string(String **string);
 
 
@@ -15,16 +17,15 @@ void insert(String *dest,
             const String *src,
             size_t index);
 
-char *replace(String *string,
-              const String *find,
-              const String *replace);
+String *replace(String *string,
+                const String *find,
+                const String *replace);
 
-/*
-char *join(char **strings, size_t size, const char *delim);
-char *lpad(const char *string, size_t pad);
-char *rpad(const char *string, size_t pad);
-*/
+String *lpad(String *string,
+           size_t pad);
 
+String *rpad(String *string,
+             size_t pad);
 
 
 void print(const String *string);
@@ -32,6 +33,7 @@ void print(const String *string);
 
 /*
  *
+ * char *join(char **strings, size_t size, const char *delim);
  * char **split(const char *string, const char *delim, size_t *size);
  * void reverse(char *string);
  * void capitalise(char *string); // Converts the first character to upper case
@@ -68,3 +70,4 @@ size_t find(String *string,
  * size_t rfind(const char *string, const char *value); // Searches the string for a specified value and returns the last position of where it was found
  * size_t word_count(const char *string);
  *
+*/
