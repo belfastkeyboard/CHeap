@@ -1,9 +1,11 @@
+#include <assert.h>
+#include <ctype.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include "../../vector.h"
 #include "../../internals/base.h"
 #include "../../string_t.h"
-#include <assert.h>
 
 #define SHORT_STRING_LEN 16
 #define GROWTH_POLICY    2
@@ -28,8 +30,8 @@ static size_t null_terminate(const size_t len)
 }
 
 static size_t string_write(char *dest,
-                         const char *src,
-                         const size_t len)
+                           const char *src,
+                           const size_t len)
 {
     strncpy(dest, src, len);
     dest[len] = '\0';
@@ -58,6 +60,21 @@ static size_t l_find(const char *string,
     {
         if ((substr = strstr(substr, value)))
             index = substr - string;
+    }
+
+    return index;
+}
+
+static size_t r_find(const String *string,
+                     const String *value)
+{
+    size_t index = NOT_FOUND;
+    const char *substr = string->text;
+
+    while ((substr = strstr(substr, value->text)))
+    {
+        index = substr - string->text;
+        substr += value->len;
     }
 
     return index;
@@ -128,7 +145,8 @@ static void string_resize(String *string,
 }
 
 
-void append_string(String *dest, const String *src)
+void append_string(String *dest,
+                   const String *src)
 {
     if (dest->len + src->len >= dest->capacity)
     {
@@ -152,8 +170,8 @@ void insert(String *dest,
 }
 
 String *replace(String *string,
-              const String *search,
-              const String *replace)
+                const String *search,
+                const String *replace)
 {
     size_t index = NOT_FOUND;
     ssize_t diff = (ssize_t)(replace->len - search->len);
@@ -190,7 +208,7 @@ String *lpad(String *string,
 }
 
 String *rpad(String *string,
-           const size_t pad)
+             const size_t pad)
 {
     if (string->len + pad > string->capacity)
     {
@@ -204,18 +222,359 @@ String *rpad(String *string,
     return string;
 }
 
-/*
-char *join(char **strings, size_t size, const char *delim)
-{
-    char *string = strings[0];
 
-    for (size_t i = 1; i < size; i++)
+String *reverse(String *string)
+{
+    char *copy = strdup(string->text);
+
+    size_t len = strlen(copy);
+
+    for (size_t i = len - 1, j = 0; i < len; i--, j++)
     {
-        string = append(string, delim);
-        string = append(string, strings[i]);
+        string->text[j] = copy[i];
     }
 
-    return  string;
+    free(copy);
+
+    return string;
+}
+
+String *capitalise(String *string)
+{
+    char c = string->text[0];
+    c = (char)toupper((unsigned char)c);
+    string->text[0] = c;
+
+    return string;
+}
+
+String *lower(String *string)
+{
+    for (size_t i = 0; i < string->len; i++)
+    {
+        char c = string->text[i];
+        c = (char)tolower((unsigned char)c);
+        string->text[i] = c;
+    }
+
+    return string;
+}
+
+String *upper(String *string)
+{
+    for (size_t i = 0; i < string->len; i++)
+    {
+        char c = string->text[i];
+        c = (char)toupper((unsigned char)c);
+        string->text[i] = c;
+    }
+
+    return string;
+}
+
+String *title(String *string)
+{
+    for (size_t i = 0; i < string->len; i++)
+    {
+        if (i == 0)
+        {
+            char c = string->text[i];
+            c = (char)toupper((unsigned char)c);
+            string->text[i] = c;
+        }
+        else if (string->text[i] == ' ')
+        {
+            char c = string->text[i+1];
+            c = (char)toupper((unsigned char)c);
+            string->text[i+1] = c;
+            i++;
+        }
+        else if (isalpha(string->text[i]))
+        {
+            char c = string->text[i];
+            c = (char)tolower((unsigned char)c);
+            string->text[i] = c;
+        }
+    }
+
+    return string;
+}
+
+String *swapcase(String *string)
+{
+    for (size_t i = 0; i < string->len; i++)
+    {
+        char c = string->text[i];
+
+        if (isupper(c))
+        {
+            string->text[i] = (char)tolower((unsigned char)c);
+        }
+        else if (islower(c))
+        {
+            string->text[i] = (char)toupper((unsigned char)c);
+        }
+    }
+
+    return string;
+}
+
+String *lstrip(String *string)
+{
+    size_t count = 0;
+
+    for (; isspace(string->text[count]); count++);
+
+    if (count)
+    {
+        memmove(string->text, string->text + count, string->len - count);
+
+        string->len -= count;
+        string->text[string->len] = '\0';
+    }
+
+    return string;
+}
+
+String *rstrip(String *string)
+{
+    size_t count = string->len - 1;
+
+    for (; isspace(string->text[count]); count--);
+
+    if (count < string->len - 1)
+    {
+        string->len = count;
+        string->text[count + 1] = '\0';
+    }
+
+    return string;
+}
+
+String *strip(String *string)
+{
+    size_t count = 0;
+
+    for (; isspace(string->text[count]); count++);
+
+    if (count)
+    {
+        memmove(string->text, string->text + count, string->len - count);
+
+        string->len -= count;
+        string->text[string->len] = '\0';
+    }
+
+    count = string->len - 1;
+
+    for (; isspace(string->text[count]); count--);
+
+    if (count < string->len - 1)
+    {
+        string->len = count;
+        string->text[count + 1] = '\0';
+    }
+
+    return string;
+}
+
+String *truncate(String *string,
+                 const size_t size)
+{
+    if (string->len > size)
+    {
+        string->len = size;
+        string->text[size + 1] = '\0';
+
+        if (size > 3)
+        {
+            for (size_t i = string->len; i > 0 && i > string->len - 3; i--)
+            {
+                string->text[i] = '.';
+            }
+        }
+    }
+
+    return string;
+}
+
+
+bool is_lower(const String *string)
+{
+    bool result = true;
+
+    const char *text = string->text;
+
+    while (result && *text)
+    {
+        char c = *text;
+
+        if (isalpha(c))
+        {
+            result = islower(c);
+        }
+
+        text++;
+    }
+
+    return result;
+}
+
+bool is_upper(const String *string)
+{
+    bool result = true;
+
+    const char *text = string->text;
+
+    while (result && *text)
+    {
+        char c = *text;
+
+        if (isalpha(c))
+        {
+            result = isupper(c);
+        }
+
+        text++;
+    }
+
+    return result;
+}
+
+bool is_title(const String *string)
+{
+    bool result = true;
+    bool check_upper = true;
+
+    const char *text = string->text;
+
+    while(result && *text)
+    {
+        char c = *text;
+
+        if (isalpha(c))
+        {
+            result = (check_upper) ? isupper(c) :
+                                     islower(c);
+
+            check_upper = false;
+        }
+        else if (isblank(c))
+        {
+            check_upper = true;
+        }
+
+        text++;
+    }
+
+    return result;
+}
+
+bool starts_with(const String *string,
+                 const String *prefix)
+{
+    return strncmp(string->text,
+                   prefix->text,
+                   prefix->len) == 0;
+}
+
+bool ends_with(const String *string,
+               const String *suffix)
+{
+    return strcmp(&string->text[string->len - suffix->len],
+                  suffix->text) == 0;
+}
+
+bool is_alnum(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isalnum(string->text[i]);
+    }
+
+    return result;
+}
+
+bool is_alpha(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isalpha(string->text[i]);
+    }
+
+    return result;
+}
+
+bool is_ascii(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isascii(string->text[i]);
+    }
+
+    return result;
+}
+
+bool is_decimal(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isdigit(string->text[i]);
+    }
+
+    return result;
+}
+
+bool is_printable(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isprint(string->text[i]);
+    }
+
+    return result;
+}
+
+bool is_space(const String *string)
+{
+    bool result = true;
+
+    for (size_t i = 0; result && i < string->len; i++)
+    {
+        result = isspace(string->text[i]);
+    }
+
+    return result;
+}
+
+String *join(Vector *strings,
+             const String *delim)
+{
+    String *string = create_string("");
+
+    for (int i = 0; i < size_vector(strings); i++)
+    {
+        String *part = at_vector(strings, i);
+
+        append_string(string, part);
+
+        if (i < size_vector(strings) - 1)
+        {
+            append_string(string, delim);
+        }
+    }
+
+    return string;
 }
 
 
@@ -224,306 +583,6 @@ void print(const String *string)
     printf("%s", string->text);
 }
 
-/*
-char *join(char **strings, size_t size, const char *delim)
-{
-    char *string = strings[0];
-
-    for (size_t i = 1; i < size; i++)
-    {
-        string = append(string, delim);
-        string = append(string, strings[i]);
-    }
-
-    return  string;
-}
-
-char *lpad(const char *string, size_t pad)
-{
-    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
-
-    size_t len = strlen(string);
-
-    char *copy = strdup(string);
-
-    if (len + pad + 1 > string_builder->size)
-        string_builder->buffer = realloc_string(len + pad + 1);
-
-    memset(string_builder->buffer, ' ', pad);
-    string_builder->buffer[pad] = '\0';
-    strcat(string_builder->buffer, copy);
-
-    free(copy);
-
-    return string_builder->buffer;
-}
-
-char *rpad(const char *string, size_t pad)
-{
-    assert(string_builder && "String builder is not initialised. Call create_string_builder() first.");
-
-    size_t len = strlen(string);
-
-    if (len + pad + 1 > string_builder->size)
-        string_builder->buffer = realloc_string(len + pad + 1);
-
-    memmove(string_builder->buffer, string, len);
-    memset(string_builder->buffer + len, ' ', pad);
-    string_builder->buffer[len + pad] = '\0';
-
-    return string_builder->buffer;
-}
-
-void reverse(char *string)
-{
-    char *copy = strdup(string);
-
-    size_t len = strlen(copy);
-
-    for (size_t i = len - 1, j = 0; i < len; i--, j++)
-        string[j] = copy[i];
-
-    free(copy);
-}
-
-void capitalise(char *string)
-{
-    char c = string[0];
-    c = (char)toupper((unsigned char)c);
-    string[0] = c;
-}
-
-void lower(char *string)
-{
-    size_t len = strlen(string);
-    for (size_t i = 0; i < len; i++)
-    {
-        char c = string[i];
-        c = (char)tolower((unsigned char)c);
-        string[i] = c;
-    }
-}
-
-void upper(char *string)
-{
-    size_t len = strlen(string);
-    for (size_t i = 0; i < len; i++)
-    {
-        char c = string[i];
-        c = (char)toupper((unsigned char)c);
-        string[i] = c;
-    }
-}
-
-void title(char *string)
-{
-    size_t len = strlen(string);
-    for (size_t i = 0; i < len; i++)
-    {
-        if (i == 0)
-        {
-            char c = string[i];
-            c = (char)toupper((unsigned char)c);
-            string[i] = c;
-        }
-        else if (string[i] == ' ')
-        {
-            char c = string[i+1];
-            c = (char)toupper((unsigned char)c);
-            string[i+1] = c;
-        }
-    }
-}
-
-void swapcase(char *string)
-{
-    size_t len = strlen(string);
-    for (size_t i = 0; i < len; i++)
-    {
-        char c = string[i];
-        if (isupper(c))
-            string[i] = (char)tolower((unsigned char)c);
-        else if (islower(c))
-            string[i] = (char)toupper((unsigned char)c);
-    }
-}
-
-void lstrip(char *string)
-{
-    size_t count = 0;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; isspace(string[i]); i++)
-        count++;
-
-    if (count)
-    {
-        memmove(string, string+count, len-count);
-        string[len-count] = '\0';
-    }
-}
-
-void rstrip(char *string)
-{
-    size_t count = 0;
-    size_t len = strlen(string);
-
-    for (size_t i = len-1; isspace(string[i]) || i > len; i--)
-        count++;
-
-    if (count)
-    {
-        string[len-count] = '\0';
-    }
-}
-
-void strip(char *string)
-{
-    rstrip(string);
-    lstrip(string);
-}
-
-void truncate(char *string, size_t size)
-{
-    if (strlen(string) > size)
-    {
-        string[size] = '\0';
-
-        size_t len = strlen(string);
-
-        for (size_t i = len-1; i < len && i > len - 4; i--)
-            string[i] = '.';
-    }
-}
-
-bool is_lower(const char *string)
-{
-    bool result = true;
-
-    while (result && *string)
-    {
-        char c = *string;
-        if (isalpha(c))
-            result = islower(c);
-        string++;
-    }
-
-    return result;
-}
-bool is_upper(const char *string)
-{
-    bool result = true;
-
-    while (result && *string)
-    {
-        char c = *string;
-        if (isalpha(c))
-            result = isupper(c);
-        string++;
-    }
-
-    return result;
-}
-bool is_title(const char *string)
-{
-    bool result = true;
-
-    size_t len = strlen(string);
-    bool check_upper = true;
-
-    for (size_t i = 0; result && i < len; i++)
-    {
-        char c = string[i];
-
-        if (isalpha(c))
-        {
-            result = (check_upper) ? isupper(c) : islower(c);
-            check_upper = false;
-        }
-        else if (isblank(c))
-        {
-            check_upper = true;
-        }
-    }
-
-    return result;
-}
-bool starts_with(const char *string, const char *prefix)
-{
-    return strncmp(string, prefix, strlen(prefix)) == 0;
-}
-bool ends_with(const char *string, const char *suffix)
-{
-    return strcmp(&string[strlen(string) - strlen(suffix)], suffix) == 0;
-}
-bool is_alnum(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-    {
-        result = isalnum(string[i]);
-    }
-
-    return result;
-}
-bool is_alpha(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-    {
-        result = isalpha(string[i]);
-    }
-
-    return result;
-}
-bool is_ascii(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-    {
-        result = isascii(string[i]);
-    }
-
-    return result;
-}
-bool is_decimal(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-        result = isdigit(string[i]);
-
-    return result;
-}
-bool is_printable(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-        result = isprint(string[i]);
-
-    return result;
-}
-bool is_space(const char *string)
-{
-    bool result = true;
-    size_t len = strlen(string);
-
-    for (size_t i = 0; result && i < len; i++)
-        result = isspace(string[i]);
-
-    return result;
-}
-
-*/
 
 size_t count(const String *string,
              const String *value)
@@ -549,30 +608,20 @@ size_t find(String *string,
     return l_find(string->text, value->text);
 }
 
-/*
-size_t rfind(const char *string, const char *value)
+size_t rfind(const String *string,
+             const String *value)
 {
-    size_t count = NOT_FOUND;
-    size_t len = strlen(value);
-    const char *substr = string;
-
-    while ((substr = strstr(substr, value)))
-    {
-        count = substr - string;
-        substr += len;
-    }
-
-    return count;
+    return r_find(string, value);
 }
-size_t word_count(const char *string)
+
+size_t word_count(const String *string)
 {
     size_t count = 0;
-    size_t len = strlen(string);
     bool on_word = false;
 
-    for (size_t i = 0; i < len; i++)
+    for (size_t i = 0; i < string->len; i++)
     {
-        char c = string[i];
+        char c = string->text[i];
 
         if (isspace(c))
         {
@@ -590,4 +639,4 @@ size_t word_count(const char *string)
     }
 
     return count;
-}*/
+}

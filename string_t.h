@@ -1,8 +1,11 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 
+
 typedef struct String String;
+typedef struct Vector Vector;
 
 
 String *create_string(const char *text);
@@ -28,46 +31,72 @@ String *rpad(String *string,
              size_t pad);
 
 
+String *reverse(String *string);
+
+String *capitalise(String *string); // Converts the first character to upper case
+
+String *lower(String *string); // Converts a string into lower case
+
+String *upper(String *string); // Converts a string into upper case
+
+String *title(String *string); // Converts the first character of each word to upper case
+
+String *swapcase(String *string); // Swaps cases, lower case becomes upper case and vice versa
+
+String *lstrip(String *string); // Returns a left trim version of the string
+
+String *rstrip(String *string); // Returns a right trim version of the string
+
+String *strip(String *string); // Returns a trimmed version of the string
+
+String *truncate(String *string, size_t size);
+
+
+bool is_lower(const String *string); // Returns True if all characters in the string are lower case
+
+bool is_upper(const String *string); // Returns True if all characters in the string are upper case
+
+bool is_title(const String *string); // Returns True if the string follows the rules of a title
+
+bool starts_with(const String *string,
+                 const String *prefix); // Returns True if the string starts with the specified value
+
+bool ends_with(const String *string,
+               const String *suffix); // Returns true if the string ends with the specified value
+
+bool is_alnum(const String *string); // Returns True if all characters in the string are alphanumeric
+
+bool is_alpha(const String *string); // Returns True if all characters in the string are in the alphabet
+
+bool is_ascii(const String *string); // Returns True if all characters in the string are ascii characters
+
+bool is_decimal(const String *string); // Returns True if all characters in the string are decimals
+
+bool is_printable(const String *string); // Returns True if all characters in the string are printable
+
+bool is_space(const String *string); // Returns True if all characters in the string are whitespaces
+
+
 void print(const String *string);
 
 
-/*
- *
- * char *join(char **strings, size_t size, const char *delim);
- * char **split(const char *string, const char *delim, size_t *size);
- * void reverse(char *string);
- * void capitalise(char *string); // Converts the first character to upper case
- * void lower(char *string); // Converts a string into lower case
- * void upper(char *string); // Converts a string into upper case
- * void title(char *string); // Converts the first character of each word to upper case
- * void swapcase(char *string); // Swaps cases, lower case becomes upper case and vice versa
- * void lstrip(char *string); // Returns a left trim version of the string
- * void rstrip(char *string); // Returns a right trim version of the string
- * void strip(char *string); // Returns a trimmed version of the string
- * void truncate(char *string, size_t size);
- *
- * bool is_lower(const char *string); // Returns True if all characters in the string are lower case
- * bool is_upper(const char *string); // Returns True if all characters in the string are upper case
- * bool is_title(const char *string); // Returns True if the string follows the rules of a title
- * bool starts_with(const char *string, const char *prefix); // Returns True if the string starts with the specified value
- * bool ends_with(const char *string, const char *suffix); // Returns true if the string ends with the specified value
- * bool is_alnum(const char *string); // Returns True if all characters in the string are alphanumeric
- * bool is_alpha(const char *string); // Returns True if all characters in the string are in the alphabet
- * bool is_ascii(const char *string); // Returns True if all characters in the string are ascii characters
- * bool is_decimal(const char *string); // Returns True if all characters in the string are decimals
- * bool is_printable(const char *string); // Returns True if all characters in the string are printable
- * bool is_space(const char *string); // Returns True if all characters in the string are whitespaces
- *
- * */
-
+// Returns the number of times a specified value occurs in a string
 size_t count(const String *string,
-             const String *value); // Returns the number of times a specified value occurs in a string
+             const String *value);
 
+// Searches the string for a specified value and returns the position of where it was found
 size_t find(String *string,
-            const String *value); // Searches the string for a specified value and returns the position of where it was found
+            const String *value);
 
-/*
- * size_t rfind(const char *string, const char *value); // Searches the string for a specified value and returns the last position of where it was found
- * size_t word_count(const char *string);
- *
-*/
+// Searches the string for a specified value and returns the last position of where it was found
+size_t rfind(const String *string,
+             const String *value);
+
+size_t word_count(const String *string);
+
+
+String *join(Vector *strings,
+             const String *delim);
+
+Vector *split(const String *string,
+              const String *delim);
