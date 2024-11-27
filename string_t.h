@@ -85,7 +85,7 @@ size_t count(const String *string,
              const String *value);
 
 // Searches the string for a specified value and returns the position of where it was found
-size_t find(String *string,
+size_t find(const String *string,
             const String *value);
 
 // Searches the string for a specified value and returns the last position of where it was found

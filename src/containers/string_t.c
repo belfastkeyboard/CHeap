@@ -577,6 +577,24 @@ String *join(Vector *strings,
     return string;
 }
 
+Vector *split(const String *string,
+              const String *delim)
+{
+    char *tok = strtok(string->text, delim->text);
+    Vector *vector = create_vector(sizeof(String));
+
+    while (tok)
+    {
+        String *str_token = create_string(tok);
+
+        push_back_vector(vector, str_token);
+
+        tok = strtok(NULL, delim->text);
+    }
+
+    return vector;
+}
+
 
 void print(const String *string)
 {
@@ -602,7 +620,7 @@ size_t count(const String *string,
 }
 
 
-size_t find(String *string,
+size_t find(const String *string,
             const String *value)
 {
     return l_find(string->text, value->text);
