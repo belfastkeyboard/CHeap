@@ -1,10 +1,7 @@
 #pragma once
 
 #include <stddef.h>
-
-#define KB(x) (x * 1024)
-#define MB(x) (KB(x) * 1024)
-#define GB(x) (MB(x) * 1024)
+#include "internals/byte.h"
 
 typedef struct Arena Arena;
 
