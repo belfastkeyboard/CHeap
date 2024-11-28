@@ -82,3 +82,5 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 
 [Untangling Lifetimes: The Arena Allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
 by Ryan Fleury
+
+[C++ Containers Library](https://en.cppreference.com/w/cpp/container)
