@@ -62,20 +62,18 @@ I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
-- string builder
 - iterators
-- alternate arena type with a freeblock list?
-- thread safety?
 - enforce alignment in CHeap allocator
 - fix bugs in RB Tree
 - stress test all types
 
 ## CONSIDER:
 - C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
+- alternate arena type with a freeblock list?
+- thread safety?
 - attempt to re-write create macro to accept hash table without having to write 'sizeof'
 - separate linked list pages into array(node) + array(data) for even faster iteration?
 - all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
-- consider creating spans on the stack instead
 - re-hash or store hashes in buckets? (reduced memory overhead vs reduced time to hash)
 
 ## INFLUENCES
