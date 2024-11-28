@@ -8,95 +8,99 @@ typedef struct String String;
 typedef struct Vector Vector;
 
 
+__attribute__((warn_unused_result))
 String *create_string(const char *text);
+
+__attribute__((format(printf, 1, 2)))
+__attribute__((warn_unused_result))
+String *create_string_fmt(const char *format, ...);
 
 void destroy_string(String **string);
 
+__attribute__((warn_unused_result))
+String *copy_string(const String *string);
 
-void append_string(String *dest,
-                   const String *src);
+String *append_string(String *dest,
+                      const String *src);
 
-void insert(String *dest,
-            const String *src,
-            size_t index);
+String *insert_string(String *dest,
+                      const String *src,
+                      size_t index);
 
-String *replace(String *string,
-                const String *find,
-                const String *replace);
+String *replace_string(String *string,
+                       const String *find,
+                       const String *replace);
 
-String *lpad(String *string,
-           size_t pad);
+String *lpad_string(String *string,
+                    size_t pad);
 
-String *rpad(String *string,
-             size_t pad);
-
-
-String *reverse(String *string);
-
-String *capitalise(String *string); // Converts the first character to upper case
-
-String *lower(String *string); // Converts a string into lower case
-
-String *upper(String *string); // Converts a string into upper case
-
-String *title(String *string); // Converts the first character of each word to upper case
-
-String *swapcase(String *string); // Swaps cases, lower case becomes upper case and vice versa
-
-String *lstrip(String *string); // Returns a left trim version of the string
-
-String *rstrip(String *string); // Returns a right trim version of the string
-
-String *strip(String *string); // Returns a trimmed version of the string
-
-String *truncate(String *string, size_t size);
+String *rpad_string(String *string,
+                    size_t pad);
 
 
-bool is_lower(const String *string); // Returns True if all characters in the string are lower case
+String *reverse_string(String *string);
 
-bool is_upper(const String *string); // Returns True if all characters in the string are upper case
+String *capitalise_string(String *string);
 
-bool is_title(const String *string); // Returns True if the string follows the rules of a title
+String *lower_string(String *string);
 
-bool starts_with(const String *string,
-                 const String *prefix); // Returns True if the string starts with the specified value
+String *upper_string(String *string);
 
-bool ends_with(const String *string,
-               const String *suffix); // Returns true if the string ends with the specified value
+String *title_string(String *string);
 
-bool is_alnum(const String *string); // Returns True if all characters in the string are alphanumeric
+String *swapcase_string(String *string);
 
-bool is_alpha(const String *string); // Returns True if all characters in the string are in the alphabet
+String *lstrip_string(String *string);
 
-bool is_ascii(const String *string); // Returns True if all characters in the string are ascii characters
+String *rstrip_string(String *string);
 
-bool is_decimal(const String *string); // Returns True if all characters in the string are decimals
+String *strip_string(String *string);
 
-bool is_printable(const String *string); // Returns True if all characters in the string are printable
+String *truncate_string(String *string, size_t size);
 
-bool is_space(const String *string); // Returns True if all characters in the string are whitespaces
+String *join_string(Vector *strings,
+                    const String *delim);
 
-
-void print(const String *string);
-
-
-// Returns the number of times a specified value occurs in a string
-size_t count(const String *string,
-             const String *value);
-
-// Searches the string for a specified value and returns the position of where it was found
-size_t find(const String *string,
-            const String *value);
-
-// Searches the string for a specified value and returns the last position of where it was found
-size_t rfind(const String *string,
-             const String *value);
-
-size_t word_count(const String *string);
+Vector *split_string(const String *string,
+                     const String *delim);
 
 
-String *join(Vector *strings,
-             const String *delim);
+bool is_lower_string(const String *string);
 
-Vector *split(const String *string,
-              const String *delim);
+bool is_upper_string(const String *string);
+
+bool is_title_string(const String *string);
+
+bool starts_with_string(const String *string,
+                        const String *prefix);
+
+bool ends_with_string(const String *string,
+                      const String *suffix);
+
+bool is_alnum_string(const String *string);
+
+bool is_alpha_string(const String *string);
+
+bool is_ascii_string(const String *string);
+
+bool is_decimal_string(const String *string);
+
+bool is_printable_string(const String *string);
+
+bool is_space_string(const String *string);
+
+
+void print_string(const String *string);
+
+
+size_t count_string(const String *string,
+                    const String *value);
+
+size_t find_string(const String *string,
+                   const String *value);
+
+size_t rfind_string(const String *string,
+                    const String *value);
+
+size_t word_count_string(const String *string);
+
