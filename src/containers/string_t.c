@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <malloc.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "../../vector.h"
@@ -24,6 +25,7 @@ typedef struct String
     size_t capacity;
 } String;
 
+
 static size_t null_terminate(const size_t len)
 {
     return len + 1;
@@ -34,6 +36,17 @@ static size_t string_write(char *dest,
                            const size_t len)
 {
     strncpy(dest, src, len);
+    dest[len] = '\0';
+
+    return len;
+}
+
+static size_t string_write_va(char *dest,
+                              const size_t len,
+                              const char *format,
+                              va_list args)
+{
+    vsnprintf(dest, len, format, args);
     dest[len] = '\0';
 
     return len;
@@ -80,6 +93,35 @@ static size_t r_find(const String *string,
     return index;
 }
 
+static void string_resize(String *string,
+                          const size_t size)
+{
+    size_t new_capacity = resize_policy(size,
+                                        string->capacity);
+
+    if (string->capacity > SHORT_STRING_LEN)
+    {
+        string->heap = realloc(string->heap,
+                               new_capacity);
+
+        assert(string->heap);
+    }
+    else
+    {
+        char *tmp = calloc(new_capacity,
+                           sizeof(char));
+
+        assert(tmp);
+
+        strncpy(tmp, string->stack, string->len);
+
+        string->heap = tmp;
+    }
+
+    string->text = string->heap;
+    string->capacity = new_capacity;
+}
+
 
 String *create_string(const char *text)
 {
@@ -104,6 +146,35 @@ String *create_string(const char *text)
     return string;
 }
 
+String *create_string_fmt(const char *format, ...)
+{
+    String *string = memory_allocate_container(sizeof(String));
+
+    va_list args, len_args;
+    va_start(args, format);
+    va_copy(len_args, args);
+
+    const size_t len = vsnprintf(NULL, 0, format, len_args);
+
+    if (len + 1 < SHORT_STRING_LEN)
+    {
+        string->len = string_write_va(string->stack, len, format, args);
+        string->capacity = SHORT_STRING_LEN;
+        string->text = string->stack;
+    }
+    else
+    {
+        string->capacity = resize_policy(len, string->capacity);
+        string->heap = malloc(string->capacity);
+        string->len = string_write_va(string->heap, len, format, args);
+        string->text = string->heap;
+    }
+
+    va_end(args);
+
+    return string;
+}
+
 void destroy_string(String **string)
 {
     if ((*string)->capacity > SHORT_STRING_LEN)
@@ -115,38 +186,16 @@ void destroy_string(String **string)
     *string = NULL;
 }
 
-static void string_resize(String *string,
-                          const size_t size)
+
+__attribute__((warn_unused_result))
+String *copy_string(const String *string)
 {
-    size_t new_capacity = resize_policy(size,
-                                        string->capacity);
-
-    if (string->capacity > SHORT_STRING_LEN)
-    {
-        string->heap = realloc(string->heap,
-                             new_capacity);
-
-        assert(string->heap);
-    }
-    else
-    {
-        char *tmp = calloc(new_capacity,
-                           sizeof(char));
-
-        assert(tmp);
-
-        strncpy(tmp, string->stack, string->len);
-
-        string->heap = tmp;
-    }
-
-    string->text = string->heap;
-    string->capacity = new_capacity;
+    return create_string(string->text);
 }
 
 
-void append_string(String *dest,
-                   const String *src)
+String *append_string(String *dest,
+                      const String *src)
 {
     if (dest->len + src->len >= dest->capacity)
     {
@@ -154,11 +203,13 @@ void append_string(String *dest,
     }
 
     dest->len += string_write(dest->text + dest->len, src->text, src->len);
+
+    return dest;
 }
 
-void insert(String *dest,
-            const String *src,
-            const size_t index)
+String *insert_string(String *dest,
+                      const String *src,
+                      size_t index)
 {
     if (dest->len + src->len >= dest->capacity)
     {
@@ -167,23 +218,25 @@ void insert(String *dest,
 
     memmove(dest->text + index + src->len, dest->text + index, dest->len - index);
     strncpy(dest->text + index, src->text, src->len);
+
+    return dest;
 }
 
-String *replace(String *string,
-                const String *search,
-                const String *replace)
+String *replace_string(String *string,
+                       const String *find,
+                       const String *replace)
 {
     size_t index = NOT_FOUND;
-    ssize_t diff = (ssize_t)(replace->len - search->len);
+    ssize_t diff = (ssize_t)(replace->len - find->len);
 
-    while ((index = l_find(string->text, search->text)) != NOT_FOUND)
+    while ((index = l_find(string->text, find->text)) != NOT_FOUND)
     {
         if (string->len + diff >= string->capacity)
         {
             string_resize(string, string->len + diff);
         }
 
-        memmove(string->text + index + replace->len, string->text + index + search->len, string->len - index);
+        memmove(string->text + index + replace->len, string->text + index + find->len, string->len - index);
         strncpy(string->text + index, replace->text, replace->len);
         string->len += diff;
     }
@@ -191,8 +244,8 @@ String *replace(String *string,
     return string;
 }
 
-String *lpad(String *string,
-             const size_t pad)
+String *lpad_string(String *string,
+                    size_t pad)
 {
     if (string->len + pad > string->capacity)
     {
@@ -207,8 +260,8 @@ String *lpad(String *string,
     return string;
 }
 
-String *rpad(String *string,
-             const size_t pad)
+String *rpad_string(String *string,
+                    size_t pad)
 {
     if (string->len + pad > string->capacity)
     {
@@ -223,7 +276,7 @@ String *rpad(String *string,
 }
 
 
-String *reverse(String *string)
+String *reverse_string(String *string)
 {
     char *copy = strdup(string->text);
 
@@ -239,7 +292,7 @@ String *reverse(String *string)
     return string;
 }
 
-String *capitalise(String *string)
+String *capitalise_string(String *string)
 {
     char c = string->text[0];
     c = (char)toupper((unsigned char)c);
@@ -248,7 +301,7 @@ String *capitalise(String *string)
     return string;
 }
 
-String *lower(String *string)
+String *lower_string(String *string)
 {
     for (size_t i = 0; i < string->len; i++)
     {
@@ -260,7 +313,7 @@ String *lower(String *string)
     return string;
 }
 
-String *upper(String *string)
+String *upper_string(String *string)
 {
     for (size_t i = 0; i < string->len; i++)
     {
@@ -272,7 +325,7 @@ String *upper(String *string)
     return string;
 }
 
-String *title(String *string)
+String *title_string(String *string)
 {
     for (size_t i = 0; i < string->len; i++)
     {
@@ -300,7 +353,7 @@ String *title(String *string)
     return string;
 }
 
-String *swapcase(String *string)
+String *swapcase_string(String *string)
 {
     for (size_t i = 0; i < string->len; i++)
     {
@@ -319,7 +372,7 @@ String *swapcase(String *string)
     return string;
 }
 
-String *lstrip(String *string)
+String *lstrip_string(String *string)
 {
     size_t count = 0;
 
@@ -336,7 +389,7 @@ String *lstrip(String *string)
     return string;
 }
 
-String *rstrip(String *string)
+String *rstrip_string(String *string)
 {
     size_t count = string->len - 1;
 
@@ -351,7 +404,7 @@ String *rstrip(String *string)
     return string;
 }
 
-String *strip(String *string)
+String *strip_string(String *string)
 {
     size_t count = 0;
 
@@ -378,8 +431,8 @@ String *strip(String *string)
     return string;
 }
 
-String *truncate(String *string,
-                 const size_t size)
+String *truncate_string(String *string,
+                        size_t size)
 {
     if (string->len > size)
     {
@@ -399,7 +452,7 @@ String *truncate(String *string,
 }
 
 
-bool is_lower(const String *string)
+bool is_lower_string(const String *string)
 {
     bool result = true;
 
@@ -420,7 +473,7 @@ bool is_lower(const String *string)
     return result;
 }
 
-bool is_upper(const String *string)
+bool is_upper_string(const String *string)
 {
     bool result = true;
 
@@ -441,7 +494,7 @@ bool is_upper(const String *string)
     return result;
 }
 
-bool is_title(const String *string)
+bool is_title_string(const String *string)
 {
     bool result = true;
     bool check_upper = true;
@@ -470,22 +523,22 @@ bool is_title(const String *string)
     return result;
 }
 
-bool starts_with(const String *string,
-                 const String *prefix)
+bool starts_with_string(const String *string,
+                        const String *prefix)
 {
     return strncmp(string->text,
                    prefix->text,
                    prefix->len) == 0;
 }
 
-bool ends_with(const String *string,
-               const String *suffix)
+bool ends_with_string(const String *string,
+                      const String *suffix)
 {
     return strcmp(&string->text[string->len - suffix->len],
                   suffix->text) == 0;
 }
 
-bool is_alnum(const String *string)
+bool is_alnum_string(const String *string)
 {
     bool result = true;
 
@@ -497,7 +550,7 @@ bool is_alnum(const String *string)
     return result;
 }
 
-bool is_alpha(const String *string)
+bool is_alpha_string(const String *string)
 {
     bool result = true;
 
@@ -509,7 +562,7 @@ bool is_alpha(const String *string)
     return result;
 }
 
-bool is_ascii(const String *string)
+bool is_ascii_string(const String *string)
 {
     bool result = true;
 
@@ -521,7 +574,7 @@ bool is_ascii(const String *string)
     return result;
 }
 
-bool is_decimal(const String *string)
+bool is_decimal_string(const String *string)
 {
     bool result = true;
 
@@ -533,7 +586,7 @@ bool is_decimal(const String *string)
     return result;
 }
 
-bool is_printable(const String *string)
+bool is_printable_string(const String *string)
 {
     bool result = true;
 
@@ -545,7 +598,7 @@ bool is_printable(const String *string)
     return result;
 }
 
-bool is_space(const String *string)
+bool is_space_string(const String *string)
 {
     bool result = true;
 
@@ -557,8 +610,8 @@ bool is_space(const String *string)
     return result;
 }
 
-String *join(Vector *strings,
-             const String *delim)
+String *join_string(Vector *strings,
+                    const String *delim)
 {
     String *string = create_string("");
 
@@ -577,8 +630,8 @@ String *join(Vector *strings,
     return string;
 }
 
-Vector *split(const String *string,
-              const String *delim)
+Vector *split_string(const String *string,
+                     const String *delim)
 {
     char *tok = strtok(string->text, delim->text);
     Vector *vector = create_vector(sizeof(String));
@@ -596,14 +649,14 @@ Vector *split(const String *string,
 }
 
 
-void print(const String *string)
+void print_string(const String *string)
 {
     printf("%s", string->text);
 }
 
 
-size_t count(const String *string,
-             const String *value)
+size_t count_string(const String *string,
+                    const String *value)
 {
     size_t count = 0;
     size_t len = value->len;
@@ -620,19 +673,19 @@ size_t count(const String *string,
 }
 
 
-size_t find(const String *string,
-            const String *value)
+size_t find_string(const String *string,
+                   const String *value)
 {
     return l_find(string->text, value->text);
 }
 
-size_t rfind(const String *string,
-             const String *value)
+size_t rfind_string(const String *string,
+                    const String *value)
 {
     return r_find(string, value);
 }
 
-size_t word_count(const String *string)
+size_t word_count_string(const String *string)
 {
     size_t count = 0;
     bool on_word = false;
