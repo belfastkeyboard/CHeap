@@ -47,7 +47,14 @@ Container adaptors provide a different interface for sequential containers.
 - Stack: adapts a container to provide stack (LIFO data structure)
 
 ## STRINGS LIBRARY
-- String
+Strings implement an interface for resizable character arrays.
+A number of functions for manipulating strings are provided.
+
+Only char type strings supported.
+
+Strings own their character data which allows for writing strings to memory and retrieving them with char data intact.
+As a result strings can be stored inside other containers, without ownership the char data may go out of scope and 
+invalidate the string's data before its retrieval from the container.
 
 ## RANGES LIBRARY
 Very WIP. Ranges in C++ operate on iterators which currently do not exist in CHeap.
@@ -70,3 +77,8 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
 - consider creating spans on the stack instead
 - re-hash or store hashes in buckets? (reduced memory overhead vs reduced time to hash)
+
+## INFLUENCES
+
+[Untangling Lifetimes: The Arena Allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
+by Ryan Fleury
