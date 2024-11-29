@@ -66,6 +66,7 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - enforce alignment in CHeap allocator
 - fix bugs in RB Tree
 - stress test all types
+- range function ins cheap.h generics
 
 ## CONSIDER:
 - alternate arena type with a freeblock list?
