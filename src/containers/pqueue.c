@@ -1,6 +1,6 @@
-#include <stdlib.h>
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
+#include "../../internals/bheap.h"
 #include "../../pqueue.h"
 
 typedef struct PriorityQueue
@@ -11,18 +11,6 @@ typedef struct PriorityQueue
     size_t size;
     CompareFunc fnc;
 } PriorityQueue;
-
-
-static void update(void *array,
-                   const size_t nmemb,
-                   const size_t size,
-                   const CompareFunc fnc)
-{
-    qsort(array,
-          nmemb,
-          size,
-          fnc);
-}
 
 
 PriorityQueue *create_pqueue(const size_t size,
@@ -52,14 +40,31 @@ void push_pqueue(PriorityQueue *pqueue,
                               &pqueue->nmemb,
                               pqueue->size);
 
-    update(pqueue->array,
-           pqueue->nmemb,
-           pqueue->size,
-           pqueue->fnc);
+    bubble_up(pqueue->array,
+              pqueue->nmemb - 1,
+              pqueue->size,
+              pqueue->fnc);
 }
 
 
-void *front_pqueue(const PriorityQueue *pqueue)
+void push_range_pqueue(PQueue *pqueue,
+                       const Range *range)
+{
+    generic_mempool_range_insert(&pqueue->array,
+                                 pqueue->nmemb,
+                                 &pqueue->capacity,
+                                 &pqueue->nmemb,
+                                 pqueue->size,
+                                 range);
+
+    make_heap(pqueue->array,
+              pqueue->nmemb,
+              pqueue->size,
+              pqueue->fnc);
+}
+
+
+void *top_pqueue(const PQueue *pqueue)
 {
     return generic_mempool_access_front(pqueue->array,
                                         pqueue->nmemb);
@@ -68,14 +73,15 @@ void *front_pqueue(const PriorityQueue *pqueue)
 
 void pop_pqueue(PriorityQueue *pqueue)
 {
-    generic_mempool_pop_front(&pqueue->array,
-                              &pqueue->nmemb,
-                              pqueue->size);
+    pop_front_binary_heap(pqueue->array,
+                          &pqueue->nmemb,
+                          pqueue->size);
 
-    update(pqueue->array,
-           pqueue->nmemb,
-           pqueue->size,
-           pqueue->fnc);
+    bubble_down(pqueue->array,
+                pqueue->nmemb,
+                pqueue->size,
+                pqueue->fnc,
+                0);
 }
 
 
@@ -94,9 +100,4 @@ void set_comparator_pqueue(PriorityQueue *pqueue,
                            const CompareFunc comparator)
 {
     pqueue->fnc = comparator;
-
-    update(pqueue->array,
-           pqueue->nmemb,
-           pqueue->size,
-           pqueue->fnc);
 }
