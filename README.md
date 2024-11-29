@@ -68,7 +68,6 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - stress test all types
 
 ## CONSIDER:
-- C++ implementation of Priority Queue uses a binary heap which is faster than the current array/qsort implementation
 - alternate arena type with a freeblock list?
 - thread safety?
 - attempt to re-write create macro to accept hash table without having to write 'sizeof'
