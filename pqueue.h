@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "range.h"
 
 typedef struct PriorityQueue PriorityQueue, PQueue;
 
@@ -20,10 +21,14 @@ void push_pqueue(PQueue *pqueue,
                  const void *value);
 
 
+void push_range_pqueue(PQueue *pqueue,
+                       const Range *range);
+
+
 void pop_pqueue(PQueue *pqueue);
 
 
-void *front_pqueue(const PQueue *pqueue);
+void *top_pqueue(const PQueue *pqueue);
 
 
 bool empty_pqueue(const PQueue *pqueue);
