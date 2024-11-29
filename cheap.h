@@ -106,7 +106,6 @@
     Deque*:  front_deque,                            \
     FList*:  front_forward_list,                     \
     List*:   front_list,                             \
-    PQueue*: front_pqueue,                           \
     Queue*:  front_queue                             \
 )(container)
 
@@ -192,7 +191,8 @@
 
 
 #define top(type, container) *(type*) _Generic((container), \
-    Stack*: top_stack                                       \
+    Stack*:  top_stack                                      \
+    PQueue*: top_pqueue,                                    \
 )(container)
 
 
