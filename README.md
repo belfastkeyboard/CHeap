@@ -79,6 +79,10 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 ## INFLUENCES
 
 [Untangling Lifetimes: The Arena Allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
-by Ryan Fleury
+by Ryan Fleury.
 
 [C++ Containers Library](https://en.cppreference.com/w/cpp/container)
+
+Algorithms in C by Robert Sedgewick. 1990.
+[Java Red-Black Tree Implementation](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html)
+by Robert Sedgewick.
