@@ -32,10 +32,10 @@ void open_cheap_context(const size_t size)
                  "Must allocate more than 16 bytes.");
 
     allocator = (struct Cheap_Allocator){
-            .memory = NULL,
-            .size   = size,
-            .curr   = 0,
-            .blocks = NULL
+        .memory = NULL,
+        .size   = size,
+        .curr   = 0,
+        .blocks = NULL
     };
 
     allocator.memory = malloc(size);
@@ -61,7 +61,7 @@ static struct Block *next_block(struct Block *block)
 }
 
 static void rebase(struct Block *prev,
-        struct Block *curr)
+                   struct Block *curr)
 {
     if (prev)
     {
