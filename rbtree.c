@@ -16,6 +16,8 @@ struct Node
     struct Node *r;
 };
 
+
+
 struct Node *head = NULL;
 
 static int sort_max(int a,
@@ -36,13 +38,12 @@ static bool rbt_empty(void)
     return !head;
 }
 
-static struct Node *create_node(int colour,
-                                int key)
+static struct Node *create_node(int key)
 {
     struct Node *node = malloc(sizeof(struct Node));
 
     *node = (struct Node){
-        .colour = colour,
+        .colour = RED,
         .key = key,
         .l = NULL,
         .r = NULL
@@ -56,9 +57,9 @@ static struct Node *min(struct Node *node)
 {
     struct Node *result = node;
 
-    if (node->l)
+    while (result->l)
     {
-        result = min(node->l);
+        result = node->l;
     }
 
     return result;
@@ -191,7 +192,7 @@ static void delete_min(struct Node *node)
 
     node = rbt_delete_min(node);
 
-    if (!rbt_empty())
+    if (node)
     {
         node->colour = BLACK;
     }
@@ -204,7 +205,7 @@ static struct Node *rbt_insert(struct Node *node, int key)
 
     if (!node)
     {
-        result = create_node(RED, key);
+        result = create_node(key);
     }
     else
     {
@@ -256,7 +257,8 @@ static struct Node *rbt_delete(struct Node *node,
         return node;
     }
 
-    int res = sort_max(key, node->key);
+    int res = sort_max(key,
+                       node->key);
 
     if (res < 0)
     {
@@ -295,7 +297,9 @@ static struct Node *rbt_delete(struct Node *node,
         if (res == 0)
         {
             struct Node *x = min(node->r);
+
             node->key = x->key;
+
             node->r = rbt_delete_min(node->r);
         }
         else
