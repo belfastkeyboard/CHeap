@@ -108,6 +108,19 @@ static struct Node *rotate_left(struct Node *node)
     return x;
 }
 
+static struct Node *move_red_right(struct Node *node)
+{
+    swap_colours(node);
+
+    if (is_red(node->l->l))
+    {
+        node = rotate_right(node);
+
+        swap_colours(node);
+    }
+
+    return node;
+}
 
 static struct Node *move_red_left(struct Node *node)
 {
@@ -115,7 +128,7 @@ static struct Node *move_red_left(struct Node *node)
 
     if (is_red(node->r->l))
     {
-        node->r = rotate_left(node->r);
+        node->r = rotate_right(node->r);
         node = rotate_left(node);
 
         swap_colours(node);
@@ -185,21 +198,6 @@ static void delete_min(struct Node *node)
 }
 
 
-static struct Node *move_red_right(struct Node *node)
-{
-    swap_colours(node);
-
-    if (is_red(node->l->l))
-    {
-        node = rotate_right(node);
-
-        swap_colours(node);
-    }
-
-    return node;
-}
-
-
 static struct Node *rbt_insert(struct Node *node, int key)
 {
     struct Node *result = NULL;
@@ -253,13 +251,18 @@ static struct Node *rbt_insert(struct Node *node, int key)
 static struct Node *rbt_delete(struct Node *node,
                                int key)
 {
-    // in the case where the key does not exist, we should simply return node
+    if (!node)
+    {
+        return node;
+    }
+
     int res = sort_max(key, node->key);
 
     if (res < 0)
     {
         if (!is_red(node->l) &&
-            !is_red(node->l->l))
+            (node->l &&
+            !is_red(node->l->l)))
         {
             node = move_red_left(node);
         }
@@ -281,7 +284,8 @@ static struct Node *rbt_delete(struct Node *node,
         }
 
         if (!is_red(node->r) &&
-            !is_red(node->r->l))
+            (node->r &&
+            !is_red(node->r->l)))
         {
             node = move_red_right(node);
         }
@@ -322,6 +326,7 @@ static void print_r(struct Node *node)
 void print(void)
 {
     print_r(head);
+    puts("");
 }
 
 void insert(int key)
