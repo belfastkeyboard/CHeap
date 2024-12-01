@@ -18,9 +18,10 @@ struct Node
 
 struct Node *head = NULL;
 
-static int sort_max(int a, int b)
+static int sort_max(int a,
+                    int b)
 {
-    return ((a < b) - (a > b));
+    return ((a > b) - (a < b));
 }
 
 
@@ -35,7 +36,8 @@ static bool rbt_empty(void)
     return !head;
 }
 
-static struct Node *create_node(int colour, int key)
+static struct Node *create_node(int colour,
+                                int key)
 {
     struct Node *node = malloc(sizeof(struct Node));
 
@@ -48,6 +50,29 @@ static struct Node *create_node(int colour, int key)
 
     return node;
 }
+
+
+static struct Node *min(struct Node *node)
+{
+    struct Node *result = node;
+
+    if (node->l)
+    {
+        result = min(node->l);
+    }
+
+    return result;
+}
+
+
+static void swap_colours(struct Node *node)
+{
+    node->colour = !node->colour;
+
+    node->l->colour = !node->l->colour;
+    node->r->colour = !node->r->colour;
+}
+
 
 static struct Node *rotate_right(struct Node *node)
 {
@@ -64,14 +89,6 @@ static struct Node *rotate_right(struct Node *node)
     node->colour = RED;
 
     return x;
-}
-
-static void swap_colours(struct Node *node)
-{
-    node->colour = !node->colour;
-
-    node->l->colour = !node->l->colour;
-    node->r->colour = !node->r->colour;
 }
 
 static struct Node *rotate_left(struct Node *node)
@@ -91,6 +108,98 @@ static struct Node *rotate_left(struct Node *node)
     return x;
 }
 
+
+static struct Node *move_red_left(struct Node *node)
+{
+    swap_colours(node);
+
+    if (is_red(node->r->l))
+    {
+        node->r = rotate_left(node->r);
+        node = rotate_left(node);
+
+        swap_colours(node);
+    }
+
+    return node;
+}
+
+
+static struct Node *balance(struct Node *node)
+{
+    if (is_red(node->r) && !is_red(node->l))
+    {
+        node = rotate_left(node);
+    }
+
+    if (is_red(node->l) &&
+        is_red(node->l->l))
+    {
+        node = rotate_right(node);
+    }
+
+    if (is_red(node->l) &&
+        is_red(node->r))
+    {
+        swap_colours(node);
+    }
+
+    return node;
+}
+
+
+static struct Node *rbt_delete_min(struct Node *node)
+{
+    if (!node->l)
+    {
+        return NULL;
+    }
+
+    if (!is_red(node->l) &&
+        !is_red(node->l->l))
+    {
+        node = move_red_left(node);
+    }
+
+    node->l = rbt_delete_min(node->l);
+
+    return balance(node);
+}
+
+static void delete_min(struct Node *node)
+{
+    assert(!rbt_empty());
+
+    if (!is_red(node->l) &&
+        !is_red(node->r))
+    {
+        node->colour = RED;
+    }
+
+    node = rbt_delete_min(node);
+
+    if (!rbt_empty())
+    {
+        node->colour = BLACK;
+    }
+}
+
+
+static struct Node *move_red_right(struct Node *node)
+{
+    swap_colours(node);
+
+    if (is_red(node->l->l))
+    {
+        node = rotate_right(node);
+
+        swap_colours(node);
+    }
+
+    return node;
+}
+
+
 static struct Node *rbt_insert(struct Node *node, int key)
 {
     struct Node *result = NULL;
@@ -103,11 +212,11 @@ static struct Node *rbt_insert(struct Node *node, int key)
     {
         int cmp = sort_max(key, node->key);
 
-        if (cmp > 0)
+        if (cmp < 0)
         {
             node->l = rbt_insert(node->l, key);
         }
-        else if (cmp < 0)
+        else if (cmp > 0)
         {
             node->r = rbt_insert(node->r, key);
         }
@@ -141,6 +250,60 @@ static struct Node *rbt_insert(struct Node *node, int key)
     return result;
 }
 
+static struct Node *rbt_delete(struct Node *node,
+                               int key)
+{
+    // in the case where the key does not exist, we should simply return node
+    int res = sort_max(key, node->key);
+
+    if (res < 0)
+    {
+        if (!is_red(node->l) &&
+            !is_red(node->l->l))
+        {
+            node = move_red_left(node);
+        }
+
+        node->l = rbt_delete(node->l,
+                             key);
+    }
+    else
+    {
+        if (is_red(node->l))
+        {
+            node = rotate_right(node);
+        }
+
+        if (res == 0 &&
+            !node->r)
+        {
+            return NULL;
+        }
+
+        if (!is_red(node->r) &&
+            !is_red(node->r->l))
+        {
+            node = move_red_right(node);
+        }
+
+        res = sort_max(key, node->key);
+
+        if (res == 0)
+        {
+            struct Node *x = min(node->r);
+            node->key = x->key;
+            node->r = rbt_delete_min(node->r);
+        }
+        else
+        {
+            node->r = rbt_delete(node->r,
+                                 key);
+        }
+    }
+
+    return balance(node);
+}
+
 static void print_r(struct Node *node)
 {
     if (node->l)
@@ -165,4 +328,21 @@ void insert(int key)
 {
     head = rbt_insert(head, key);
     head->colour = BLACK;
+}
+
+void delete(int key)
+{
+    if (!is_red(head->l) &&
+        !is_red(head->r))
+    {
+        head->colour = RED;
+    }
+
+    head = rbt_delete(head,
+                      key);
+
+    if (head)
+    {
+        head->colour = BLACK;
+    }
 }

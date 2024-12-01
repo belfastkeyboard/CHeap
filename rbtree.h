@@ -8,4 +8,6 @@
 
 void insert(int key);
 
+void delete(int key);
+
 void print(void);
