@@ -4,6 +4,8 @@
 
 #define INIT_COUNT 8
 
+#define MIN_SIZE sizeof(void*)
+
 struct Block
 {
     struct Block *next;
@@ -23,8 +25,23 @@ struct NodeAllocator
 {
     struct Block *blocks;
     struct Page *pages;
-    size_t size;
 };
+
+
+static size_t growth_policy(const size_t x)
+{
+    return x * 2;
+}
+
+/*  This safety check exists purely to facilitate debugging.
+ *  Allocated types must be convertible into a block, which is the size of a pointer (usually 8 bytes).
+ *  All node-types will meet the minimum size as, by definition, nodes must point to another node,
+ *  either in a list structure or a tree structure.
+ */
+static size_t min_size(const size_t size)
+{
+    return (size < MIN_SIZE) ? MIN_SIZE : size;
+}
 
 
 static struct Page *create_page(struct Page *prev,
@@ -65,63 +82,84 @@ static void *search_freeblocks(struct Block **blocks)
 {
     assert(*blocks);
 
-    struct Block *head = *blocks;
+    void *ptr = *blocks;
 
-    void *ptr = head;
-
-    *blocks = head->next;
+    *blocks = (*blocks)->next;
 
     return ptr;
 }
 
-static void *page_allocate(struct Page **page,
-                           const size_t size)
+static void *page_allocate(struct Page **page)
 {
     assert(*page);
 
     struct Page *curr = *page;
 
-    if (curr->cursor >= curr->size)
+    if (curr->cursor >= curr->nmemb)
     {
-        *page = create_page(*page,
-                            (*page)->nmemb,
-                            (*page)->size);
+        *page = create_page(curr,
+                            growth_policy(curr->nmemb),
+                            curr->size);
 
         curr = *page;
     }
 
-    void *ptr = curr->pool + curr->cursor;
+    void *ptr = curr->pool + curr->cursor * curr->size;
 
-    curr->cursor += size;
+    curr->cursor++;
 
     return ptr;
 }
 
 static void *allocate_memory(struct Block **blocks,
-                             struct Page **page,
-                             const size_t size)
+                             struct Page **page)
 {
     assert(page);
 
     void *ptr = NULL;
 
-    if (blocks)
+    if (*blocks)
     {
         ptr = search_freeblocks(blocks);
     }
     else
     {
-        ptr = page_allocate(page,
-                            size);
+        ptr = page_allocate(page);
     }
 
     return ptr;
 }
 
-
-NodeAllocator *create_node_allocator(const size_t size)
+static void free_memory(struct Page **page,
+                        struct Block **blocks,
+                        void *ptr)
 {
-    NodeAllocator *allocator = malloc(sizeof(NodeAllocator));
+    struct Page *curr = *page;
+
+    if (curr->pool + (curr->cursor - 1) * curr->size == ptr)
+    {
+        curr->cursor--;
+
+        if (!curr->cursor &&
+            curr->prev)
+        {
+            *page = destroy_page(curr);
+        }
+    }
+    else
+    {
+        struct Block *block = ptr;
+
+        block->next = *blocks;
+
+        *blocks = block;
+    }
+}
+
+
+NodeAlloc *create_node_allocator(const size_t size)
+{
+    NodeAlloc *allocator = malloc(sizeof(NodeAlloc));
 
     // initialising with a compound literal tricks static analysis into thinking that create_page() leaks memory
     // so we just do it this way instead
@@ -130,15 +168,12 @@ NodeAllocator *create_node_allocator(const size_t size)
 
     allocator->pages = create_page(NULL,
                                    INIT_COUNT,
-                                   size);
-
-    allocator->size = (size > sizeof(struct Block)) ? size :
-                                                      sizeof(struct Block);
+                                   min_size(size));
 
     return allocator;
 }
 
-void destroy_node_allocator(NodeAllocator **allocator)
+void destroy_node_allocator(NodeAlloc **allocator)
 {
     while ((*allocator)->pages)
     {
@@ -151,28 +186,18 @@ void destroy_node_allocator(NodeAllocator **allocator)
 }
 
 
-void *node_alloc(NodeAllocator *allocator)
+void *alloc_node(NodeAlloc *allocator)
 {
     return allocate_memory(&allocator->blocks,
-                           &allocator->pages,
-                           allocator->size);
+                           &allocator->pages);
 }
 
-void node_free(NodeAllocator *allocator,
+void free_node(NodeAlloc *allocator,
                void *ptr)
 {
-    if (allocator->pages->pool + allocator->pages->cursor == ptr)
-    {
-        allocator->pages->cursor -= allocator->size;
-    }
-    else
-    {
-        struct Block *block = ptr;
-
-        block->next = allocator->blocks;
-
-        allocator->blocks = block;
-    }
+    free_memory(&allocator->pages,
+                &allocator->blocks,
+                ptr);
 }
 
 

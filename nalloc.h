@@ -2,15 +2,15 @@
 
 #include <stddef.h>
 
-typedef struct NodeAllocator NodeAllocator;
+typedef struct NodeAlloc NodeAlloc;
 
 
-NodeAllocator *create_node_allocator(size_t size);
+NodeAlloc *create_node_allocator(size_t size);
 
-void destroy_node_allocator(NodeAllocator **allocator);
+void destroy_node_allocator(NodeAlloc **allocator);
 
 
-void *node_alloc(NodeAllocator *allocator);
+void *alloc_node(NodeAlloc *allocator);
 
-void node_free(NodeAllocator *allocator,
+void free_node(NodeAlloc *allocator,
                void *ptr);
