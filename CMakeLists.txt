@@ -30,6 +30,4 @@ add_executable(
     CHeap main.c
         ${SOURCES}
         cheap.h
-         rbtree.c
-         rbtree.h
 )
