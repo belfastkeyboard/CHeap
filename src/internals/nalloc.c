@@ -156,7 +156,7 @@ static void free_memory(struct Page **page,
     }
 }
 
-static void destroy_pages(NodeAlloc *allocator)
+static void destroy_pages(struct NodeAlloc *allocator)
 {
     while (allocator->pages)
     {
@@ -165,9 +165,9 @@ static void destroy_pages(NodeAlloc *allocator)
 }
 
 
-NodeAlloc *create_node_allocator(const size_t size)
+struct NodeAlloc *create_node_allocator(const size_t size)
 {
-    NodeAlloc *allocator = malloc(sizeof(NodeAlloc));
+    struct NodeAlloc *allocator = malloc(sizeof(struct NodeAlloc));
 
     // initialising with a compound literal tricks static analysis into thinking that create_page() leaks memory
     // so we just do it this way instead
@@ -181,7 +181,7 @@ NodeAlloc *create_node_allocator(const size_t size)
     return allocator;
 }
 
-void destroy_node_allocator(NodeAlloc **allocator)
+void destroy_node_allocator(struct NodeAlloc **allocator)
 {
     destroy_pages(*allocator);
 
@@ -191,13 +191,13 @@ void destroy_node_allocator(NodeAlloc **allocator)
 }
 
 
-void *alloc_node(NodeAlloc *allocator)
+void *alloc_node(struct NodeAlloc *allocator)
 {
     return allocate_memory(&allocator->blocks,
                            &allocator->pages);
 }
 
-void free_node(NodeAlloc *allocator,
+void free_node(struct NodeAlloc *allocator,
                void *ptr)
 {
     free_memory(&allocator->pages,
@@ -205,7 +205,7 @@ void free_node(NodeAlloc *allocator,
                 ptr);
 }
 
-void clear_nodes(NodeAlloc *allocator)
+void clear_nodes(struct NodeAlloc *allocator)
 {
     while (allocator->pages->prev)
     {

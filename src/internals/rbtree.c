@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <malloc.h>
-#include "rbtree.h"
+#include "internals/rbtree.h"
 
 #define BLACK 0
 #define RED   1
