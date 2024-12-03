@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct HashSet HashSet;
 
@@ -14,6 +14,7 @@ HashSet *create_hash_set(size_t key_size,
                          KComp kc);
 
 void destroy_hash_set(HashSet **set);
+
 
 void insert_hash_set(HashSet *set,
                      const void *key);
