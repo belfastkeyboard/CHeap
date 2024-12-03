@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <malloc.h>
-#include "../nalloc.h"
+#include "../../internals/nalloc.h"
 
 #define INIT_COUNT 8
 
