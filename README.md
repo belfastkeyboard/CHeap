@@ -90,6 +90,7 @@ by Ryan Fleury.
 
 [C++ Containers Library](https://en.cppreference.com/w/cpp/container)
 
-Algorithms in C by Robert Sedgewick. 1990.
 [Java Red-Black Tree Implementation](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html)
-by Robert Sedgewick.
+by Robert Sedgewick and Kevin Wayne. 
+
+Algorithms in C by Robert Sedgewick. 1990.
