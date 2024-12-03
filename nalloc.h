@@ -14,3 +14,5 @@ void *alloc_node(NodeAlloc *allocator);
 
 void free_node(NodeAlloc *allocator,
                void *ptr);
+
+void clear_nodes(NodeAlloc *allocator);

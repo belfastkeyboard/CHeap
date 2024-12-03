@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <malloc.h>
-#include "nalloc.h"
+#include "../nalloc.h"
 
 #define INIT_COUNT 8
 
@@ -21,7 +21,7 @@ struct Page
     struct Page *prev;
 };
 
-struct NodeAllocator
+struct NodeAlloc
 {
     struct Block *blocks;
     struct Page *pages;
@@ -156,6 +156,14 @@ static void free_memory(struct Page **page,
     }
 }
 
+static void destroy_pages(NodeAlloc *allocator)
+{
+    while (allocator->pages)
+    {
+        allocator->pages = destroy_page(allocator->pages);
+    }
+}
+
 
 NodeAlloc *create_node_allocator(const size_t size)
 {
@@ -175,10 +183,7 @@ NodeAlloc *create_node_allocator(const size_t size)
 
 void destroy_node_allocator(NodeAlloc **allocator)
 {
-    while ((*allocator)->pages)
-    {
-        (*allocator)->pages = destroy_page((*allocator)->pages);
-    }
+    destroy_pages(*allocator);
 
     free(*allocator);
 
@@ -200,4 +205,10 @@ void free_node(NodeAlloc *allocator,
                 ptr);
 }
 
-
+void clear_nodes(NodeAlloc *allocator)
+{
+    while (allocator->pages->prev)
+    {
+        allocator->pages = destroy_page(allocator->pages);
+    }
+}
