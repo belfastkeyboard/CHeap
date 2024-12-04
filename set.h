@@ -3,18 +3,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "internals/comp.h"
+#include "range.h"
 
 
 typedef struct Set Set;
 
 Set *create_set(size_t size,
-                KComp kc);
+                KComp compare);
 
 void destroy_set(Set **set);
 
 
 void insert_set(Set *set,
                 const void *key);
+
+
+void insert_set_range(Set *set,
+                      const Range *range);
 
 
 size_t count_set(const Set *set,

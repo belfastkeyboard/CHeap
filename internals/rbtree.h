@@ -2,6 +2,7 @@
 
 #include "comp.h"
 #include "nalloc.h"
+#include "../range.h"
 
 
 struct Node
@@ -19,6 +20,14 @@ void insert_rbtree(struct NodeAlloc *alloc,
                    KComp kc,
                    size_t size,
                    size_t *nmemb);
+
+
+void insert_range_rbtree(struct NodeAlloc *alloc,
+                         struct Node **head,
+                         const Range *range,
+                         KComp kc,
+                         size_t size,
+                         size_t *nmemb);
 
 
 void delete_rbtree(struct NodeAlloc *alloc,
