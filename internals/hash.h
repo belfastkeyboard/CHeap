@@ -2,12 +2,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "comp.h"
+
 
 struct Bucket;
-
-
-typedef int (*KComp)(const void *a,
-                     const void *b);
 
 
 void hash_insert(struct Bucket **buckets,

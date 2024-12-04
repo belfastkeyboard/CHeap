@@ -2,11 +2,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "internals/comp.h"
 
 typedef struct HashTable HashTable;
-
-typedef int (*KComp)(const void *a,
-                     const void *b);
 
 
 __attribute__((warn_unused_result))
