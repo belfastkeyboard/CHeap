@@ -16,13 +16,13 @@ typedef struct Set
 
 
 Set *create_set(const size_t size,
-                const KComp kc)
+                const KComp compare)
 {
     Set *set = memory_allocate_container(sizeof(Set));
 
     set->alloc = create_node_allocator(sizeof(struct Node), size); // allocates enough for the node + data
     set->size = size;
-    set->k_comp = kc;
+    set->k_comp = compare;
     set->nmemb = 0;
     set->head = NULL;
 

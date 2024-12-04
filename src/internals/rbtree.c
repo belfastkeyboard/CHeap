@@ -201,7 +201,7 @@ static void delete_min(struct NodeAlloc *alloc,
 static struct Node *rbt_insert(struct NodeAlloc *alloc,
                                struct Node *node,
                                const void *key,
-                               const KComp kc,
+                               const KComp compare,
                                const size_t size)
 {
     struct Node *result = NULL;
@@ -214,7 +214,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
     }
     else
     {
-        int cmp = kc(key,
+        int cmp = compare(key,
                      node->key);
 
         if (cmp < 0)
@@ -222,7 +222,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
             node->l = rbt_insert(alloc,
                                  node->l,
                                  key,
-                                 kc,
+                                 compare,
                                  size);
         }
         else if (cmp > 0)
@@ -230,7 +230,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
             node->r = rbt_insert(alloc,
                                  node->r,
                                  key,
-                                 kc,
+                                 compare,
                                  size);
         }
         else
@@ -269,7 +269,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
 static struct Node *rbt_delete(struct NodeAlloc *alloc,
                                struct Node *node,
                                const void *key,
-                               const KComp kc,
+                               const KComp compare,
                                size_t *nmemb)
 {
     if (!node)
@@ -277,7 +277,7 @@ static struct Node *rbt_delete(struct NodeAlloc *alloc,
         return node;
     }
 
-    int res = kc(key,
+    int res = compare(key,
                  node->key);
 
     if (res < 0)
@@ -292,7 +292,7 @@ static struct Node *rbt_delete(struct NodeAlloc *alloc,
         node->l = rbt_delete(alloc,
                              node->l,
                              key,
-                             kc,
+                             compare,
                              nmemb);
     }
     else
@@ -320,7 +320,7 @@ static struct Node *rbt_delete(struct NodeAlloc *alloc,
             node = move_red_right(node);
         }
 
-        res = kc(key,
+        res = compare(key,
                  node->key);
 
         if (res == 0)
@@ -338,7 +338,7 @@ static struct Node *rbt_delete(struct NodeAlloc *alloc,
             node->r = rbt_delete(alloc,
                                  node->r,
                                  key,
-                                 kc,
+                                 compare,
                                  nmemb);
         }
     }
@@ -364,14 +364,14 @@ static void print_r(const struct Node *node)
 
 void *rbt_search(struct Node *head,
                  const void *key,
-                 const KComp kc)
+                 const KComp compare)
 {
     void *result = NULL;
     struct Node *node = head;
 
     while (node && !result)
     {
-        int res = kc(key,
+        int res = compare(key,
                      node->key);
 
         if (res > 0)
@@ -400,14 +400,14 @@ void print(const struct Node *head)
 void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
-                   const KComp kc,
+                   const KComp compare,
                    const size_t size,
                    size_t *nmemb)
 {
     *head = rbt_insert(alloc,
                        *head,
                        key,
-                       kc,
+                       compare,
                        size);
 
     (*head)->colour = BLACK;
@@ -419,7 +419,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 void insert_range_rbtree(struct NodeAlloc *alloc,
                          struct Node **head,
                          const Range *range,
-                         KComp kc,
+                         KComp compare,
                          size_t size,
                          size_t *nmemb)
 {
@@ -429,7 +429,7 @@ void insert_range_rbtree(struct NodeAlloc *alloc,
                       head,
                       range->array + i *
                       range->size,
-                      kc,
+                      compare,
                       size,
                       nmemb);
     }
@@ -439,7 +439,7 @@ void insert_range_rbtree(struct NodeAlloc *alloc,
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
-                   KComp kc,
+                   const KComp compare,
                    size_t *nmemb)
 {
     assert(*head);
@@ -453,7 +453,7 @@ void delete_rbtree(struct NodeAlloc *alloc,
     *head = rbt_delete(alloc,
                        *head,
                        key,
-                       kc,
+                       compare,
                        nmemb);
 
     if (*head)

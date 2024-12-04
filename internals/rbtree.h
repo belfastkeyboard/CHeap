@@ -17,7 +17,7 @@ struct Node
 void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
-                   KComp kc,
+                   KComp compare,
                    size_t size,
                    size_t *nmemb);
 
@@ -25,7 +25,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 void insert_range_rbtree(struct NodeAlloc *alloc,
                          struct Node **head,
                          const Range *range,
-                         KComp kc,
+                         KComp compare,
                          size_t size,
                          size_t *nmemb);
 
@@ -33,7 +33,7 @@ void insert_range_rbtree(struct NodeAlloc *alloc,
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
-                   KComp kc,
+                   KComp compare,
                    size_t *nmemb);
 
 
@@ -45,4 +45,4 @@ void print(const struct Node *head);
 
 void *rbt_search(struct Node *head,
                  const void *key,
-                 KComp kc);
+                 KComp compare);
