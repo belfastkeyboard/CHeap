@@ -2,9 +2,11 @@
 #include <malloc.h>
 #include "../../internals/nalloc.h"
 
+
 #define INIT_COUNT 8
 
 #define MIN_SIZE sizeof(void*)
+
 
 struct Block
 {
@@ -15,7 +17,7 @@ struct Page
 {
     void *pool;
     size_t cursor;
-    size_t nmemb;
+    size_t max;
     size_t size;
 
     struct Page *prev;
@@ -33,16 +35,6 @@ static size_t growth_policy(const size_t x)
     return x * 2;
 }
 
-/*  This safety check exists purely to facilitate debugging.
- *  Allocated types must be convertible into a block, which is the size of a pointer (usually 8 bytes).
- *  All node-types will meet the minimum size as, by definition, nodes must point to another node,
- *  either in a list structure or a tree structure.
- */
-static size_t min_size(const size_t size)
-{
-    return (size < MIN_SIZE) ? MIN_SIZE : size;
-}
-
 
 static struct Page *create_page(struct Page *prev,
                                 const size_t nmemb,
@@ -58,7 +50,7 @@ static struct Page *create_page(struct Page *prev,
     *page = (struct Page){
         .pool = pool,
         .cursor = 0,
-        .nmemb = nmemb,
+        .max = nmemb,
         .size = size,
         .prev = prev
     };
@@ -95,10 +87,10 @@ static void *page_allocate(struct Page **page)
 
     struct Page *curr = *page;
 
-    if (curr->cursor >= curr->nmemb)
+    if (curr->cursor >= curr->max)
     {
         *page = create_page(curr,
-                            growth_policy(curr->nmemb),
+                            growth_policy(curr->max),
                             curr->size);
 
         curr = *page;
@@ -136,6 +128,8 @@ static void free_memory(struct Page **page,
 {
     struct Page *curr = *page;
 
+    static int i = 0;
+
     if (curr->pool + (curr->cursor - 1) * curr->size == ptr)
     {
         curr->cursor--;
@@ -165,18 +159,16 @@ static void destroy_pages(struct NodeAlloc *allocator)
 }
 
 
-struct NodeAlloc *create_node_allocator(const size_t size)
+struct NodeAlloc *create_node_allocator(const size_t node_size,
+                                        const size_t data_size)
 {
     struct NodeAlloc *allocator = malloc(sizeof(struct NodeAlloc));
-
-    // initialising with a compound literal tricks static analysis into thinking that create_page() leaks memory
-    // so we just do it this way instead
 
     allocator->blocks = NULL;
 
     allocator->pages = create_page(NULL,
                                    INIT_COUNT,
-                                   min_size(size));
+                                   node_size + data_size);
 
     return allocator;
 }
