@@ -381,11 +381,11 @@ static void print_r(const struct Node *node)
 }
 
 
-void *rbt_search(struct Node *head,
-                 const void *key,
-                 const KComp compare)
+static struct Node *rbt_search(struct Node *head,
+                               const void *key,
+                               const KComp compare)
 {
-    void *result = NULL;
+    struct Node *result = NULL;
     struct Node *node = head;
 
     while (node && !result)
@@ -403,12 +403,49 @@ void *rbt_search(struct Node *head,
         }
         else
         {
-            result = node->key;
+            result = node;
         }
     }
 
     return result;
 }
+
+void *rbt_search_k(struct Node *head,
+                   const void *key,
+                   const KComp compare)
+{
+    void *result = NULL;
+
+    struct Node *node = rbt_search(head,
+                                   key,
+                                   compare);
+
+    if (node)
+    {
+        result = node->key;
+    }
+
+    return result;
+}
+
+void *rbt_search_v(struct Node *head,
+                   const void *key,
+                   const KComp compare)
+{
+    void *result = NULL;
+
+    struct Node *node = rbt_search(head,
+                                   key,
+                                   compare);
+
+    if (node)
+    {
+        result = node->value;
+    }
+
+    return result;
+}
+
 
 void print(const struct Node *head)
 {

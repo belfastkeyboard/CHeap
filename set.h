@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "internals/comp.h"
-#include "range.h"
 
 
 typedef struct Set Set;

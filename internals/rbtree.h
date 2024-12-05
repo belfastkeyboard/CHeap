@@ -46,6 +46,10 @@ void clear(struct NodeAlloc *alloc);
 void print(const struct Node *head);
 
 
-void *rbt_search(struct Node *head,
-                 const void *key,
-                 KComp compare);
+void *rbt_search_k(struct Node *head,
+                   const void *key,
+                   KComp compare);
+
+void *rbt_search_v(struct Node *head,
+                   const void *key,
+                   KComp compare);

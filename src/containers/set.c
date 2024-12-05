@@ -3,8 +3,6 @@
 #include "../../set.h"
 
 
-struct Node;
-
 typedef struct Set
 {
     struct NodeAlloc *alloc;
@@ -57,27 +55,27 @@ void insert_set(Set *set,
 size_t count_set(const Set *set,
                       const void *key)
 {
-    return (rbt_search(set->head,
-                       key,
-                       set->k_comp)) ? 1 :
-                                       0;
+    return (rbt_search_k(set->head,
+                         key,
+                         set->k_comp)) ? 1 :
+                                         0;
 }
 
 void *find_set(const Set *set,
-                    const void *key)
+               const void *key)
 {
-    return rbt_search(set->head,
-                      key,
-                      set->k_comp);
+    return rbt_search_k(set->head,
+                        key,
+                        set->k_comp);
 }
 
 bool contains_set(const Set *set,
-                        const void *key)
+                  const void *key)
 {
-    return rbt_search(set->head,
-                      key,
-                      set->k_comp) ? true :
-                                     false;
+    return rbt_search_k(set->head,
+                        key,
+                        set->k_comp) ? true :
+                                       false;
 }
 
 
