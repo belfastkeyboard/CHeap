@@ -91,7 +91,8 @@ void erase_set(Set *set,
 
 void clear_set(Set *set)
 {
-    clear_nodes(set->alloc);
+    clear_rbtree(set->alloc,
+                 &set->nmemb);
 }
 
 

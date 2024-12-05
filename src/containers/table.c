@@ -95,7 +95,8 @@ void erase_table(Table *table,
 
 void clear_table(Table *table)
 {
-    clear_nodes(table->alloc);
+    clear_rbtree(table->alloc,
+                 &table->nmemb);
 }
 
 

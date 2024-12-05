@@ -40,10 +40,8 @@ void delete_rbtree(struct NodeAlloc *alloc,
                    size_t *nmemb);
 
 
-void clear(struct NodeAlloc *alloc);
-
-
-void print(const struct Node *head);
+void clear_rbtree(struct NodeAlloc *alloc,
+                  size_t *nmemb);
 
 
 void *rbt_search_k(struct Node *head,

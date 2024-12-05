@@ -365,21 +365,6 @@ static struct Node *rbt_delete(struct NodeAlloc *alloc,
     return balance(node);
 }
 
-static void print_r(const struct Node *node)
-{
-    if (node->l)
-    {
-        print_r(node->l);
-    }
-
-    printf("%p ", node->key);
-
-    if (node->r)
-    {
-        print_r(node->r);
-    }
-}
-
 
 static struct Node *rbt_search(struct Node *head,
                                const void *key,
@@ -447,12 +432,6 @@ void *rbt_search_v(struct Node *head,
 }
 
 
-void print(const struct Node *head)
-{
-    print_r(head);
-    puts("");
-}
-
 void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
@@ -505,7 +484,10 @@ void delete_rbtree(struct NodeAlloc *alloc,
 }
 
 
-void clear(struct NodeAlloc *alloc)
+void clear_rbtree(struct NodeAlloc *alloc,
+                  size_t *nmemb)
 {
     clear_nodes(alloc);
+
+    *nmemb = 0;
 }

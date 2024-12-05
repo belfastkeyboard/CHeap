@@ -158,7 +158,7 @@ static void destroy_pages(struct NodeAlloc *allocator)
 
 
 struct NodeAlloc *create_node_allocator(const size_t node_size,
-                                        const size_t data_size,
+                                        const size_t key_size,
                                         const size_t value_size)
 {
     struct NodeAlloc *allocator = malloc(sizeof(struct NodeAlloc));
@@ -167,7 +167,7 @@ struct NodeAlloc *create_node_allocator(const size_t node_size,
 
     allocator->pages = create_page(NULL,
                                    INIT_COUNT,
-                                   node_size + data_size + value_size);
+                                   node_size + key_size + value_size);
 
     return allocator;
 }
