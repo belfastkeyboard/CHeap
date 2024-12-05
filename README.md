@@ -35,6 +35,11 @@ Sequence containers implement data structures which can be accessed sequentially
 - List: doubly-linked list
 - Ring Buffer: fixed-capacity circular buffer
 
+#### Associative containers
+Associative containers implement sorted data structures that can be quickly searched (O(log n) complexity).
+- Set
+- Table
+
 ### Unordered associative containers
 Unordered associative containers implement unsorted (hashed) data structures that can be quickly searched (O(1) average, O(n) worst-case complexity).
 - Hash Set
