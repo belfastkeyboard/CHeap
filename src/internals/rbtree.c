@@ -19,18 +19,28 @@ static bool is_red(struct Node* node)
 
 static struct Node *create_node(struct NodeAlloc *alloc,
                                 const void *key,
-                                const size_t size)
+                                const void *value,
+                                const size_t k_size,
+                                const size_t v_size)
 {
     void *memory = alloc_node(alloc);
 
     struct Node *node = memory;
 
-    node->key = memory + sizeof(struct Node); // THIS IS WHAT'S CAUSING THE ERROR
+    node->key = memory + sizeof(struct Node);
+    node->value = memory + sizeof(struct Node) + k_size;
+
     node->colour = RED;
     node->l = NULL;
     node->r = NULL;
 
-    node->key = memcpy(node->key, key, size);
+    node->key = memcpy(node->key,
+                       key,
+                       k_size);
+
+    node->value = memcpy(node->value,
+                         value,
+                         v_size);
 
     return node;
 }
@@ -111,6 +121,7 @@ static struct Node *move_red_left(struct Node *node)
     if (is_red(node->r->l))
     {
         node->r = rotate_right(node->r);
+
         node = rotate_left(node);
 
         swap_colours(node);
@@ -201,8 +212,10 @@ static void delete_min(struct NodeAlloc *alloc,
 static struct Node *rbt_insert(struct NodeAlloc *alloc,
                                struct Node *node,
                                const void *key,
+                               const void *value,
                                const KComp compare,
-                               const size_t size)
+                               const size_t k_size,
+                               const size_t v_size)
 {
     struct Node *result = NULL;
 
@@ -210,7 +223,9 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
     {
         result = create_node(alloc,
                              key,
-                             size);
+                             value,
+                             k_size,
+                             v_size);
     }
     else
     {
@@ -222,22 +237,26 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
             node->l = rbt_insert(alloc,
                                  node->l,
                                  key,
+                                 value,
                                  compare,
-                                 size);
+                                 k_size,
+                                 v_size);
         }
         else if (cmp > 0)
         {
             node->r = rbt_insert(alloc,
                                  node->r,
                                  key,
+                                 value,
                                  compare,
-                                 size);
+                                 k_size,
+                                 v_size);
         }
         else
         {
             node->key = memcpy(node->key,
                                key,
-                               size);
+                               k_size); // TODO: overwrite value??
         }
 
         if (is_red(node->r) &&
@@ -400,39 +419,25 @@ void print(const struct Node *head)
 void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
+                   const void *value,
                    const KComp compare,
-                   const size_t size,
+                   const size_t k_size,
+                   const size_t v_size,
                    size_t *nmemb)
 {
+    assert(key);
+
     *head = rbt_insert(alloc,
                        *head,
                        key,
+                       value,
                        compare,
-                       size);
+                       k_size,
+                       v_size);
 
     (*head)->colour = BLACK;
 
     (*nmemb)++;
-}
-
-
-void insert_range_rbtree(struct NodeAlloc *alloc,
-                         struct Node **head,
-                         const Range *range,
-                         KComp compare,
-                         size_t size,
-                         size_t *nmemb)
-{
-    for (int i = 0; i < range->nmemb; i++)
-    {
-        insert_rbtree(alloc,
-                      head,
-                      range->array + i *
-                      range->size,
-                      compare,
-                      size,
-                      nmemb);
-    }
 }
 
 

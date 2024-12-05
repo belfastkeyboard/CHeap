@@ -20,7 +20,10 @@ Set *create_set(const size_t size,
 {
     Set *set = memory_allocate_container(sizeof(Set));
 
-    set->alloc = create_node_allocator(sizeof(struct Node), size); // allocates enough for the node + data
+    set->alloc = create_node_allocator(sizeof(struct Node),
+                                       size,
+                                       0);
+
     set->size = size;
     set->k_comp = compare;
     set->nmemb = 0;
@@ -46,6 +49,7 @@ void insert_set(Set *set,
                   NULL,
                   set->k_comp,
                   set->size,
+                  0,
                   &set->nmemb);
 }
 

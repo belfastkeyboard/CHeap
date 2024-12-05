@@ -8,6 +8,7 @@
 struct Node
 {
     void *key;
+    void *value;
     int colour;
     struct Node *l;
     struct Node *r;
@@ -17,8 +18,10 @@ struct Node
 void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
+                   const void *value,
                    KComp compare,
-                   size_t size,
+                   size_t k_size,
+                   size_t v_size,
                    size_t *nmemb);
 
 
