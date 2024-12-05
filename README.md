@@ -74,13 +74,6 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - range functions in cheap.h generics
 
 ## CONSIDER:
-- consolidate certain list or tree types into a single 'allocator with free blocks' logic
-  - list, forward list, red-black trees, global allocators?
-  - this means in practice that there should be a common arena allocation logic 
-    - the logic must meet these criteria:
-      - bump allocation when space is available
-      - calls to free either bump back (if possible) or add to free block list
-      - when space is required request an additional page of memory
 - alternate arena type with a freeblock list?
 - thread safety?
 - attempt to re-write create macro to accept hash table without having to write 'sizeof'
