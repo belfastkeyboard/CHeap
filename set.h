@@ -18,10 +18,6 @@ void insert_set(Set *set,
                 const void *key);
 
 
-void insert_set_range(Set *set,
-                      const Range *range);
-
-
 size_t count_set(const Set *set,
                  const void *key);
 

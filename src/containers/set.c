@@ -43,21 +43,10 @@ void insert_set(Set *set,
     insert_rbtree(set->alloc,
                   &set->head,
                   key,
+                  NULL,
                   set->k_comp,
                   set->size,
                   &set->nmemb);
-}
-
-
-void insert_set_range(Set *set,
-                      const Range *range)
-{
-    insert_range_rbtree(set->alloc,
-                        &set->head,
-                        range,
-                        set->k_comp,
-                        set->size,
-                        &set->nmemb);
 }
 
 
