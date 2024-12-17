@@ -97,3 +97,16 @@ by Ryan Fleury.
 by Robert Sedgewick and Kevin Wayne. 
 
 Algorithms in C by Robert Sedgewick. 1990.
+
+## WATCH LATER
+
+### GRAPHS
+
+- [8 Data Structures Every Programmer Should Know](https://www.youtube.com/watch?v=gxdQiBkidWk)
+by Forrest Knight
+
+- [3 Types of Algorithms Every Programmer Needs to Know](https://www.youtube.com/watch?v=Uym4-KhP3Lc)
+by Forrest Knight
+
+- [7 Design Patterns EVERY Developer Should Know](https://www.youtube.com/watch?v=BJatgOiiht4)
+by Forrest Knight
