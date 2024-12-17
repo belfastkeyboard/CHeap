@@ -61,18 +61,22 @@ Strings own their character data which allows for writing strings to memory and 
 As a result strings can be stored inside other containers, without ownership the char data may go out of scope and 
 invalidate the string's data before its retrieval from the container.
 
+^--- is this true ?
+
 ## RANGES LIBRARY
 Very WIP. Ranges in C++ operate on iterators which currently do not exist in CHeap.
 I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
+- implement a deque type for the queue container
+  - benefits: faster pushing, popping, slightly slower access. good trade-off
 - update generic macros
+- range functions in cheap.h generics
 - iterators
 - enforce alignment in CHeap allocator
 - fix bugs in RB Tree
 - stress test all types
-- range functions in cheap.h generics
 
 ## CONSIDER:
 - alternate arena type with a freeblock list?
