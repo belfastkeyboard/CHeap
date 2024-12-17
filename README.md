@@ -71,11 +71,11 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 ## TODO:
 - implement a deque type for the queue container
   - benefits: faster pushing, popping, slightly slower access. good trade-off
+- graphs?
 - update generic macros
 - range functions in cheap.h generics
 - iterators
 - enforce alignment in CHeap allocator
-- fix bugs in RB Tree
 - stress test all types
 
 ## CONSIDER:
