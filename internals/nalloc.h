@@ -10,8 +10,8 @@ struct NodeAlloc
 
 
 struct NodeAlloc create_node_allocator(size_t node_size,
-                                       size_t key_size,
-                                       size_t value_size);
+                                       size_t t1_size,
+                                       size_t t2_size);
 
 void destroy_node_allocator(struct NodeAlloc *alloc);
 
