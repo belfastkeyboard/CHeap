@@ -6,7 +6,7 @@
 
 typedef struct List
 {
-    struct NodeAlloc *alloc;
+    struct NodeAlloc alloc;
     size_t nmemb;
     size_t size;
     struct Node *head;
@@ -38,7 +38,7 @@ void destroy_list(List **list)
 void push_back_list(List *list,
                     const void *value)
 {
-    generic_push_back_doubly_linked(list->alloc,
+    generic_push_back_doubly_linked(&list->alloc,
                                     &list->nmemb,
                                     list->size,
                                     &list->head,
@@ -49,7 +49,7 @@ void push_back_list(List *list,
 void push_front_list(List *list,
                      const void *value)
 {
-    generic_push_front_doubly_linked(list->alloc,
+    generic_push_front_doubly_linked(&list->alloc,
                                      &list->nmemb,
                                      list->size,
                                      &list->head,
@@ -61,7 +61,7 @@ size_t insert_list(List *list,
                    const void *value,
                    const size_t index)
 {
-    return generic_insert_doubly_linked(list->alloc,
+    return generic_insert_doubly_linked(&list->alloc,
                                         &list->nmemb,
                                         list->size,
                                         &list->head,
@@ -84,7 +84,7 @@ void *back_list(const List *list)
 
 void pop_front_list(List *list)
 {
-    generic_pop_front_doubly_linked(list->alloc,
+    generic_pop_front_doubly_linked(&list->alloc,
                                     &list->nmemb,
                                     &list->head,
                                     &list->tail);
@@ -92,7 +92,7 @@ void pop_front_list(List *list)
 
 void pop_back_list(List *list)
 {
-    generic_pop_back_doubly_linked(list->alloc,
+    generic_pop_back_doubly_linked(&list->alloc,
                                    &list->nmemb,
                                    &list->head,
                                    &list->tail);
@@ -101,7 +101,7 @@ void pop_back_list(List *list)
 size_t erase_list(List *list,
                   const size_t index)
 {
-    return generic_erase_doubly_linked(list->alloc,
+    return generic_erase_doubly_linked(&list->alloc,
                                        &list->nmemb,
                                        index,
                                        &list->head,
@@ -110,7 +110,7 @@ size_t erase_list(List *list,
 
 void clear_list(List *list)
 {
-    generic_clear_linked(list->alloc,
+    generic_clear_linked(&list->alloc,
                          &list->head,
                          &list->tail,
                          &list->nmemb);

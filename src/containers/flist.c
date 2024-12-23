@@ -4,7 +4,7 @@
 
 typedef struct ForwardList
 {
-    struct NodeAlloc *alloc;
+    struct NodeAlloc alloc;
     size_t nmemb;
     size_t size;
     struct Node *head;
@@ -35,7 +35,7 @@ void destroy_forward_list(FList **flist)
 void push_front_forward_list(FList *flist,
                              const void *value)
 {
-    generic_push_front_singly_linked(flist->alloc,
+    generic_push_front_singly_linked(&flist->alloc,
                                      &flist->nmemb,
                                      flist->size,
                                      &flist->head,
@@ -46,7 +46,7 @@ size_t insert_after_forward_list(FList *flist,
                                  const void *value,
                                  size_t index)
 {
-    return generic_insert_singly_linked(flist->alloc,
+    return generic_insert_singly_linked(&flist->alloc,
                                         &flist->nmemb,
                                         flist->size,
                                         &flist->head,
@@ -64,7 +64,7 @@ void *front_forward_list(const FList *flist)
 
 void pop_front_forward_list(FList *flist)
 {
-    generic_pop_front_singly_linked(flist->alloc,
+    generic_pop_front_singly_linked(&flist->alloc,
                                     &flist->nmemb,
                                     &flist->head);
 }
@@ -72,7 +72,7 @@ void pop_front_forward_list(FList *flist)
 size_t erase_after_forward_list(FList *flist,
                                 const size_t index)
 {
-    return generic_erase_singly_linked(flist->alloc,
+    return generic_erase_singly_linked(&flist->alloc,
                                        &flist->nmemb,
                                        index,
                                        &flist->head,
@@ -81,7 +81,7 @@ size_t erase_after_forward_list(FList *flist,
 
 void clear_forward_list(FList *flist)
 {
-    generic_clear_linked(flist->alloc,
+    generic_clear_linked(&flist->alloc,
                          &flist->head,
                          NULL,
                          &flist->nmemb);

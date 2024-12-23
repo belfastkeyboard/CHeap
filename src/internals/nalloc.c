@@ -21,12 +21,6 @@ struct Page
     struct Page *prev;
 };
 
-struct NodeAlloc
-{
-    struct Block *blocks;
-    struct Page *pages;
-};
-
 
 static size_t growth_policy(const size_t x)
 {
@@ -157,28 +151,21 @@ static void destroy_pages(struct NodeAlloc *allocator)
 }
 
 
-struct NodeAlloc *create_node_allocator(const size_t node_size,
+struct NodeAlloc create_node_allocator(const size_t node_size,
                                         const size_t key_size,
                                         const size_t value_size)
 {
-    struct NodeAlloc *allocator = malloc(sizeof(struct NodeAlloc));
-
-    allocator->blocks = NULL;
-
-    allocator->pages = create_page(NULL,
-                                   INIT_COUNT,
-                                   node_size + key_size + value_size);
+    struct NodeAlloc allocator = { .blocks = NULL,
+                                   .pages = create_page(NULL,
+                                                        INIT_COUNT,
+                                                        node_size + key_size + value_size) };
 
     return allocator;
 }
 
-void destroy_node_allocator(struct NodeAlloc **allocator)
+void destroy_node_allocator(struct NodeAlloc *allocator)
 {
-    destroy_pages(*allocator);
-
-    free(*allocator);
-
-    *allocator = NULL;
+    destroy_pages(allocator);
 }
 
 

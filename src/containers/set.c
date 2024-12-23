@@ -5,7 +5,7 @@
 
 typedef struct Set
 {
-    struct NodeAlloc *alloc;
+    struct NodeAlloc alloc;
     size_t size;
     KComp k_comp;
     size_t nmemb;
@@ -41,7 +41,7 @@ void destroy_set(Set **set)
 void insert_set(Set *set,
                 const void *key)
 {
-    insert_rbtree(set->alloc,
+    insert_rbtree(&set->alloc,
                   &set->head,
                   key,
                   NULL,
@@ -82,7 +82,7 @@ bool contains_set(const Set *set,
 void erase_set(Set *set,
                     const void *key)
 {
-    delete_rbtree(set->alloc,
+    delete_rbtree(&set->alloc,
                   &set->head,
                   key,
                   set->k_comp,
@@ -91,7 +91,7 @@ void erase_set(Set *set,
 
 void clear_set(Set *set)
 {
-    clear_rbtree(set->alloc,
+    clear_rbtree(&set->alloc,
                  &set->nmemb);
 }
 

@@ -5,7 +5,7 @@
 
 typedef struct Table
 {
-    struct NodeAlloc *alloc;
+    struct NodeAlloc alloc;
     size_t k_size;
     size_t v_size;
     KComp k_comp;
@@ -45,7 +45,7 @@ void insert_table(Table *table,
                   const void *key,
                   const void *value)
 {
-    insert_rbtree(table->alloc,
+    insert_rbtree(&table->alloc,
                   &table->head,
                   key,
                   value,
@@ -86,7 +86,7 @@ bool contains_table(const Table *table,
 void erase_table(Table *table,
                const void *key)
 {
-    delete_rbtree(table->alloc,
+    delete_rbtree(&table->alloc,
                   &table->head,
                   key,
                   table->k_comp,
@@ -95,7 +95,7 @@ void erase_table(Table *table,
 
 void clear_table(Table *table)
 {
-    clear_rbtree(table->alloc,
+    clear_rbtree(&table->alloc,
                  &table->nmemb);
 }
 
