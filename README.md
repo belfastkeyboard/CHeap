@@ -110,3 +110,8 @@ by Forrest Knight
 
 - [7 Design Patterns EVERY Developer Should Know](https://www.youtube.com/watch?v=BJatgOiiht4)
 by Forrest Knight
+
+### ALLOCATOR TYPES
+
+- [Arena Allocator, Stack Allocator, Free-list Allocator, Pool Allocator Visualized](https://www.youtube.com/watch?v=Cdger2-hlt4)
+by Code with Arian
