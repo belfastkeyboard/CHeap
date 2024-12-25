@@ -79,6 +79,48 @@ void destroy_deque(Deque **deque)
 }
 
 
+static void resize(Deque *deque,
+                   const void *value,
+                   const size_t index)
+{
+    assert(index == 0 || index == 1);
+
+    struct Block *blocks = malloc(sizeof(struct Block) * 2);
+
+    memcpy(blocks + 1 - index,
+           deque->blocks,
+           sizeof(struct Block));
+
+    free(deque->blocks);
+
+    struct Block block = {
+            .array = malloc(deque->arr_size),
+            .capacity = deque->arr_size / deque->size,
+            .nmemb = index
+    };
+
+    blocks[index] = block;
+
+    deque->blocks = blocks;
+    deque->front = 0;
+    deque->back = 1;
+    deque->capacity = 2;
+    deque->nmemb++;
+
+    const size_t capacity = block.capacity;
+    const size_t nmemb = deque->blocks[0].nmemb + 1;
+    const size_t size = deque->size;
+    void *array = deque->blocks[index].array;
+
+    void *dest = (index) ? array :
+                           array + (capacity - nmemb) * size;
+
+    memcpy(dest,
+           value,
+           size);
+}
+
+
 void push_front_deque(Deque *deque,
                       const void *value)
 {
@@ -86,37 +128,9 @@ void push_front_deque(Deque *deque,
     {
         if (!deque->front)
         {
-            struct Block *blocks = malloc(sizeof(struct Block) * 2);
-
-            memcpy(blocks + 1,
-                   deque->blocks,
-                   sizeof(struct Block));
-
-            free(deque->blocks);
-
-            struct Block block = {
-                .array = malloc(deque->arr_size),
-                .capacity = deque->arr_size / deque->size,
-                .nmemb = 0
-            };
-
-            blocks[0] = block;
-
-            deque->blocks = blocks;
-            deque->back = 1;
-            deque->capacity = 2;
-            deque->nmemb++;
-
-            const size_t capacity = block.capacity;
-            const size_t nmemb = deque->blocks[0].nmemb + 1;
-            const size_t size = deque->size;
-            const void *src = value;
-            void *array = deque->blocks[0].array;
-            void *dest = array + (capacity - nmemb) * size;
-
-            memcpy(dest,
-                   src,
-                   size);
+            resize(deque,
+                   value,
+                   0);
         }
         else
         {
@@ -204,31 +218,9 @@ void push_back_deque(Deque *deque,
     {
         if (deque->back == deque->blocks[0].capacity - 1)
         {
-            struct Block *blocks = malloc(sizeof(struct Block) * 2);
-
-            memcpy(blocks,
-                   deque->blocks,
-                   sizeof(struct Block));
-
-            free(deque->blocks);
-
-            struct Block block = {
-                .array = malloc(deque->arr_size),
-                .capacity = deque->arr_size / deque->size,
-                .nmemb = 1
-            };
-
-            blocks[1] = block;
-
-            deque->blocks = blocks;
-            deque->front = 0;
-            deque->back = 1;
-            deque->capacity = 2;
-            deque->nmemb = 2;
-
-            memcpy(deque->blocks[1].array,
+            resize(deque,
                    value,
-                   deque->size);
+                   1);
         }
         else
         {
