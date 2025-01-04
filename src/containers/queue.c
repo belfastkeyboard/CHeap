@@ -1,13 +1,15 @@
 #include "../../internals/base.h"
-#include "../../internals/mpool.h"
+#include "../../internals/deq.h"
 #include "../../queue.h"
 
 typedef struct Queue
 {
-    void *array;
-    size_t capacity;
+    struct ControlArray control;
     size_t nmemb;
+    size_t arr_cap;
     size_t size;
+    size_t front;
+    size_t back;
 } Queue;
 
 
@@ -15,58 +17,83 @@ Queue *create_queue(const size_t size)
 {
     Queue *queue = memory_allocate_container(sizeof(Queue));
 
+    const size_t array_size = minimum_array_size(size);
+
+    const size_t capacity = array_size / size;
+    const size_t init_index = capacity / 2;
+
+    queue->control = create_control_array(capacity,
+                                          size);
+
+    queue->arr_cap = capacity;
     queue->size = size;
+
+    queue->front = init_index;
+    queue->back = init_index - 1;
 
     return queue;
 }
 
 void destroy_queue(Queue **queue)
 {
-    memory_free_container_mempool((void **) queue,
-                                  (*queue)->array);
+    destroy_control_array(&(*queue)->control,
+                          (*queue)->front);
+
+    memory_free_buffer((void**)queue);
 }
 
 
 void push_queue(Queue *queue,
                 const void *value)
 {
-    generic_mempool_push_back(&queue->array,
-                              value,
-                              &queue->capacity,
-                              &queue->nmemb,
-                              queue->size);
+    deque_push_back(&queue->control,
+                    &queue->front,
+                    &queue->back,
+                    queue->arr_cap,
+                    value,
+                    queue->size,
+                    &queue->nmemb);
 }
 
 void push_range_queue(Queue *queue,
                       const Range *range)
 {
-    generic_mempool_range_insert(&queue->array,
-                                 queue->nmemb,
-                                 &queue->capacity,
-                                 &queue->nmemb,
-                                 queue->size,
-                                 range);
+    for (int i = 0; i < range->nmemb; i++)
+    {
+        deque_push_back(&queue->control,
+                        &queue->front,
+                        &queue->back,
+                        queue->arr_cap,
+                        range->array + i * range->size,
+                        queue->size,
+                        &queue->nmemb);
+    }
 }
 
 
 void *front_queue(const Queue *queue)
 {
-    return generic_mempool_access_front(queue->array,
-                                        queue->nmemb);
+    return deque_front(&queue->control,
+                       queue->front,
+                       queue->arr_cap,
+                       queue->size,
+                       queue->nmemb);
 }
 
 void *back_queue(const Queue *queue)
 {
-    return generic_mempool_access_back(queue->array,
-                                       queue->nmemb,
-                                       queue->size);
+    return deque_back(&queue->control,
+                      queue->back,
+                      queue->size,
+                      queue->nmemb);
 }
 
 void pop_queue(Queue *queue)
 {
-    generic_mempool_pop_front(&queue->array,
-                              &queue->nmemb,
-                              queue->size);
+    deque_pop_front(&queue->control,
+                    &queue->front,
+                    &queue->back,
+                    &queue->nmemb);
 }
 
 
