@@ -79,6 +79,7 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - stress test all types
 - resize for deque/queue
 - reduce malloc calls in src/internals/deq.c
+- provide better implementation of push_range for deque type
 
 ## CONSIDER:
 - alternate arena type with a freeblock list?
