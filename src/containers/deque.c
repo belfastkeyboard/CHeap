@@ -1,15 +1,8 @@
-#include <assert.h>
-#include <malloc.h>
-#include <memory.h>
 #include <stdbool.h>
 #include "../../internals/base.h"
 #include "../../internals/nalloc.h"
 #include "../../internals/deq.h"
 #include "../../deque.h"
-
-
-#define MIN_BLOCK_SIZE 4096
-#define MIN_ELEM_COUNT 16
 
 
 typedef struct DoubleEndedQueue
@@ -27,8 +20,7 @@ Deque *create_deque(const size_t size)
 {
     Deque *deque = memory_allocate_container(sizeof(Deque));
 
-    const size_t array_size = (MIN_BLOCK_SIZE > size * MIN_ELEM_COUNT) ? MIN_BLOCK_SIZE :
-                                                                         size * MIN_ELEM_COUNT;
+    const size_t array_size = minimum_array_size(size);
 
     const size_t capacity = array_size / size;
     const size_t init_index = capacity / 2;

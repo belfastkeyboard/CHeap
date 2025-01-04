@@ -3,7 +3,12 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../../internals/byte.h"
 #include "../../internals/deq.h"
+
+
+#define MIN_BLOCK_SIZE KB(4)
+#define MIN_ELEM_COUNT 16
 
 
 typedef void (*PushFunc)(struct ControlArray*,
@@ -839,6 +844,13 @@ static void erase_multiple(struct ControlArray *control,
                    n_index,
                    b_index);
     }
+}
+
+
+size_t minimum_array_size(const size_t size)
+{
+    return (MIN_BLOCK_SIZE > size * MIN_ELEM_COUNT) ? MIN_BLOCK_SIZE :
+                                                      size * MIN_ELEM_COUNT;
 }
 
 
