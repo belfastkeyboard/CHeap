@@ -78,6 +78,7 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - enforce alignment in CHeap allocator
 - stress test all types
 - resize for deque/queue
+- reduce malloc calls in src/internals/deq.c
 
 ## CONSIDER:
 - alternate arena type with a freeblock list?
