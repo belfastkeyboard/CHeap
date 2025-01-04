@@ -15,6 +15,9 @@ struct ControlArray
 };
 
 
+size_t minimum_array_size(size_t size);
+
+
 struct ControlArray create_control_array(size_t arr_cap,
                                          size_t size);
 
