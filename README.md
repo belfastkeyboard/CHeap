@@ -77,6 +77,7 @@ Currently, ranges exist only for adding multiple elements to arrays at once inst
 - iterators
 - enforce alignment in CHeap allocator
 - stress test all types
+- resize for deque/queue
 
 ## CONSIDER:
 - alternate arena type with a freeblock list?
