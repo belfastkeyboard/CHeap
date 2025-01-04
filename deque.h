@@ -23,6 +23,9 @@ void insert_deque(Deque *deque,
                   size_t index);
 
 
+void *at_deque(const Deque *deque,
+               size_t index);
+
 void *front_deque(const Deque *deque);
 
 void *back_deque(const Deque *deque);
