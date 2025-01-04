@@ -21,7 +21,6 @@ void memory_free_container_hash(void **container,
                                 void *keys,
                                 void *values);
 
-
 bool generic_empty(size_t nmemb);
 
 size_t generic_size(size_t nmemb);

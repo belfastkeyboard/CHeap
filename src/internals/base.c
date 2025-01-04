@@ -19,16 +19,6 @@ void *memory_allocate_container(const size_t size)
     return ptr;
 }
 
-void memory_free_container_mempool(void **container,
-                                   void *array)
-{
-    CHEAP_ASSERT(*container,
-                 "Container cannot be NULL.");
-
-    memory_free_buffer(&array);
-    memory_free_buffer(container);
-}
-
 
 void memory_free_buffer(void **buffer)
 {
@@ -41,6 +31,16 @@ void memory_free_buffer(void **buffer)
 }
 
 
+void memory_free_container_mempool(void **container,
+                                   void *array)
+{
+    CHEAP_ASSERT(*container,
+                 "Container cannot be NULL.");
+
+    memory_free_buffer(&array);
+    memory_free_buffer(container);
+}
+
 void memory_free_container_hash(void **container,
                                 void *buckets,
                                 void *keys,
@@ -52,6 +52,18 @@ void memory_free_container_hash(void **container,
     memory_free_buffer(&buckets);
     memory_free_buffer(&keys);
     memory_free_buffer(&values);
+    memory_free_buffer(container);
+}
+
+void memory_free_container_deque(void **container,
+                                 void *array,
+                                 void *control)
+{
+    CHEAP_ASSERT(*container,
+                 "Container cannot be NULL.");
+
+    memory_free_buffer(&array);
+    memory_free_buffer(&control);
     memory_free_buffer(container);
 }
 
