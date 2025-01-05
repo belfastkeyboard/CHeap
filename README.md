@@ -13,7 +13,8 @@ Library for simplifying memory management in C.
   group memory into pages which tends to improve caching (one of the frequent criticisms of the
   linked list) but results in increased memory overhead.  
 
-## ALLOCATION LIBRARY
+## ALLOCATOR LIBRARY
+
 Allocators provide an interface for safe memory management and lifetime control.
 - Arena: dynamic-size variable-width allocator
 - Bump allocator: fixed-size variable-width allocator
@@ -64,23 +65,20 @@ I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
-- graphs?
 - update generic macros
 - range functions in cheap.h generics
 - iterators
-- enforce alignment in CHeap allocator
 - stress test all types
 - resize for deque/queue
 - reduce malloc calls in src/internals/deq.c
 - provide better implementation of push_range for deque type
 
 ## CONSIDER:
-- alternate arena type with a freeblock list?
 - thread safety?
 - attempt to re-write create macro to accept hash table without having to write 'sizeof'
 - separate linked list pages into array(node) + array(data) for even faster iteration?
 - all the sequential containers have code duplication in the struct that could be reduced to the base.h file 
-- re-hash or store hashes in buckets? (reduced memory overhead vs reduced time to hash)
+- graphs?
 
 ## INFLUENCES
 
@@ -106,8 +104,3 @@ by Forrest Knight
 
 - [7 Design Patterns EVERY Developer Should Know](https://www.youtube.com/watch?v=BJatgOiiht4)
 by Forrest Knight
-
-### ALLOCATOR TYPES
-
-- [Arena Allocator, Stack Allocator, Free-list Allocator, Pool Allocator Visualized](https://www.youtube.com/watch?v=Cdger2-hlt4)
-by Code with Arian
