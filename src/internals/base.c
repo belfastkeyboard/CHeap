@@ -1,17 +1,12 @@
 #include <stdbool.h>
-#include "../../internals/calloc.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
-
-#ifndef CHEAP_ALLOC
-    #include <malloc.h>
-#endif
 
 
 void *memory_allocate_container(const size_t size)
 {
-    void *ptr = CHEAP_CALLOC(1,
-                             size);
+    void *ptr = calloc(1,
+                       size);
 
     CHEAP_ASSERT(ptr,
                  "Failed to allocate container.");
@@ -24,7 +19,7 @@ void memory_free_buffer(void **buffer)
 {
     if (*buffer)
     {
-        CHEAP_FREE(*buffer);
+        free(*buffer);
     }
 
     *buffer = NULL;

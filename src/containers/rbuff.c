@@ -1,6 +1,5 @@
 #include <memory.h>
 #include "../../rbuff.h"
-#include "../../internals/calloc.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
 
@@ -24,7 +23,7 @@ RingBuffer *create_ringbuffer(const size_t capacity,
                  "Failed to allocate memory.");
 
     *rbuff = (RingBuffer){
-        .array = CHEAP_MALLOC(capacity * size),
+        .array = malloc(capacity * size),
         .capacity = capacity,
         .size = size,
         .write = 0,

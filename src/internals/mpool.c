@@ -1,18 +1,14 @@
 #include <memory.h>
-#include "../../internals/calloc.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
 #include "../../internals/mpool.h"
 
-#ifndef CHEAP_ALLOC
-    #include <malloc.h>
-#endif
 
 __attribute__((warn_unused_result()))
 static void *mempool_alloc(const size_t nmemb,
                            const size_t size)
 {
-    void *tmp = CHEAP_MALLOC(nmemb * size);
+    void *tmp = malloc(nmemb * size);
 
     CHEAP_ASSERT(tmp,
                  "Failed to allocate additional memory.");
@@ -25,8 +21,8 @@ __attribute__((warn_unused_result()))
 static void *mempool_realloc(void *array,
                              const size_t size)
 {
-    void *tmp = CHEAP_REALLOC(array,
-                              size);
+    void *tmp = realloc(array,
+                        size);
 
     CHEAP_ASSERT(tmp,
                  "Failed to reallocate memory.");

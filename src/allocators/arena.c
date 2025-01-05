@@ -1,17 +1,11 @@
 #include <memory.h>
-#include "../../internals/calloc.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
 #include "../../arena.h"
 
-#ifndef CHEAP_ALLOC
-    #include <malloc.h>
-#endif
-
 struct Page
 {
     struct Page *prev;
-
     void *base;
     size_t size;
     size_t offset;
@@ -23,69 +17,89 @@ typedef struct Arena
 } Arena;
 
 
-__attribute__((warn_unused_result))
 static struct Page *construct_page(struct Page *prev,
-                                   const size_t nmemb,
+                                   const size_t growth_policy,
                                    const size_t size)
 {
-    struct Page *page = CHEAP_MALLOC(sizeof(struct Page));
+    const size_t n_size = growth_policy * size;
+
+    void *memory = malloc(sizeof(struct Page) + n_size);
+
+    CHEAP_ASSERT(memory,
+                 "Arena unable to acquire memory.");
+
+    struct Page *page = memory;
 
     page->prev = prev;
-
-    page->base = CHEAP_CALLOC(nmemb,
-                              size);
-
-    page->size = nmemb * size;
+    page->base = memory + sizeof(struct Page);
+    page->size = n_size;
     page->offset = 0;
 
     return page;
 }
 
-__attribute__((warn_unused_result))
-static struct Page *destroy_page(struct Page *page)
+static struct Page *arena_destroy_page(struct Page *page)
 {
     struct Page *prev = page->prev;
 
-    CHEAP_FREE(page->base);
-    CHEAP_FREE(page);
+    free(page);
 
     return prev;
 }
 
-
-// helper functions
-static void *arena_do_alloc(const Arena *arena,
-                            const size_t size)
+static void arena_destroy_pages(struct Page **page)
 {
-    void *ptr = (arena->curr->base + arena->curr->offset);
+    do {
+        *page = arena_destroy_page(*page);
+    } while (*page);
+}
 
-    arena->curr->offset += size;
+
+static void *arena_alloc(struct Page **curr,
+                   const size_t size)
+{
+    if ((*curr)->size - (*curr)->offset < size)
+    {
+        *curr = construct_page(*curr,
+                               2,
+                               (*curr)->size);
+    }
+
+    void *ptr = ((*curr)->base + (*curr)->offset);
+
+    (*curr)->offset += size;
 
     return ptr;
 }
 
-void *dynamic_arena_alloc(Arena *arena,
-                          const size_t size)
+static void *arena_c_alloc(struct Page **curr,
+                     const size_t size)
 {
-    if (arena->curr->size - arena->curr->offset < size)
+    void *ptr = arena_alloc(curr,
+                      size);
+
+    return memset(ptr,
+                  0,
+                  size);
+}
+
+static void arena_clear(struct Page **curr)
+{
+    while ((*curr)->prev)
     {
-        arena->curr = construct_page(arena->curr,
-                                     2,
-                                     arena->curr->size);
+        (*curr) = arena_destroy_page(*curr);
     }
 
-    return arena_do_alloc(arena,
-                          size);
+    (*curr)->offset = 0;
 }
 
 
-Arena *create_arena(const size_t nmemb,
-                    const size_t size)
+Arena *create_arena(const size_t size)
 {
     Arena *arena = memory_allocate_container(sizeof(Arena));
 
     arena->curr = construct_page(NULL,
-                                 nmemb,
+                                 1,
                                  size);
 
     return arena;
@@ -93,61 +107,28 @@ Arena *create_arena(const size_t nmemb,
 
 void destroy_arena(Arena **arena)
 {
-    do {
-        (*arena)->curr = destroy_page((*arena)->curr);
-    } while ((*arena)->curr);
+    arena_destroy_pages(&(*arena)->curr);
 
-    CHEAP_FREE(*arena);
-    *arena = NULL;
+    memory_free_buffer((void**)arena);
 }
 
 
 void *alloc_arena(Arena *arena,
                   const size_t size)
 {
-    void *ptr = NULL;
-
-    ptr = dynamic_arena_alloc(arena,
-                              size);
-
-    CHEAP_ASSERT(ptr, "Arena unable to acquire memory.");
-
-    return ptr;
+    return arena_alloc(&arena->curr,
+                 size);
 }
 
 void *calloc_arena(Arena *arena,
                    const size_t size)
 {
-    void *ptr = alloc_arena(arena,
-                            size);
-
-    return memset(ptr,
-                  0,
-                  size);
+    return arena_c_alloc(&arena->curr,
+                   size);
 }
 
-
-void free_arena(Arena *arena,
-                const void *ptr,
-                const size_t size)
-{
-    if (size <= arena->curr->offset && arena->curr->base + arena->curr->offset - size == ptr)
-    {
-        arena->curr->offset -= size;
-    }
-
-    if (arena->curr->offset == 0 && arena->curr->prev)
-    {
-        arena->curr = destroy_page(arena->curr);
-    }
-}
 
 void clear_arena(Arena *arena)
 {
-    while (arena->curr->prev)
-    {
-        arena->curr = destroy_page(arena->curr);
-    }
-
-    arena->curr->offset = 0;
+    arena_clear(&arena->curr);
 }

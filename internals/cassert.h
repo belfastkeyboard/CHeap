@@ -8,7 +8,7 @@
 #else
     #define CHEAP_ASSERT(expr, msg)	 						                  \
         do {                                                                  \
-            if (!(expr))                                                        \
+            if (!(expr))                                                      \
             {                                                                 \
                 fprintf(stderr, "%s\n",                                       \
                         msg);                                                 \
