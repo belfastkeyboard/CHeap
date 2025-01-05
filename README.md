@@ -13,16 +13,11 @@ Library for simplifying memory management in C.
   group memory into pages which tends to improve caching (one of the frequent criticisms of the
   linked list) but results in increased memory overhead.  
 
-## MANAGEMENT CONTEXT
-Open and close a CHeap memory management context.
-All CHeap allocations make use of a custom allocator rather than standard library memory management.
-All memory is freed upon context closure, simplifying memory management and reducing opportunities for
-memory leakage.
-
 ## ALLOCATION LIBRARY
 Allocators provide an interface for safe memory management and lifetime control.
-- Arena
-- Bump allocator
+- Arena: dynamic-size variable-width allocator
+- Bump allocator: fixed-size variable-width allocator
+- Pool allocator: fixed-size fixed-width allocator
 
 ## CONTAINER LIBRARY
 
@@ -69,8 +64,6 @@ I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
-- implement a deque type for the queue container
-  - benefits: faster pushing, popping, slightly slower access. good trade-off
 - graphs?
 - update generic macros
 - range functions in cheap.h generics
