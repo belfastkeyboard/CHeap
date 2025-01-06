@@ -14,7 +14,9 @@ file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.c")
 
 if (BUILD STREQUAL "Release")
     message(STATUS "Release build: enabling optimizations and defining NDEBUG")
+
     add_compile_definitions(NDEBUG)
+
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=native -funroll-loops -ffast-math")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -funroll-loops -ffast-math")
 endif()
