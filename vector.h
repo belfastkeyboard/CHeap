@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 #ifdef CHEAP_ITERATOR_AVAILABLE
-#include "internals/iter.h"
+#include "iter.h"
 #endif
 
 #ifdef CHEAP_RANGE_AVAILABLE

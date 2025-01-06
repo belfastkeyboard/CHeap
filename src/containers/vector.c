@@ -49,7 +49,7 @@ void insert_vector(Vector *vector,
                            vector->size);
 }
 
-
+#ifdef CHEAP_RANGE_AVAILABLE
 void push_back_range_vector(Vector *vector,
                             const Range *range)
 {
@@ -83,6 +83,7 @@ Range get_range_vector(const Vector *vector,
                                      begin,
                                      end);
 }
+#endif
 
 
 void pop_back_vector(Vector *vector)
@@ -128,6 +129,7 @@ void *back_vector(const Vector *vector)
 }
 
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_vector(const Vector *vector)
 {
     void *ptr = front_vector(vector);
@@ -145,6 +147,7 @@ Iter end_vector(const Vector *vector)
     return create_iter(ptr,
                        size);
 }
+#endif
 
 
 bool empty_vector(const Vector *vector)

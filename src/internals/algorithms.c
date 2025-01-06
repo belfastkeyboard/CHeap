@@ -8,7 +8,7 @@ void sort(Iter begin,
           Iter end,
           Comp comp)
 {
-    CHEAP_ASSERT(begin->size == end->size,
+    CHEAP_ASSERT(begin.size == end.size,
                  "Cannot sort different types.");
 
     const size_t size = begin.size;
