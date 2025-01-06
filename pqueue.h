@@ -7,6 +7,7 @@
 #include "range.h"
 #endif
 
+
 typedef struct PriorityQueue PriorityQueue, PQueue;
 
 typedef int (*CompareFunc)(const void*,
