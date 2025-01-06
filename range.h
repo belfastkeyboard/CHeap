@@ -2,6 +2,10 @@
 
 #include <stddef.h>
 
+#ifndef CHEAP_RANGE_AVAILABLE
+#define CHEAP_RANGE_AVAILABLE
+#endif
+
 typedef struct Range
 {
     const void *array;

@@ -2,7 +2,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef CHEAP_RANGE_AVAILABLE
 #include "range.h"
+#endif
 
 
 typedef struct Vector Vector;
@@ -22,6 +25,7 @@ void insert_vector(Vector *vector,
                    size_t index);
 
 
+#ifdef CHEAP_RANGE_AVAILABLE
 void push_back_range_vector(Vector *vector,
                             const Range *range);
 
@@ -32,7 +36,7 @@ void insert_range_vector(Vector *vector,
 Range get_range_vector(const Vector *vector,
                        size_t begin,
                        size_t end);
-
+#endif
 
 void pop_back_vector(Vector *vector);
 
