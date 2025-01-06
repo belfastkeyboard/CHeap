@@ -7,3 +7,6 @@
 void sort(Iter begin,
           Iter end,
           Comp comp);
+
+void shuffle(Iter begin,
+             Iter end);
