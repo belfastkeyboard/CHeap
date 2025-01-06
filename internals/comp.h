@@ -1,4 +1,7 @@
 #pragma once
 
-typedef int (*KComp)(const void *a,
+typedef int (*Comp)(const void *a,
                      const void *b);
+
+typedef Comp KComp;
+
