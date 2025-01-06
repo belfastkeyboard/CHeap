@@ -3,6 +3,11 @@
 #include <stddef.h>
 
 
+#ifndef CHEAP_ITERATOR_AVAILABLE
+#define CHEAP_ITERATOR_AVAILABLE
+#endif
+
+
 typedef struct Iter
 {
     void *ptr;

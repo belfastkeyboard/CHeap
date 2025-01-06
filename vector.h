@@ -56,9 +56,11 @@ void *front_vector(const Vector *vector);
 void *back_vector(const Vector *vector);
 
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_vector(const Vector *vector);
 
 Iter end_vector(const Vector *vector);
+#endif
 
 
 bool empty_vector(const Vector *vector);
