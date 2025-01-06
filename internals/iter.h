@@ -1,0 +1,22 @@
+#pragma once
+
+#include <stddef.h>
+
+
+typedef struct Iter
+{
+    void *ptr;
+    size_t size;
+} Iter, Iterator;
+
+
+Iter create_iter(void *ptr,
+                 size_t size);
+
+
+Iter next_iter(Iter *iter);
+
+Iter prev_iter(Iter *iter);
+
+
+#define range(begin, end) ; begin.ptr <= end.ptr; next_iter(&begin)

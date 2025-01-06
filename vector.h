@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "internals/iter.h"
+
 #ifdef CHEAP_RANGE_AVAILABLE
 #include "range.h"
 #endif
@@ -52,6 +54,11 @@ void *at_vector(const Vector *vector,
 void *front_vector(const Vector *vector);
 
 void *back_vector(const Vector *vector);
+
+
+Iter begin_vector(const Vector *vector);
+
+Iter end_vector(const Vector *vector);
 
 
 bool empty_vector(const Vector *vector);

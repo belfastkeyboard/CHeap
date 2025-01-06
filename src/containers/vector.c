@@ -128,6 +128,25 @@ void *back_vector(const Vector *vector)
 }
 
 
+Iter begin_vector(const Vector *vector)
+{
+    void *ptr = front_vector(vector);
+    const size_t size = vector->size;
+
+    return create_iter(ptr,
+                       size);
+}
+
+Iter end_vector(const Vector *vector)
+{
+    void *ptr = back_vector(vector);
+    const size_t size = vector->size;
+
+    return create_iter(ptr,
+                       size);
+}
+
+
 bool empty_vector(const Vector *vector)
 {
     return generic_empty(vector->nmemb);
