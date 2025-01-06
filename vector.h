@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
 #include "internals/iter.h"
+#endif
 
 #ifdef CHEAP_RANGE_AVAILABLE
 #include "range.h"
