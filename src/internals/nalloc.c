@@ -32,7 +32,8 @@ static struct Page *create_page(struct Page *prev,
                                 const size_t nmemb,
                                 const size_t size)
 {
-    void *mem = malloc(sizeof(struct Page) + nmemb * size);
+    void *mem = calloc(1,
+                       sizeof(struct Page) + nmemb * size);
 
     assert(mem);
 
