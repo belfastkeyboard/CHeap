@@ -11,7 +11,7 @@
 typedef struct Iter
 {
     void *ptr;
-    size_t size;
+    const size_t size;
 } Iter, Iterator;
 
 
