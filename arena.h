@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stddef.h>
-#include "internals/byte.h"
+
 
 typedef struct Arena Arena;
 
