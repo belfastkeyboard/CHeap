@@ -117,14 +117,14 @@ void *alloc_arena(Arena *arena,
                   const size_t size)
 {
     return arena_alloc(&arena->curr,
-                 size);
+                       size);
 }
 
 void *calloc_arena(Arena *arena,
                    const size_t size)
 {
     return arena_c_alloc(&arena->curr,
-                   size);
+                         size);
 }
 
 
