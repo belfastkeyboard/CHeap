@@ -56,7 +56,7 @@ static void arena_destroy_pages(struct Page **page)
 
 
 static void *arena_alloc(struct Page **curr,
-                   const size_t size)
+                         const size_t size)
 {
     if ((*curr)->size - (*curr)->offset < size)
     {
@@ -73,7 +73,7 @@ static void *arena_alloc(struct Page **curr,
 }
 
 static void *arena_c_alloc(struct Page **curr,
-                     const size_t size)
+                           const size_t size)
 {
     void *ptr = arena_alloc(curr,
                       size);
