@@ -13,20 +13,20 @@
 #define INVALID   UNSET
 #define NOT_FOUND INVALID
 
-typedef unsigned long hash_t;
+typedef unsigned long Hash;
 
 struct Bucket
 {
-    hash_t hash;
+    Hash hash;
     size_t index;
     bool tombstone;
 };
 
 
-static hash_t djb2(const void *item,
-                   const size_t size)
+static Hash djb2(const void *item,
+                 const size_t size)
 {
-    hash_t hash = 5381;
+    Hash hash = 5381;
 
     unsigned char data[size];
 
@@ -42,7 +42,7 @@ static hash_t djb2(const void *item,
     return hash;
 }
 
-static size_t get_index(const hash_t hash,
+static size_t get_index(const Hash hash,
                         const size_t capacity)
 {
     return hash % capacity;
@@ -161,8 +161,8 @@ static size_t find_bucket(struct Bucket *buckets,
 
     if (capacity)
     {
-        hash_t hash = djb2(key,
-                           k_size);
+        Hash hash = djb2(key,
+                         k_size);
 
         index = get_index(hash,
                           capacity);
@@ -181,7 +181,7 @@ static size_t find_bucket(struct Bucket *buckets,
 }
 
 
-static struct Bucket create_bucket(const hash_t hash,
+static struct Bucket create_bucket(const Hash hash,
                                    const size_t nmemb,
                                    void *keys,
                                    const void *key,
@@ -420,8 +420,8 @@ void hash_insert(struct Bucket **buckets,
     CHEAP_ASSERT(buckets && *keys,
                  "Buckets and keys cannot be NULL.");
 
-    hash_t hash = djb2(key,
-                       k_size);
+    Hash hash = djb2(key,
+                     k_size);
 
     size_t index = get_index(hash,
                              *capacity);
