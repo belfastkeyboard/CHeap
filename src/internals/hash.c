@@ -105,7 +105,9 @@ static size_t probe(struct Bucket *buckets,
 
         if (skip_tombstones)
         {
-            if (tombstone == INVALID && bucket.hash != INVALID && bucket.tombstone)
+            if (tombstone == INVALID &&
+                bucket.hash != INVALID &&
+                bucket.tombstone)
             {
                 tombstone = index;
             }
