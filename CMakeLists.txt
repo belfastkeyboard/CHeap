@@ -25,9 +25,3 @@ add_library(
     CHeap STATIC
         ${SOURCES}
 )
-
-#add_executable(
-#    CHeap main.c
-#        ${SOURCES}
-#        cheap.h
-#)
