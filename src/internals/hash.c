@@ -604,8 +604,11 @@ void *hash_find(struct Bucket *buckets,
                                    capacity,
                                    key);
 
-        void *ptr = (values) ? values : keys;
-        const size_t size = (values) ? v_size : k_size;
+        void *ptr = (values) ? values :
+                               keys;
+
+        const size_t size = (values) ? v_size :
+                                       k_size;
 
         if (index != NOT_FOUND)
         {
