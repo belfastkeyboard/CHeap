@@ -77,9 +77,11 @@ static bool is_found(void *keys,
                                                bucket.index));
 
     bool invalid_or_tombstone = !skip_tombstones &&
-                                (bucket.hash == INVALID || bucket.tombstone); // TODO: think about .hash == INVALID
+                                (bucket.hash == INVALID ||
+                                bucket.tombstone); // TODO: think about .hash == INVALID
 
-    return found_bucket || invalid_or_tombstone;
+    return found_bucket ||
+           invalid_or_tombstone;
 }
 
 
