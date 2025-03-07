@@ -65,6 +65,16 @@ I do plan to add iterators at some point.
 Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
 
 ## TODO:
+- storing pointers
+  - storing items as pointers is not intuitive
+  - passing ```Item *item``` to ```push_vector(vector, item)``` will write ```*item``` into the vector
+  - this gives the vector ownership of ```item```
+  - it is possible to store pointers to ```Item*``` as well: ```push_vector(vector, &item)```
+  - this will write the memory address of ```item``` into the vector, giving it a reference to but not ownership of ```item```
+  - retrieval of ```item``` is counter-intuitive, rather than simply retrieve with ```Item *item2 = at_vector(vector, 0)```, you must cast the result, as the data, for a reason unknown to me, is not properly resolved to the correct type in this particular case
+  - the cast to perform looks like this: ```Item *item2 = *(void**)at_vector(vector, 0)```
+  - this will correctly retrieve the element
+  - this is very annoying, and it is easy to make mistakes like this, so it's worth trying to fix this 
 - update generic macros
 - range functions in cheap.h generics
 - iterators
