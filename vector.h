@@ -120,39 +120,122 @@ void pop_back_vector(Vector *vector);
  *
  * @param vector The Vector object
  * @param index The index at which to erase
- * @return Index
+ * @return Nothing
  *
- * @warning Popping back an empty vector in release mode is undefined behaviour
+ * @warning In release mode out-of-bounds @p index errors are not caught
  */
 size_t erase_vector(Vector *vector,
                     size_t index);
 
+/**
+ * @brief Erases all elements from the vector
+ *
+ * @param vector The Vector object
+ * @return Nothing
+ */
 void clear_vector(Vector *vector);
 
 
+/**
+ * @brief Returns a pointer to the element at specified index
+ *
+ * @param vector The Vector object
+ * @param index Index from which to get the pointer
+ * @return Pointer to the element
+ *
+ * @warning Out-of-bounds @p index errors are not caught
+ * @note The return value is of type @c void* and must be cast to the correct type
+ */
 void *at_vector(const Vector *vector,
                 size_t index);
 
+/**
+ * @brief Returns a pointer to the first element in the vector
+ *
+ * @param vector The Vector object
+ * @return Pointer to the element
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ * @note The return value is of type @c void* and must be cast to the correct type
+ */
 void *front_vector(const Vector *vector);
 
+/**
+ * @brief Returns a pointer to the last element in the vector
+ *
+ * @param vector The Vector object
+ * @return Pointer to the element
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ * @note The return value is of type @c void* and must be cast to the correct type
+ */
 void *back_vector(const Vector *vector);
 
 
 #ifdef CHEAP_ITERATOR_AVAILABLE
+
+/**
+ * @brief Returns an iterator to the first element of the vector
+ *
+ * @param vector The Vector object
+ * @return Iterator to the first element
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ */
 Iter begin_vector(const Vector *vector);
 
+/**
+ * @brief Returns an iterator to the last element of the vector
+ *
+ * @param vector The Vector object
+ * @return Iterator to the last element
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ */
 Iter end_vector(const Vector *vector);
 #endif
 
-
+/**
+ * @brief Checks if the vector has no elements
+ *
+ * @param vector The Vector object
+ * @return @c true if the vector is empty, @c false otherwise
+ */
 bool empty_vector(const Vector *vector);
 
+/**
+ * @brief Returns the number of elements in the vector
+ *
+ * @param vector The Vector object
+ * @return Number of elements in the vector
+ */
 size_t size_vector(const Vector *vector);
 
+/**
+ * @brief Returns the number of elements that the vector has currently allocated space for
+ *
+ * @param vector The Vector object
+ * @return Capacity of the currently allocated storage
+ */
 size_t capacity_vector(const Vector *vector);
 
 
+/**
+ * @brief Increase the capacity of the vector to the specified size
+ *
+ * @param vector The Vector object
+ * @param amount The number of elements to reserve
+ * @return Nothing
+ *
+ * @note If @p amount is less than the currently allocated capacity, the function does nothing
+ */
 void reserve_vector(Vector *vector,
                     size_t amount);
 
+/**
+ * @brief Removes unused capacity
+ *
+ * @param vector The Vector object
+ * @return Nothing
+ */
 void shrink_to_fit_vector(Vector *vector);
