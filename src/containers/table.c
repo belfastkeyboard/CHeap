@@ -21,6 +21,7 @@ Table *create_table(const size_t k_size,
     Table *table = memory_allocate_container(sizeof(Table));
 
     table->alloc = create_node_allocator(sizeof(struct Node),
+                                         NODE_COUNT_DEFAULT,
                                          k_size,
                                          v_size);
 
