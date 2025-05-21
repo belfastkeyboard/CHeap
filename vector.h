@@ -96,15 +96,34 @@ void insert_range_vector(Vector *vector,
  * @param vector The Vector object
  * @param begin The index at which to begin, inclusive
  * @param range The index at which to end, exclusive
- * @return Nothing
+ * @return A Range object
+ *
+ * @note Range objects are intended to be read-only
  */
 Range get_range_vector(const Vector *vector,
                        size_t begin,
                        size_t end);
 #endif
 
+/**
+ * @brief Removes the last element of the vector
+ *
+ * @param vector The Vector object
+ * @return Nothing
+ *
+ * @warning Popping back an empty vector in release mode is undefined behaviour
+ */
 void pop_back_vector(Vector *vector);
 
+/**
+ * @brief Erases the element at the specified index from the vector
+ *
+ * @param vector The Vector object
+ * @param index The index at which to erase
+ * @return Index
+ *
+ * @warning Popping back an empty vector in release mode is undefined behaviour
+ */
 size_t erase_vector(Vector *vector,
                     size_t index);
 
