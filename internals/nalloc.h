@@ -2,6 +2,9 @@
 
 #include <stddef.h>
 
+#define NODE_COUNT_DEFAULT 8
+
+
 struct NodeAlloc
 {
     struct Block *blocks;
@@ -10,6 +13,7 @@ struct NodeAlloc
 
 
 struct NodeAlloc create_node_allocator(size_t node_size,
+                                       size_t nmemb,
                                        size_t t1_size,
                                        size_t t2_size);
 
