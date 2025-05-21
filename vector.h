@@ -1,3 +1,17 @@
+/**
+ * @file vector.h
+ * @brief Vector implementation for C
+ *
+ * This header defines a generic dynamic array type @c Vector
+ * which can store an arbitrary number of elements. It resizes
+ * automatically when new elements are added and supports
+ * standard operations such as @c push @c pop @c insert and @c erase .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-21
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
@@ -11,7 +25,21 @@
 #include "range.h"
 #endif
 
-
+/**
+ * @brief A container that encapsulates a dynamic size array
+ *
+ * Elements in a vector are stored contiguously, and the
+ * storage is handled automatically by the provided
+ * functions.
+ *
+ * A vector will usually occupy more space than a static
+ * array, because the vector allocates memory up front.
+ * The resize policy is to double the current @c capacity
+ * of the vector each time the available memory is exhausted.
+ *
+ * @warning The Vector object must be constructed and destroyed by the provided functions
+ * @note The Vector object is a pointer to an incomplete type and should not be dereferenced
+ */
 typedef struct Vector Vector;
 
 /**
@@ -23,7 +51,6 @@ typedef struct Vector Vector;
  * @warning Must capture the returned object or memory will be leaked
  * @warning Must pass vector to destroy_vector() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
- * @note Vector object is a pointer to an incomplete type and cannot be dereferenced
  */
 __attribute__((warn_unused_result))
 Vector *create_vector(size_t size);
