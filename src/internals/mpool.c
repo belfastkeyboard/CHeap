@@ -255,7 +255,7 @@ Range generic_mempool_get_range(const void *array,
 
     Range range = {
             .array = array + start * size,
-            .nmemb = 1 + end - start,
+            .nmemb = end - start,
             .size = size
     };
 
