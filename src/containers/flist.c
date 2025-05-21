@@ -16,6 +16,7 @@ FList *create_forward_list(const size_t size)
     FList *flist = memory_allocate_container(sizeof(FList));
 
     flist->alloc = create_node_allocator(sizeof(struct Node),
+                                         NODE_COUNT_DEFAULT,
                                          size,
                                          0);
 
