@@ -8,6 +8,10 @@ typedef struct ForwardList ForwardList, FList;
 __attribute__((warn_unused_result))
 FList *create_forward_list(size_t size);
 
+__attribute__((warn_unused_result))
+FList *create_forward_list_capacity(size_t size,
+                                    size_t init);
+
 void destroy_forward_list(FList **flist);
 
 

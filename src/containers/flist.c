@@ -13,10 +13,18 @@ typedef struct ForwardList
 
 FList *create_forward_list(const size_t size)
 {
+    return create_forward_list_capacity(size,
+                                        NODE_COUNT_DEFAULT);
+}
+
+__attribute__((warn_unused_result))
+FList *create_forward_list_capacity(size_t size,
+                                    size_t init)
+{
     FList *flist = memory_allocate_container(sizeof(FList));
 
     flist->alloc = create_node_allocator(sizeof(struct Node),
-                                         NODE_COUNT_DEFAULT,
+                                         init,
                                          size,
                                          0);
 
