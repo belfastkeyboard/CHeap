@@ -16,9 +16,17 @@ typedef struct List
 
 List *create_list(const size_t size)
 {
+    return create_list_capacity(size, NODE_COUNT_DEFAULT);
+}
+
+__attribute__((warn_unused_result))
+List *create_list_capacity(size_t size,
+                           size_t init)
+{
     List *list = memory_allocate_container(sizeof(List));
 
     list->alloc = create_node_allocator(sizeof(struct Node),
+                                        init,
                                         size,
                                         0);
 

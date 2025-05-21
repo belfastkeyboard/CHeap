@@ -9,6 +9,10 @@ typedef struct List List;
 __attribute__((warn_unused_result))
 List *create_list(size_t size);
 
+__attribute__((warn_unused_result))
+List *create_list_capacity(size_t size,
+                           size_t init);
+
 void destroy_list(List **list);
 
 
