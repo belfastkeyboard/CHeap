@@ -3,9 +3,6 @@
 #include "../../internals/nalloc.h"
 
 
-#define INIT_COUNT 8
-
-
 struct Block
 {
     struct Block *next;
@@ -153,12 +150,13 @@ static void destroy_pages(struct NodeAlloc *allocator)
 
 
 struct NodeAlloc create_node_allocator(const size_t node_size,
+                                       const size_t nmemb,
                                        const size_t t1_size,
                                        const size_t t2_size)
 {
     struct NodeAlloc allocator = { .blocks = NULL,
                                    .pages = create_page(NULL,
-                                                        INIT_COUNT,
+                                                        nmemb,
                                                         node_size + t1_size + t2_size) };
 
     return allocator;
