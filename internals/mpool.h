@@ -55,10 +55,10 @@ void generic_mempool_pop_front(void **array,
                                size_t *nmemb,
                                size_t size);
 
-size_t generic_mempool_erase(void **array,
-                             size_t index,
-                             size_t *nmemb,
-                             size_t size);
+void generic_mempool_erase(void **array,
+                           size_t index,
+                           size_t *nmemb,
+                           size_t size);
 
 void generic_mempool_clear(size_t *nmemb);
 

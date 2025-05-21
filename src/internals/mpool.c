@@ -108,7 +108,7 @@ static void *mempool_random_access(void *array,
 }
 
 
-static size_t mempool_remove(void *array,
+static void mempool_remove(void *array,
                              const size_t index,
                              const size_t nmemb,
                              const size_t size)
@@ -119,8 +119,6 @@ static size_t mempool_remove(void *array,
     memmove(array + index * size,
             array + (index + 1) * size,
             (nmemb - index - 1) * size);
-
-    return index - 1;
 }
 
 
@@ -286,22 +284,20 @@ void generic_mempool_pop_front(void **array,
     (*nmemb)--;
 }
 
-size_t generic_mempool_erase(void **array,
-                             size_t index,
-                             size_t *nmemb,
-                             const size_t size)
+void generic_mempool_erase(void **array,
+                           size_t index,
+                           size_t *nmemb,
+                           const size_t size)
 {
     CHEAP_ASSERT(*array,
                  "Array cannot be NULL.");
 
-    index = mempool_remove(*array,
-                           index,
-                           *nmemb,
-                           size);
+    mempool_remove(*array,
+                   index,
+                   *nmemb,
+                   size);
 
     (*nmemb)--;
-
-    return index;
 }
 
 void generic_mempool_clear(size_t *nmemb)

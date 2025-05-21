@@ -90,13 +90,13 @@ void pop_back_vector(Vector *vector)
     generic_mempool_pop_back(&vector->nmemb);
 }
 
-size_t erase_vector(Vector *vector,
+void erase_vector(Vector *vector,
                     const size_t index)
 {
-    return generic_mempool_erase(&vector->array,
-                                 index,
-                                 &vector->nmemb,
-                                 vector->size);
+    generic_mempool_erase(&vector->array,
+                          index,
+                          &vector->nmemb,
+                          vector->size);
 }
 
 void clear_vector(Vector *vector)

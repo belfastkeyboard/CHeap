@@ -44,8 +44,8 @@ Range get_range_vector(const Vector *vector,
 
 void pop_back_vector(Vector *vector);
 
-size_t erase_vector(Vector *vector,
-                    size_t index);
+void erase_vector(Vector *vector,
+                  size_t index);
 
 void clear_vector(Vector *vector);
 
