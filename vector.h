@@ -151,8 +151,8 @@ void pop_back_vector(Vector *vector);
  *
  * @warning In release mode out-of-bounds @p index errors are not caught
  */
-size_t erase_vector(Vector *vector,
-                    size_t index);
+void erase_vector(Vector *vector,
+                  size_t index);
 
 /**
  * @brief Erases all elements from the vector
