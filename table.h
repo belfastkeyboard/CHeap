@@ -1,3 +1,17 @@
+/**
+ * @file table.h
+ * @brief Table implementation for C
+ *
+ * This header defines a sorted key-value pair @c Table
+ * which stores pairs sorted by keys. The sort comparison
+ * function is provided by the user and the table supports
+ * standard operations such as @c insert @c erase @c find and @c clear .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-22
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
@@ -96,13 +110,38 @@ void *find_table(const Table *table,
 bool contains_table(const Table *table,
                     const void *key);
 
-
+/**
+ * @brief Erases the @p key @c value pair from the table
+ *
+ * @param table The Table object
+ * @param key The key to erase the equivalent @p key @c value pair
+ * @return Nothing
+ *
+ * @note If no @p key @c value pair is found the function does nothing
+ */
 void erase_table(Table *table,
                  const void *key);
 
+/**
+ * @brief Erases all pairs from the table
+ *
+ * @param table The Table object
+ * @return Nothing
+ */
 void clear_table(Table *table);
 
-
+/**
+ * @brief Checks if the table has no pairs
+ *
+ * @param table The Table object
+ * @return @c true if the table is empty, @c false otherwise
+ */
 bool empty_table(const Table *table);
 
+/**
+ * @brief Returns the number of pairs in the table
+ *
+ * @param table The Table object
+ * @return Number of elements in the table
+ */
 size_t size_table(const Table *table);
