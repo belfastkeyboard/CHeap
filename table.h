@@ -47,27 +47,52 @@ void destroy_table(Table **table);
 
 
 /**
- * @brief Insert a copy of @p value at the specified index
+ * @brief Insert a @p key @p value pair into the table
  *
- * @param vector The Vector object
+ * @param table The Table object
+ * @param key The key to insert
  * @param value The value to insert
- * @param index The index at which to insert @p value
  * @return Nothing
  *
- * @warning Ensure @p value is of the correct specialised type
- * @warning In release mode out-of-bounds @p index errors are not caught
+ * @warning Ensure @p key and @p value are of the correct specialised types
+ * @note If key already exists, the function is does not overwrite the existing value
  */
 void insert_table(Table *table,
                   const void *key,
                   const void *value);
 
 
+/**
+ * @brief Count the number of @p key @c value pairs in the table with an equivalent @p key
+ *
+ * @param table The Table object
+ * @param key Key from which to count the resulting stored elements
+ * @return The count of @p key @c value pairs in the table
+ *
+ * @note Because keys are unique the result is always either 1 or 0
+ */
 size_t count_table(const Table *table,
                    const void *key);
 
+/**
+ * @brief Finds a @c value with key equivalent to @p key
+ *
+ * @param table The Table object
+ * @param key Key from which to derive the @c value
+ * @return Pointer to the @c value if found, @c NULL otherwise
+ *
+ * @note The result is of @c void* type and must be cast to the correct type
+ */
 void *find_table(const Table *table,
                  const void *key);
 
+/**
+ * @brief Check if there is a @c value with @p key equivalent in the table
+ *
+ * @param table The Table object
+ * @param key Key from which to find the @c value
+ * @return @c true if found, @c false otherwise
+ */
 bool contains_table(const Table *table,
                     const void *key);
 
