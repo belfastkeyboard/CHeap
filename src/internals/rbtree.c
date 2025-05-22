@@ -463,7 +463,10 @@ void delete_rbtree(struct NodeAlloc *alloc,
                    const KComp compare,
                    size_t *nmemb)
 {
-    assert(*head);
+    if (!(*head))
+    {
+        return;
+    }
 
     if (!is_red((*head)->l) &&
         !is_red((*head)->r))
