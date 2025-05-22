@@ -1,3 +1,17 @@
+/**
+ * @file table.h
+ * @brief Table implementation for C
+ *
+ * This header defines a sorted key-value pair @c Table
+ * which stores pairs sorted by keys. The sort comparison
+ * function is provided by the user and the table supports
+ * standard operations such as @c insert @c erase @c find and @c clear .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-22
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
