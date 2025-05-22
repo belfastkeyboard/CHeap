@@ -230,7 +230,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
     else
     {
         int cmp = compare(key,
-                     node->key);
+                          node->key);
 
         if (cmp < 0)
         {
@@ -256,7 +256,7 @@ static struct Node *rbt_insert(struct NodeAlloc *alloc,
         {
             node->key = memcpy(node->key,
                                key,
-                               k_size); // TODO: overwrite value??
+                               k_size);
         }
 
         if (is_red(node->r) &&
