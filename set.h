@@ -1,3 +1,17 @@
+/**
+ * @file set.h
+ * @brief Set implementation for C
+ *
+ * This header defines a sorted associative @c Set
+ * which stores unique keys. The sort comparison
+ * function is provided by the user and the set supports
+ * standard operations such as @c insert @c erase @c find and @c clear .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-23
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
