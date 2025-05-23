@@ -4,6 +4,16 @@
 #include <stddef.h>
 #include "range.h"
 
+
+/**
+ * @brief A container provides LIFO (last-in, first-out) functionality
+ *
+ * The stack uses the same internal contiguous array implementation as
+ * the vector.
+ *
+ * @warning The Stack object must be constructed and destroyed by the provided functions
+ * @note The Stack object is a pointer to an incomplete type and should not be dereferenced
+ */
 typedef struct Stack Stack;
 
 
