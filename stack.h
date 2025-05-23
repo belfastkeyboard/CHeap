@@ -1,3 +1,18 @@
+/**
+ * @file stack.h
+ * @brief Stack implementation for C
+ *
+ * This header defines a generic dynamic array type @c Stack
+ * for the purpose of providing a LIFO (last-in, first-out)
+ * API. It grows to accommodate new elements when memory is
+ * exhausted. It supports standard stack operations such as
+ * @c push @c pop and @c top .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-23
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
