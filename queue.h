@@ -1,3 +1,18 @@
+/**
+ * @file queue.h
+ * @brief Queue implementation for C
+ *
+ * This header defines a generic double-ended queue wrapper
+ * type @c Queue for the purpose of providing a FIFO
+ * (first-in, first-out) API. It grows to accommodate new
+ * elements when memory is exhausted. It supports standard
+ * queue operations such as @c push @c pop @c front and @c back .
+ *
+ * @author Riain Ó Tuathail
+ * @date 2025-05-24
+ * @version 0.8
+ */
+
 #pragma once
 
 #include <stdbool.h>
