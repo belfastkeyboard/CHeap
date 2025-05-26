@@ -17,7 +17,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef CHEAP_RANGE_AVAILABLE
 #include "range.h"
+#endif
 
 /**
  * @brief A container provides LIFO (last-in, first-out) functionality
@@ -66,6 +69,7 @@ void destroy_stack(Stack **stack);
 void push_stack(Stack *stack,
                 const void* value);
 
+#ifdef CHEAP_RANGE_AVAILABLE
 /**
  * @brief Push a copy of each element of @p range to the top of the stack
  *
@@ -75,6 +79,7 @@ void push_stack(Stack *stack,
  */
 void push_range_stack(Stack *stack,
                       const Range *range);
+#endif
 
 
 /**
