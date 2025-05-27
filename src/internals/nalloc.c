@@ -154,10 +154,12 @@ struct NodeAlloc create_node_allocator(const size_t node_size,
                                        const size_t t1_size,
                                        const size_t t2_size)
 {
-    struct NodeAlloc allocator = { .blocks = NULL,
-                                   .pages = create_page(NULL,
-                                                        nmemb,
-                                                        node_size + t1_size + t2_size) };
+    struct NodeAlloc allocator = {
+        .blocks = NULL,
+        .pages = create_page(NULL,
+                             nmemb,
+                             node_size + t1_size + t2_size)
+    };
 
     return allocator;
 }
