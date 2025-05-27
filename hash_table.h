@@ -59,3 +59,14 @@ void clear_hash_table(HashTable *table);
 bool empty_hash_table(const HashTable *table);
 
 size_t size_hash_table(const HashTable *table);
+
+
+/// VERY WORK IN PROGRESS
+typedef void(*HashTableForEach)(const void *key,
+                                const void *value,
+                                void *);
+
+/// VERY WORK IN PROGRESS
+void hash_table_foreach(HashTable *table,
+                        HashTableForEach callback,
+                        void *data);

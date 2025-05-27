@@ -145,3 +145,22 @@ size_t size_hash_table(const HashTable* table)
 {
     return generic_size(table->nmemb);
 }
+
+
+/// VERY WORK IN PROGRESS
+void hash_table_foreach(HashTable *table,
+                        HashTableForEach callback,
+                        void *data)
+{
+    // TODO: safety checks
+
+    for (size_t i = 0; i < size_hash_table(table); ++i)
+    {
+        const void *key = table->keys + i * table->k_size;
+        const void *val = table->values + i * table->v_size;
+
+        callback(key,
+                 val,
+                 data);
+    }
+}
