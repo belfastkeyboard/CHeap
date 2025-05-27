@@ -16,7 +16,6 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "internals/comp.h"
 
 
 /**
@@ -30,6 +29,18 @@
  * @note The Table object is a pointer to an incomplete type and should not be dereferenced
  */
 typedef struct Table Table;
+
+
+/**
+ * @brief A comparison function for sorting keys
+ *
+ * @param a The first key
+ * @param b The second key
+ *
+ * @return An integer less than, equal to, or greater than zero depending on the comparison.
+ */
+typedef int (*KComp)(const void*,
+                     const void*);
 
 
 /**

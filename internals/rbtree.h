@@ -1,8 +1,11 @@
 #pragma once
 
-#include "comp.h"
 #include "nalloc.h"
 #include "../range.h"
+
+
+typedef int (*Comp)(const void *a,
+                    const void *b);
 
 
 struct Node
@@ -19,7 +22,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
                    const void *value,
-                   KComp compare,
+                   Comp compare,
                    size_t k_size,
                    size_t v_size,
                    size_t *nmemb);
@@ -28,7 +31,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 void insert_range_rbtree(struct NodeAlloc *alloc,
                          struct Node **head,
                          const Range *range,
-                         KComp compare,
+                         Comp compare,
                          size_t size,
                          size_t *nmemb);
 
@@ -36,7 +39,7 @@ void insert_range_rbtree(struct NodeAlloc *alloc,
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct Node **head,
                    const void *key,
-                   KComp compare,
+                   Comp compare,
                    size_t *nmemb);
 
 
@@ -46,8 +49,8 @@ void clear_rbtree(struct NodeAlloc *alloc,
 
 void *rbt_search_k(struct Node *head,
                    const void *key,
-                   KComp compare);
+                   Comp compare);
 
 void *rbt_search_v(struct Node *head,
                    const void *key,
-                   KComp compare);
+                   Comp compare);

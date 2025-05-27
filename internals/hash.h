@@ -2,13 +2,15 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "comp.h"
 
 
 typedef unsigned long Hash;
 
 typedef Hash (*HashFnc)(const void *item,
                         size_t size);
+
+typedef int (*KComp)(const void *a,
+                     const void *b);
 
 
 struct Bucket;

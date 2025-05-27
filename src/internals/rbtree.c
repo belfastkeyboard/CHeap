@@ -10,6 +10,10 @@
 #define RED   1
 
 
+typedef int (*KComp)(const void*,
+                     const void*);
+
+
 static bool is_red(struct Node* node)
 {
     return node &&

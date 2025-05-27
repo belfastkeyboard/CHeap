@@ -16,7 +16,6 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "internals/comp.h"
 
 
 /**
@@ -31,6 +30,19 @@
  */
 typedef struct Set Set;
 
+
+/**
+ * @brief A comparison function for sorting keys
+ *
+ * @param a The first key
+ * @param b The second key
+ *
+ * @return An integer less than, equal to, or greater than zero depending on the comparison.
+ */
+typedef int (*KComp)(const void*,
+                     const void*);
+
+
 /**
  * @brief Create a Set object
  *
@@ -42,8 +54,10 @@ typedef struct Set Set;
  * @warning Must pass set to destroy_set() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
+
+
 Set *create_set(size_t size,
-                KComp compare);
+                Comp compare);
 
 /**
  * @brief Destroy a Set object

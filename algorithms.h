@@ -1,7 +1,10 @@
 #pragma once
 
 #include "iter.h"
-#include "internals/comp.h"
+
+
+typedef int (*Comp)(const void *a,
+                    const void *b);
 
 
 void sort(Iter begin,
