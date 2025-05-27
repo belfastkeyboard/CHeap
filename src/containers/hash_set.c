@@ -5,6 +5,7 @@
 typedef struct HashSet
 {
     struct Bucket *buckets;
+    HashFnc hash;
     void *keys;
     size_t k_size;
     KComp k_comp;
@@ -16,8 +17,18 @@ typedef struct HashSet
 HashSet *create_hash_set(const size_t key_size,
                          const KComp kc)
 {
+    return create_hash_set_ext(key_size,
+                               kc,
+                               djb2);
+}
+
+HashSet *create_hash_set_ext(size_t key_size,
+                             KComp kc,
+                             HashFnc hash)
+{
     HashSet *set = memory_allocate_container(sizeof(HashSet));
 
+    set->hash = hash;
     set->k_size = key_size;
     set->k_comp = kc;
 
@@ -39,6 +50,7 @@ void insert_hash_set(HashSet *set,
     hash_insert(&set->buckets,
                 &set->keys,
                 NULL,
+                set->hash,
                 set->k_size,
                 0,
                 set->k_comp,
@@ -54,6 +66,7 @@ size_t count_hash_set(HashSet *set,
 {
     return hash_count(set->buckets,
                       set->keys,
+                      set->hash,
                       set->k_size,
                       set->k_comp,
                       set->capacity,
@@ -66,6 +79,7 @@ void *find_hash_set(HashSet *set,
     return hash_find(set->buckets,
                      set->keys,
                      NULL,
+                     set->hash,
                      set->k_size,
                      0,
                      set->k_comp,
@@ -79,6 +93,7 @@ bool contains_hash_set(HashSet *set,
 {
     return hash_contains(set->buckets,
                          set->keys,
+                         set->hash,
                          set->k_size,
                          set->k_comp,
                          set->capacity,
@@ -92,6 +107,7 @@ void erase_hash_set(HashSet* set,
     hash_erase(&set->buckets,
                &set->keys,
                NULL,
+               set->hash,
                set->k_size,
                0,
                set->k_comp,

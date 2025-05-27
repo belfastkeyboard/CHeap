@@ -13,8 +13,6 @@
 #define INVALID   UNSET
 #define NOT_FOUND INVALID
 
-typedef unsigned long Hash;
-
 struct Bucket
 {
     Hash hash;
@@ -23,8 +21,24 @@ struct Bucket
 };
 
 
-static Hash djb2(const void *item,
-                 const size_t size)
+Hash djb2s(const void *item,
+           const size_t size)
+{
+    Hash hash = 5381;
+
+    unsigned char *data = (unsigned char*)item;
+
+    while (*data)
+    {
+        hash = ((hash << 5) + hash) + (*data);
+        data++;
+    }
+
+    return hash;
+}
+
+Hash djb2(const void *item,
+          const size_t size)
 {
     Hash hash = 5381;
 
@@ -156,6 +170,7 @@ static size_t probe(struct Bucket *buckets,
 
 static size_t find_bucket(struct Bucket *buckets,
                           void *keys,
+                          const HashFnc fnc,
                           const size_t k_size,
                           const KComp k_comp,
                           const size_t capacity,
@@ -165,8 +180,8 @@ static size_t find_bucket(struct Bucket *buckets,
 
     if (capacity)
     {
-        Hash hash = djb2(key,
-                         k_size);
+        Hash hash = fnc(key,
+                        k_size);
 
         index = get_index(hash,
                           capacity);
@@ -404,6 +419,7 @@ static void should_resize(struct Bucket **buckets,
 void hash_insert(struct Bucket **buckets,
                  void **keys,
                  void **values,
+                 const HashFnc fnc,
                  const size_t k_size,
                  const size_t v_size,
                  const KComp k_comp,
@@ -424,8 +440,8 @@ void hash_insert(struct Bucket **buckets,
     CHEAP_ASSERT(buckets && *keys,
                  "Buckets and keys cannot be NULL.");
 
-    Hash hash = djb2(key,
-                     k_size);
+    Hash hash = fnc(key,
+                    k_size);
 
     size_t index = get_index(hash,
                              *capacity);
@@ -471,6 +487,7 @@ void hash_insert(struct Bucket **buckets,
 void hash_erase(struct Bucket **buckets,
                 void **keys,
                 void **values,
+                const HashFnc fnc,
                 const size_t k_size,
                 const size_t v_size,
                 const KComp k_comp,
@@ -480,6 +497,7 @@ void hash_erase(struct Bucket **buckets,
 {
     size_t index = find_bucket(*buckets,
                                *keys,
+                               fnc,
                                k_size,
                                k_comp,
                                *capacity,
@@ -491,6 +509,7 @@ void hash_erase(struct Bucket **buckets,
 
         size_t last_index = find_bucket(*buckets,
                                         *keys,
+                                        fnc,
                                         k_size,
                                         k_comp,
                                         *capacity,
@@ -572,6 +591,7 @@ void hash_clear(struct Bucket **buckets,
 
 size_t hash_count(struct Bucket *buckets,
                   void *keys,
+                  const HashFnc fnc,
                   const size_t k_size,
                   const KComp k_comp,
                   const size_t capacity,
@@ -579,6 +599,7 @@ size_t hash_count(struct Bucket *buckets,
 {
     return (find_bucket(buckets,
                         keys,
+                        fnc,
                         k_size,
                         k_comp,
                         capacity,
@@ -588,6 +609,7 @@ size_t hash_count(struct Bucket *buckets,
 void *hash_find(struct Bucket *buckets,
                 void *keys,
                 void *values,
+                const HashFnc fnc,
                 const size_t k_size,
                 const size_t v_size,
                 const KComp k_comp,
@@ -601,6 +623,7 @@ void *hash_find(struct Bucket *buckets,
     {
         size_t index = find_bucket(buckets,
                                    keys,
+                                   fnc,
                                    k_size,
                                    k_comp,
                                    capacity,
@@ -627,6 +650,7 @@ void *hash_find(struct Bucket *buckets,
 
 bool hash_contains(struct Bucket *buckets,
                    void *keys,
+                   HashFnc fnc,
                    const size_t k_size,
                    const KComp k_comp,
                    const size_t capacity,
@@ -634,6 +658,7 @@ bool hash_contains(struct Bucket *buckets,
 {
     return (find_bucket(buckets,
                         keys,
+                        fnc,
                         k_size,
                         k_comp,
                         capacity,

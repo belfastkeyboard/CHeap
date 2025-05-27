@@ -6,11 +6,27 @@
 
 
 typedef struct HashSet HashSet;
+typedef unsigned long Hash;
+
+typedef Hash (*HashFnc)(const void *item,
+                        size_t size);
+
+
+Hash djb2(const void *item,
+          size_t size);
+
+Hash djb2s(const void *item,
+           size_t size);
 
 
 __attribute__((warn_unused_result))
 HashSet *create_hash_set(size_t key_size,
                          KComp kc);
+
+__attribute__((warn_unused_result))
+HashSet *create_hash_set_ext(size_t key_size,
+                             KComp kc,
+                             HashFnc hash);
 
 void destroy_hash_set(HashSet **set);
 

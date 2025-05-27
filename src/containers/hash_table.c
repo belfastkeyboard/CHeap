@@ -6,6 +6,7 @@
 typedef struct HashTable
 {
     struct Bucket *buckets;
+    HashFnc hash;
     void *keys;
     void *values;
     size_t k_size;
@@ -20,11 +21,23 @@ HashTable *create_hash_table(const size_t key_size,
                              const size_t value_size,
                              const KComp kc)
 {
+    return create_hash_table_ext(key_size,
+                                 value_size,
+                                 kc,
+                                 djb2);
+}
+
+__attribute__((warn_unused_result))
+HashTable *create_hash_table_ext(size_t key_size,
+                                 size_t value_size,
+                                 KComp kc,
+                                 HashFnc hash)
+{
     HashTable *table = memory_allocate_container(sizeof(HashTable));
 
+    table->hash = hash;
     table->k_size = key_size;
     table->v_size = value_size;
-
     table->k_comp = kc;
 
     return table;
@@ -46,6 +59,7 @@ void insert_hash_table(HashTable *table,
     hash_insert(&table->buckets,
                 &table->keys,
                 &table->values,
+                table->hash,
                 table->k_size,
                 table->v_size,
                 table->k_comp,
@@ -61,6 +75,7 @@ size_t count_hash_table(HashTable *table,
 {
     return hash_count(table->buckets,
                       table->keys,
+                      table->hash,
                       table->k_size,
                       table->k_comp,
                       table->capacity,
@@ -73,6 +88,7 @@ void *find_hash_table(HashTable *table,
     return hash_find(table->buckets,
                      table->keys,
                      table->values,
+                     table->hash,
                      table->k_size,
                      table->v_size,
                      table->k_comp,
@@ -86,6 +102,7 @@ bool contains_hash_table(HashTable* table,
 {
     return hash_contains(table->buckets,
                          table->keys,
+                         table->hash,
                          table->k_size,
                          table->k_comp,
                          table->capacity,
@@ -99,6 +116,7 @@ void erase_hash_table(HashTable* table,
     hash_erase(&table->buckets,
                &table->keys,
                &table->values,
+               table->hash,
                table->k_size,
                table->v_size,
                table->k_comp,
