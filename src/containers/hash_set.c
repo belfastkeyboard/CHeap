@@ -1,12 +1,13 @@
 #include "../../internals/hash.h"
 #include "../../hash_set.h"
+#include "../../internals/nalloc.h"
 #include "../../internals/base.h"
 
 typedef struct HashSet
 {
     struct Bucket *buckets;
+    struct NodeAlloc alloc;
     HashFnc hash;
-    void *keys;
     size_t k_size;
     KComp k_comp;
     size_t nmemb;
@@ -28,6 +29,11 @@ HashSet *create_hash_set_ext(size_t key_size,
 {
     HashSet *set = memory_allocate_container(sizeof(HashSet));
 
+    set->alloc = create_node_allocator(0,
+                                       TABLE_MIN,
+                                       key_size,
+                                       0);
+
     set->hash = hash;
     set->k_size = key_size;
     set->k_comp = kc;
@@ -37,10 +43,10 @@ HashSet *create_hash_set_ext(size_t key_size,
 
 void destroy_hash_set(HashSet **set)
 {
-    memory_free_container_hash((void **)set,
-                               (*set)->buckets,
-                               (*set)->keys,
-                               NULL);
+    destroy_node_allocator(&(*set)->alloc);
+
+    memory_free_container_generic((void **)set,
+                                  (*set)->buckets);
 }
 
 
@@ -48,8 +54,7 @@ void insert_hash_set(HashSet *set,
                      const void *key)
 {
     hash_insert(&set->buckets,
-                &set->keys,
-                NULL,
+                &set->alloc,
                 set->hash,
                 set->k_size,
                 0,
@@ -65,7 +70,6 @@ size_t count_hash_set(HashSet *set,
                       const void *key)
 {
     return hash_count(set->buckets,
-                      set->keys,
                       set->hash,
                       set->k_size,
                       set->k_comp,
@@ -77,11 +81,8 @@ void *find_hash_set(HashSet *set,
                     const void *key)
 {
     return hash_find(set->buckets,
-                     set->keys,
-                     NULL,
                      set->hash,
                      set->k_size,
-                     0,
                      set->k_comp,
                      set->capacity,
                      set->nmemb,
@@ -92,7 +93,6 @@ bool contains_hash_set(HashSet *set,
                        const void *key)
 {
     return hash_contains(set->buckets,
-                         set->keys,
                          set->hash,
                          set->k_size,
                          set->k_comp,
@@ -105,11 +105,8 @@ void erase_hash_set(HashSet* set,
                     const void *key)
 {
     hash_erase(&set->buckets,
-               &set->keys,
-               NULL,
                set->hash,
                set->k_size,
-               0,
                set->k_comp,
                &set->nmemb,
                &set->capacity,
@@ -120,8 +117,7 @@ void erase_hash_set(HashSet* set,
 void clear_hash_set(HashSet *set)
 {
     hash_clear(&set->buckets,
-               &set->keys,
-               NULL,
+               &set->alloc,
                &set->nmemb,
                &set->capacity);
 }

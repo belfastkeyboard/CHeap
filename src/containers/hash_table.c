@@ -1,17 +1,16 @@
 #include "../../internals/hash.h"
-#include "../../hash_table.h"
 #include "../../internals/base.h"
+#include "../../hash_table.h"
 
 
 typedef struct HashTable
 {
     struct Bucket *buckets;
+    struct NodeAlloc alloc;
     HashFnc hash;
-    void *keys;
-    void *values;
+    KComp k_comp;
     size_t k_size;
     size_t v_size;
-    KComp k_comp;
     size_t nmemb;
     size_t capacity;
 } HashTable;
@@ -35,6 +34,11 @@ HashTable *create_hash_table_ext(size_t key_size,
 {
     HashTable *table = memory_allocate_container(sizeof(HashTable));
 
+    table->alloc = create_node_allocator(0,
+                                         TABLE_MIN,
+                                         key_size,
+                                         value_size);
+
     table->hash = hash;
     table->k_size = key_size;
     table->v_size = value_size;
@@ -45,10 +49,10 @@ HashTable *create_hash_table_ext(size_t key_size,
 
 void destroy_hash_table(HashTable **table)
 {
-    memory_free_container_hash((void **)table,
-                               (*table)->buckets,
-                               (*table)->keys,
-                               (*table)->values);
+    destroy_node_allocator(&(*table)->alloc);
+
+    memory_free_container_generic((void**)table,
+                                  (*table)->buckets);
 }
 
 
@@ -57,8 +61,7 @@ void insert_hash_table(HashTable *table,
                        const void *value)
 {
     hash_insert(&table->buckets,
-                &table->keys,
-                &table->values,
+                &table->alloc,
                 table->hash,
                 table->k_size,
                 table->v_size,
@@ -74,7 +77,6 @@ size_t count_hash_table(HashTable *table,
                         const void *key)
 {
     return hash_count(table->buckets,
-                      table->keys,
                       table->hash,
                       table->k_size,
                       table->k_comp,
@@ -86,11 +88,8 @@ void *find_hash_table(HashTable *table,
                       const void *key)
 {
     return hash_find(table->buckets,
-                     table->keys,
-                     table->values,
                      table->hash,
                      table->k_size,
-                     table->v_size,
                      table->k_comp,
                      table->capacity,
                      table->nmemb,
@@ -101,7 +100,6 @@ bool contains_hash_table(HashTable* table,
                          const void *key)
 {
     return hash_contains(table->buckets,
-                         table->keys,
                          table->hash,
                          table->k_size,
                          table->k_comp,
@@ -114,11 +112,8 @@ void erase_hash_table(HashTable* table,
                       const void *key)
 {
     hash_erase(&table->buckets,
-               &table->keys,
-               &table->values,
                table->hash,
                table->k_size,
-               table->v_size,
                table->k_comp,
                &table->nmemb,
                &table->capacity,
@@ -129,8 +124,7 @@ void erase_hash_table(HashTable* table,
 void clear_hash_table(HashTable *table)
 {
     hash_clear(&table->buckets,
-               &table->keys,
-               &table->values,
+               &table->alloc,
                &table->nmemb,
                &table->capacity);
 }
@@ -144,23 +138,4 @@ bool empty_hash_table(const HashTable* table)
 size_t size_hash_table(const HashTable* table)
 {
     return generic_size(table->nmemb);
-}
-
-
-/// VERY WORK IN PROGRESS
-void hash_table_foreach(HashTable *table,
-                        HashTableForEach callback,
-                        void *data)
-{
-    // TODO: safety checks
-
-    for (size_t i = 0; i < size_hash_table(table); ++i)
-    {
-        const void *key = table->keys + i * table->k_size;
-        const void *val = table->values + i * table->v_size;
-
-        callback(key,
-                 val,
-                 data);
-    }
 }

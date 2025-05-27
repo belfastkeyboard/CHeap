@@ -2,6 +2,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "nalloc.h"
+
+#define TABLE_MIN 8
 
 
 typedef unsigned long Hash;
@@ -17,8 +20,7 @@ struct Bucket;
 
 
 void hash_insert(struct Bucket **buckets,
-                 void **keys,
-                 void **values,
+                 struct NodeAlloc *alloc,
                  HashFnc fnc,
                  size_t k_size,
                  size_t v_size,
@@ -29,25 +31,20 @@ void hash_insert(struct Bucket **buckets,
                  const void *value);
 
 void hash_erase(struct Bucket **buckets,
-                void **keys,
-                void **values,
                 HashFnc fnc,
                 size_t k_size,
-                size_t v_size,
                 KComp k_comp,
                 size_t *nmemb,
                 size_t *capacity,
                 const void *key);
 
 void hash_clear(struct Bucket **buckets,
-                void **keys,
-                void **values,
+                struct NodeAlloc *alloc,
                 size_t *nmemb,
                 size_t *capacity);
 
 
 size_t hash_count(struct Bucket *buckets,
-                  void *keys,
                   HashFnc fnc,
                   size_t k_size,
                   KComp k_comp,
@@ -55,18 +52,14 @@ size_t hash_count(struct Bucket *buckets,
                   const void *key);
 
 void *hash_find(struct Bucket *buckets,
-                void *keys,
-                void *values,
                 HashFnc fnc,
                 size_t k_size,
-                size_t v_size,
                 KComp k_comp,
                 size_t capacity,
                 size_t nmemb,
                 const void *key);
 
 bool hash_contains(struct Bucket *buckets,
-                   void *keys,
                    HashFnc fnc,
                    size_t k_size,
                    KComp k_comp,
