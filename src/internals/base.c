@@ -26,7 +26,7 @@ void memory_free_buffer(void **buffer)
 }
 
 
-void memory_free_container_mempool(void **container,
+void memory_free_container_generic(void **container,
                                    void *array)
 {
     CHEAP_ASSERT(*container,
@@ -36,31 +36,17 @@ void memory_free_container_mempool(void **container,
     memory_free_buffer(container);
 }
 
-void memory_free_container_hash(void **container,
-                                void *buckets,
-                                void *keys,
-                                void *values)
-{
-    CHEAP_ASSERT(*container,
-                 "Container cannot be NULL.");
-
-    memory_free_buffer(&buckets);
-    memory_free_buffer(&keys);
-    memory_free_buffer(&values);
-    memory_free_buffer(container);
-}
-
-void memory_free_container_deque(void **container,
-                                 void *array,
-                                 void *control)
-{
-    CHEAP_ASSERT(*container,
-                 "Container cannot be NULL.");
-
-    memory_free_buffer(&array);
-    memory_free_buffer(&control);
-    memory_free_buffer(container);
-}
+//void memory_free_container_deque(void **container,
+//                                 void *array,
+//                                 void *control)
+//{
+//    CHEAP_ASSERT(*container,
+//                 "Container cannot be NULL.");
+//
+//    memory_free_buffer(&array);
+//    memory_free_buffer(&control);
+//    memory_free_buffer(container);
+//}
 
 
 bool generic_empty(const size_t nmemb)

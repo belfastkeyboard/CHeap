@@ -13,13 +13,9 @@ void *memory_allocate_container(size_t size);
 
 void memory_free_buffer(void **buffer);
 
-void memory_free_container_mempool(void **container,
+void memory_free_container_generic(void **container,
                                    void *array);
 
-void memory_free_container_hash(void **container,
-                                void *buckets,
-                                void *keys,
-                                void *values);
 
 bool generic_empty(size_t nmemb);
 
