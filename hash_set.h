@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "internals/comp.h"
 
 
 typedef struct HashSet HashSet;
@@ -10,6 +9,9 @@ typedef unsigned long Hash;
 
 typedef Hash (*HashFnc)(const void *item,
                         size_t size);
+
+typedef int (*KComp)(const void *a,
+                     const void *b);
 
 
 Hash djb2(const void *item,
