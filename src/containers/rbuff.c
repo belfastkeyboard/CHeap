@@ -38,7 +38,7 @@ RingBuffer *create_ringbuffer(const size_t capacity,
 
 void destroy_ringbuffer(RingBuffer **rbuff)
 {
-    memory_free_container_mempool((void **)rbuff,
+    memory_free_container_generic((void **) rbuff,
                                   (*rbuff)->array);
 }
 

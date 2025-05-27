@@ -22,7 +22,7 @@ Stack *create_stack(const size_t size)
 
 void destroy_stack(Stack **stack)
 {
-    memory_free_container_mempool((void **) stack,
+    memory_free_container_generic((void **) stack,
                                   (*stack)->array);
 }
 

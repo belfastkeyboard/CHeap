@@ -24,7 +24,7 @@ BumpAlloc *create_bump_allocator(const size_t size)
 
 void destroy_bump_allocator(BumpAlloc **bump)
 {
-    memory_free_container_mempool((void **)bump,
+    memory_free_container_generic((void **) bump,
                                   (*bump)->ptr);
 }
 

@@ -26,7 +26,7 @@ PriorityQueue *create_pqueue(const size_t size,
 
 void destroy_pqueue(PriorityQueue **pqueue)
 {
-    memory_free_container_mempool((void **) pqueue,
+    memory_free_container_generic((void **) pqueue,
                                   (*pqueue)->array);
 }
 

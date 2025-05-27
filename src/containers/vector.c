@@ -23,7 +23,7 @@ Vector *create_vector(size_t size)
 
 void destroy_vector(Vector **vector)
 {
-    memory_free_container_mempool((void **)vector,
+    memory_free_container_generic((void **) vector,
                                   (*vector)->array);
 }
 

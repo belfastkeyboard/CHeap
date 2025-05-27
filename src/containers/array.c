@@ -24,7 +24,7 @@ Array *create_array(const size_t size,
 
 void destroy_array(Array **array)
 {
-    memory_free_container_mempool((void **)array,
+    memory_free_container_generic((void **) array,
                                   (*array)->array);
 }
 
