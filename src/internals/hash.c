@@ -498,7 +498,8 @@ void *hash_find(struct Bucket *buckets,
         {
             struct Bucket bucket = buckets[index];
 
-            value = bucket.value;
+            value = (bucket.value) ? bucket.value :
+                                     buckets->key;
         }
     }
 
