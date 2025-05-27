@@ -25,8 +25,7 @@ Hash djb2s(const void *item,
            const size_t size)
 {
     Hash hash = 5381;
-
-    unsigned char *data = (unsigned char*)item;
+    unsigned char *data = *(unsigned char**)item;
 
     while (*data)
     {
