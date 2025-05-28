@@ -48,16 +48,8 @@ Container adaptors provide a different interface for sequential containers.
 - Stack: adapts a container to provide stack (LIFO data structure)
 
 ## STRINGS LIBRARY
-Strings implement an interface for resizable character arrays.
-A number of functions for manipulating strings are provided.
-
-Only char type strings supported.
-
-Strings own their character data which allows for writing strings to memory and retrieving them with char data intact.
-As a result strings can be stored inside other containers, without ownership the char data may go out of scope and 
-invalidate the string's data before its retrieval from the container.
-
-^--- is this true ?
+TODO: Re-work the string library.
+See the implementation of [Simple Dynamic Strings](https://github.com/antirez/sds)
 
 ## RANGES LIBRARY
 Very WIP. Ranges in C++ operate on iterators which currently do not exist in CHeap.
@@ -99,4 +91,6 @@ by Ryan Fleury.
 [Java Red-Black Tree Implementation](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html)
 by Robert Sedgewick and Kevin Wayne. 
 
-Algorithms in C by Robert Sedgewick. 1990.
+_Algorithms in C_ by Robert Sedgewick. 1990.
+
+[Simple Dynamic Strings](https://github.com/antirez/sds)
