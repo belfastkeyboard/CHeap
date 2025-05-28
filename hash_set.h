@@ -13,6 +13,15 @@ typedef Hash (*HashFnc)(const void *item,
 typedef int (*KComp)(const void *a,
                      const void *b);
 
+#ifndef CHEAP_KEY_VALUE_PAIR_DEFINED
+typedef struct PairKV
+{
+    const void *key;
+    void *value;
+} PairKV;
+#define CHEAP_KEY_VALUE_PAIR_DEFINED
+#endif
+
 
 Hash djb2(const void *item,
           size_t size);
@@ -40,8 +49,8 @@ void insert_hash_set(HashSet *set,
 size_t count_hash_set(HashSet *set,
                       const void *key);
 
-void *find_hash_set(HashSet *set,
-                    const void *key);
+const void *find_hash_set(HashSet *set,
+                          const void *key);
 
 bool contains_hash_set(HashSet *set,
                        const void *key);

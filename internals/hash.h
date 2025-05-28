@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "../iter.h"
 #include "nalloc.h"
 
 #define TABLE_MIN 8
@@ -14,6 +15,15 @@ typedef Hash (*HashFnc)(const void *item,
 
 typedef int (*KComp)(const void *a,
                      const void *b);
+
+#ifndef CHEAP_KEY_VALUE_PAIR_DEFINED
+typedef struct PairKV
+{
+    const void *key;
+    void *value;
+} PairKV;
+#define CHEAP_KEY_VALUE_PAIR_DEFINED
+#endif
 
 
 struct Bucket;
@@ -65,3 +75,12 @@ bool hash_contains(struct Bucket *buckets,
                    KComp k_comp,
                    size_t capacity,
                    const void *key);
+
+
+Iter begin_hash(IteratorType type,
+                struct Bucket *buckets,
+                size_t capacity);
+
+Iter end_hash(IteratorType type,
+              struct Bucket *buckets,
+              size_t capacity);

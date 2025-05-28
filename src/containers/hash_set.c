@@ -1,6 +1,5 @@
 #include "../../internals/hash.h"
 #include "../../hash_set.h"
-#include "../../internals/nalloc.h"
 #include "../../internals/base.h"
 
 typedef struct HashSet
@@ -77,8 +76,8 @@ size_t count_hash_set(HashSet *set,
                       key);
 }
 
-void *find_hash_set(HashSet *set,
-                    const void *key)
+const void *find_hash_set(HashSet *set,
+                          const void *key)
 {
     return hash_find(set->buckets,
                      set->hash,

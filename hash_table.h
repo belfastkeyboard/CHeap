@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+#include "iter.h"
+#endif
+
 
 typedef struct HashTable HashTable;
 typedef unsigned long Hash;
@@ -12,6 +16,15 @@ typedef Hash (*HashFnc)(const void *item,
 
 typedef int (*KComp)(const void *a,
                      const void *b);
+
+#ifndef CHEAP_KEY_VALUE_PAIR_DEFINED
+typedef struct PairKV
+{
+    const void *key;
+    void *value;
+} PairKV;
+#define CHEAP_KEY_VALUE_PAIR_DEFINED
+#endif
 
 
 Hash djb2(const void *item,
@@ -56,17 +69,13 @@ void erase_hash_table(HashTable *table,
 void clear_hash_table(HashTable *table);
 
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+Iter begin_hash_table(const HashTable *table);
+
+Iter end_hash_table(const HashTable *table);
+#endif
+
+
 bool empty_hash_table(const HashTable *table);
 
 size_t size_hash_table(const HashTable *table);
-
-
-/// VERY WORK IN PROGRESS
-typedef void(*HashTableForEach)(const void *key,
-                                const void *value,
-                                void *);
-
-/// VERY WORK IN PROGRESS
-void hash_table_foreach(HashTable *table,
-                        HashTableForEach callback,
-                        void *data);

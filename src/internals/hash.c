@@ -13,11 +13,11 @@
 #define INVALID   UNSET
 #define NOT_FOUND INVALID
 
+
 struct Bucket
 {
     Hash hash;
-    void *key;
-    void *value;
+    PairKV pair;
     bool tombstone;
 };
 
@@ -66,7 +66,7 @@ static size_t get_index(const Hash hash,
 static bool key_exists(const struct Bucket *buckets,
                        const size_t index)
 {
-    return !buckets[index].tombstone && buckets->key != (void*)UNSET;
+    return !buckets[index].tombstone && buckets[index].pair.key != (void*)UNSET;
 }
 
 static bool is_found(const KComp k_comp,
@@ -75,9 +75,9 @@ static bool is_found(const KComp k_comp,
                      const bool skip_tombstones)
 {
     bool found_bucket = !bucket.tombstone &&
-                        bucket.key != (void*)UNSET &&
+                        bucket.pair.key != (void*)UNSET &&
                         k_comp(key,
-                               bucket.key);
+                               bucket.pair.key);
 
     bool invalid_or_tombstone = !skip_tombstones &&
                                 (bucket.hash == INVALID || // TODO: think about .hash == INVALID
@@ -141,12 +141,12 @@ static size_t probe(struct Bucket *buckets,
     if (tombstone != INVALID && found != NOT_FOUND)
     {
         buckets[tombstone].tombstone = false;
-        buckets[tombstone].key = buckets[found].key;
-        buckets[tombstone].value = buckets[found].value;
+        buckets[tombstone].pair.key = buckets[found].pair.key;
+        buckets[tombstone].pair.value = buckets[found].pair.value;
         buckets[tombstone].hash = buckets[found].hash;
 
         buckets[found].tombstone = true;
-        buckets[found].key = (void*)UNSET;
+        buckets[found].pair.key = (void*)UNSET;
 
         found = tombstone;
     }
@@ -209,8 +209,10 @@ static struct Bucket create_bucket(const Hash hash,
 
     struct Bucket bucket = {
         .hash = hash,
-        .key = k,
-        .value = v,
+        .pair = {
+            .key = k,
+            .value = v
+        },
         .tombstone = false
     };
 
@@ -257,7 +259,7 @@ static void reindex_buckets(struct Bucket *buckets,
         index = probe(buckets,
                       k_comp,
                       new_capacity,
-                      bucket.key,
+                      bucket.pair.key,
                       index,
                       false);
 
@@ -406,7 +408,7 @@ void hash_insert(struct Bucket **buckets,
     }
     else
     {
-        memcpy((*buckets)[index].value,
+        memcpy((*buckets)[index].pair.value,
                value,
                v_size);
     }
@@ -498,8 +500,8 @@ void *hash_find(struct Bucket *buckets,
         {
             struct Bucket bucket = buckets[index];
 
-            value = (bucket.value) ? bucket.value :
-                                     buckets->key;
+            value = (bucket.pair.value) ? bucket.pair.value :
+                                          (void*)bucket.pair.key;
         }
     }
 
@@ -519,4 +521,106 @@ bool hash_contains(struct Bucket *buckets,
                         k_comp,
                         capacity,
                         key) != NOT_FOUND);
+}
+
+
+/* ITERATOR HELPER FUNCTIONS */
+static struct Bucket *front_hash(struct Bucket* buckets)
+{
+    return buckets;
+}
+
+static struct Bucket *back_hash(struct Bucket* buckets,
+                                const size_t capacity)
+{
+    return buckets + capacity - 1;
+}
+
+
+static bool valid_iterator(const Iter *iter)
+{
+    struct Bucket *bucket = (struct Bucket*)iter->ptr;
+
+    return !bucket->tombstone && bucket->pair.key != (void*)UNSET;
+}
+
+
+Iter begin_hash(const IteratorType type,
+                struct Bucket *buckets,
+                const size_t capacity)
+{
+    void *ptr = front_hash(buckets);
+
+    void *end = back_hash(buckets,
+                          capacity);
+
+    Iter iter = {
+        .type = type,
+        .ptr = ptr,
+        .end = end,
+        .size = sizeof(struct Bucket)
+    };
+
+    if (!valid_iterator(&iter))
+    {
+        next_iter(&iter);
+    }
+
+    return iter;
+}
+
+Iter end_hash(const IteratorType type,
+              struct Bucket *buckets,
+              const size_t capacity)
+{
+    void *ptr = back_hash(buckets,
+                          capacity);
+
+    void *end = front_hash(buckets);
+
+    Iter iter = {
+        .type = type,
+        .ptr = ptr,
+        .end = end,
+        .size = sizeof(struct Bucket)
+    };
+
+    if (!valid_iterator(&iter))
+    {
+        prev_iter(&iter);
+    }
+
+    return iter;
+}
+
+
+Iter *next_hash_table(Iter *iter)
+{
+    iter->ptr = iter->ptr + iter->size;
+
+    while (!valid_iterator(iter))
+    {
+        iter->ptr = iter->ptr + iter->size;
+    }
+
+    return iter;
+}
+
+Iter *prev_hash_table(Iter *iter)
+{
+    iter->ptr = iter->ptr - iter->size;
+
+    while (!valid_iterator(iter))
+    {
+        iter->ptr = iter->ptr - iter->size;
+    }
+
+    return iter;
+}
+
+void *get_hash_table(const Iter *iter)
+{
+    struct Bucket *bucket = iter->ptr;
+
+    return &bucket->pair;
 }

@@ -1,3 +1,4 @@
+#include "../../iter.h"
 #include "../../internals/hash.h"
 #include "../../internals/base.h"
 #include "../../hash_table.h"
@@ -127,6 +128,21 @@ void clear_hash_table(HashTable *table)
                &table->alloc,
                &table->nmemb,
                &table->capacity);
+}
+
+
+Iter begin_hash_table(const HashTable *table)
+{
+    return begin_hash(ITERATOR_HASH_TABLE,
+                      table->buckets,
+                      table->capacity);
+}
+
+Iter end_hash_table(const HashTable *table)
+{
+    return end_hash(ITERATOR_HASH_TABLE,
+                    table->buckets,
+                    table->capacity);
 }
 
 

@@ -365,3 +365,24 @@ void generic_mempool_shrink_to_fit(void **array,
                                  *capacity * size);
     }
 }
+
+
+/* ITERATOR HELPER FUNCTIONS */
+#include "../../iter.h"
+
+Iter *next_vector(Iter *iter)
+{
+    iter->ptr = iter->ptr + iter->size;
+    return iter;
+}
+
+Iter *prev_vector(Iter *iter)
+{
+    iter->ptr = iter->ptr - iter->size;
+    return iter;
+}
+
+void *get_vector(const Iter *iter)
+{
+    return iter->ptr;
+}

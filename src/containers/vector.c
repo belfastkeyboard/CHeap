@@ -133,8 +133,14 @@ Iter begin_vector(const Vector *vector)
     void *ptr = front_vector(vector);
     const size_t size = vector->size;
 
-    return create_iter(ptr,
-                       size);
+    Iter iter = {
+        .type = ITERATOR_VECTOR,
+        .ptr = ptr,
+        .end = back_vector(vector),
+        .size = size
+    };
+
+    return iter;
 }
 
 Iter end_vector(const Vector *vector)
@@ -142,8 +148,14 @@ Iter end_vector(const Vector *vector)
     void *ptr = back_vector(vector);
     const size_t size = vector->size;
 
-    return create_iter(ptr,
-                       size);
+    Iter iter = {
+        .type = ITERATOR_VECTOR,
+        .ptr = ptr,
+        .end = front_vector(vector),
+        .size = size
+    };
+
+    return iter;
 }
 
 
