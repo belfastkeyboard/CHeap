@@ -122,6 +122,21 @@ void clear_hash_set(HashSet *set)
 }
 
 
+Iter begin_hash_set(const HashSet *set)
+{
+    return begin_hash(ITERATOR_HASH_SET,
+                      set->buckets,
+                      set->capacity);
+}
+
+Iter end_hash_set(const HashSet *set)
+{
+    return end_hash(ITERATOR_HASH_SET,
+                    set->buckets,
+                    set->capacity);
+}
+
+
 bool empty_hash_set(const HashSet* set)
 {
     return generic_empty(set->nmemb);

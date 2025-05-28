@@ -155,3 +155,4 @@ size_t size_hash_table(const HashTable* table)
 {
     return generic_size(table->nmemb);
 }
+

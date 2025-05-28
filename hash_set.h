@@ -13,15 +13,6 @@ typedef Hash (*HashFnc)(const void *item,
 typedef int (*KComp)(const void *a,
                      const void *b);
 
-#ifndef CHEAP_KEY_VALUE_PAIR_DEFINED
-typedef struct PairKV
-{
-    const void *key;
-    void *value;
-} PairKV;
-#define CHEAP_KEY_VALUE_PAIR_DEFINED
-#endif
-
 
 Hash djb2(const void *item,
           size_t size);
@@ -60,6 +51,13 @@ void erase_hash_set(HashSet *set,
                     const void *key);
 
 void clear_hash_set(HashSet *set);
+
+
+#ifdef CHEAP_ITERATOR_AVAILABLE
+Iter begin_hash_set(const HashSet *set);
+
+Iter end_hash_set(const HashSet *set);
+#endif
 
 
 bool empty_hash_set(const HashSet *set);

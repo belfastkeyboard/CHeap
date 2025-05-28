@@ -594,7 +594,7 @@ Iter end_hash(const IteratorType type,
 }
 
 
-Iter *next_hash_table(Iter *iter)
+Iter *next_hash(Iter *iter)
 {
     iter->ptr = iter->ptr + iter->size;
 
@@ -606,7 +606,7 @@ Iter *next_hash_table(Iter *iter)
     return iter;
 }
 
-Iter *prev_hash_table(Iter *iter)
+Iter *prev_hash(Iter *iter)
 {
     iter->ptr = iter->ptr - iter->size;
 
@@ -623,4 +623,11 @@ void *get_hash_table(const Iter *iter)
     struct Bucket *bucket = iter->ptr;
 
     return &bucket->pair;
+}
+
+void *get_hash_set(const Iter *iter)
+{
+    struct Bucket *bucket = iter->ptr;
+
+    return (void*)bucket->pair.key;
 }

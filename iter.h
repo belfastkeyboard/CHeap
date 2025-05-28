@@ -12,6 +12,7 @@
 typedef enum IteratorType
 {
     ITERATOR_VECTOR,
+    ITERATOR_HASH_SET,
     ITERATOR_HASH_TABLE
 } IteratorType;
 
