@@ -4,19 +4,40 @@
 #include <stddef.h>
 
 
-typedef struct String String;
-typedef struct Vector Vector;
+typedef char *String;
+typedef const char *ConstString;
 
-
-__attribute__((warn_unused_result))
-String *create_string(const char *text);
 
 __attribute__((format(printf, 1, 2)))
 __attribute__((warn_unused_result))
-String *create_string_fmt(const char *format, ...);
+String string_new(const char *fmt,
+                  ...);
 
-void destroy_string(String **string);
+__attribute__((warn_unused_result))
+String string_from_stream(FILE *stream);
 
+void string_free(String string);
+
+
+// returns the size of the string buffer
+size_t string_size(ConstString string);
+
+// returns the number of characters in the string
+size_t string_len(ConstString string);
+
+
+String string_cpy(String restrict dest,
+                  ConstString restrict src);
+
+String string_dup(ConstString restrict src);
+
+
+int string_cmp(ConstString str1,
+               ConstString str2);
+
+
+/*  The below are a mix of proposed functions inspired by Python and some random utility functions
+    None of them are yet implemented
 __attribute__((warn_unused_result))
 String *copy_string(const String *string);
 
@@ -90,9 +111,6 @@ bool is_printable_string(const String *string);
 bool is_space_string(const String *string);
 
 
-void print_string(const String *string);
-
-
 size_t count_string(const String *string,
                     const String *value);
 
@@ -104,3 +122,4 @@ size_t rfind_string(const String *string,
 
 size_t word_count_string(const String *string);
 
+*/
