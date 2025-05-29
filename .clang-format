@@ -1,18 +1,44 @@
+#basic
 BasedOnStyle: LLVM
-
-AlignAfterOpenBracket: true
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
-AlignConsecutiveDeclarations: Consecutive
-AllowShortFunctionsOnASingleLine: None
-AlwaysBreakAfterReturnType: None
-AlwaysBreakTemplateDeclarations: Yes
-
-BinPackArguments: false
-BinPackParameters: false
-
+ColumnLimit: 80
+SeparateDefinitionBlocks: Always
 BreakBeforeTernaryOperators: true
 
+# alignment
+AlignAfterOpenBracket: true
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+AlignConsecutiveAssignments: Consecutive
+AlignArrayOfStructures: Left
+AlignConsecutiveBitFields: true
+PointerAlignment: Right
+
+# arguments
+AllowAllArgumentsOnNextLine: false
+BinPackArguments: false
+
+# comments
+ReflowComments: true
+SpacesBeforeTrailingComments: 1
+
+# indents
+IndentWidth: 4
+BracedInitializerIndentWidth: 4
+TabWidth: 4
+UseTab: ForIndentation
+
+# parameters
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackParameters: false
+
+# functions
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterReturnType: None
+PenaltyReturnTypeOnItsOwnLine: 100
+
+# braces
+InsertBraces: true
+RemoveBracesLLVM: false
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: true
@@ -24,21 +50,9 @@ BraceWrapping:
   BeforeElse: false
   BeforeWhile: false
 
-ColumnLimit: 80
-
-IndentWidth: 4
-
-PointerAlignment: Right
-
-ReflowComments: true
-
+# spaces
 SpaceBeforeParens: ControlStatements
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
-SpacesBeforeTrailingComments: 1
 
-TabWidth: 4
-
-UseTab: ForIndentation
-
-PenaltyReturnTypeOnItsOwnLine: 100
+Cpp11BracedListStyle: false
