@@ -3,6 +3,10 @@ BasedOnStyle: LLVM
 ColumnLimit: 80
 SeparateDefinitionBlocks: Always
 BreakBeforeTernaryOperators: true
+BreakBeforeBinaryOperators: None
+BreakAdjacentStringLiterals: true
+BreakStringLiterals: true
+PenaltyBreakAssignment: 10000
 
 # alignment
 AlignAfterOpenBracket: true
@@ -27,6 +31,7 @@ IndentWidth: 4
 BracedInitializerIndentWidth: 4
 TabWidth: 4
 UseTab: ForIndentation
+IndentCaseLabels: true
 
 # parameters
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -57,10 +62,3 @@ SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 
 Cpp11BracedListStyle: false
-
-BreakBeforeBinaryOperators: None
-BreakAdjacentStringLiterals: true
-BreakStringLiterals: true
-PenaltyBreakAssignment: 10000
-
-IndentCaseLabels: true
