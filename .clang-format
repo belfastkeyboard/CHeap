@@ -1,11 +1,14 @@
+BasedOnStyle: LLVM
+
 AlignAfterOpenBracket: true
-AlignConsecutiveDeclarations: Consecutive
+AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
+AlignConsecutiveDeclarations: Consecutive
 AllowShortFunctionsOnASingleLine: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: Yes
 
-BasedOnStyle: LLVM
+BinPackArguments: false
 BinPackParameters: false
 
 BreakBeforeTernaryOperators: true
