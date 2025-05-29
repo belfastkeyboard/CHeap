@@ -39,8 +39,10 @@
  * The resize policy is to double the current @c capacity
  * of the vector each time the available memory is exhausted.
  *
- * @warning The Vector object must be constructed and destroyed by the provided functions
- * @note The Vector object is a pointer to an incomplete type and should not be dereferenced
+ * @warning The Vector object must be constructed and destroyed by the provided
+ * functions
+ * @note The Vector object is a pointer to an incomplete type and should not be
+ * dereferenced
  */
 typedef struct Vector Vector;
 
@@ -160,7 +162,8 @@ void clear_vector(Vector *vector);
  * @return Pointer to the element
  *
  * @warning Out-of-bounds @p index errors are not caught
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *at_vector(const Vector *vector, size_t index);
 
@@ -171,7 +174,8 @@ void *at_vector(const Vector *vector, size_t index);
  * @return Pointer to the element
  *
  * @warning Calling on an empty vector is undefined behaviour
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *front_vector(const Vector *vector);
 
@@ -182,7 +186,8 @@ void *front_vector(const Vector *vector);
  * @return Pointer to the element
  *
  * @warning Calling on an empty vector is undefined behaviour
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *back_vector(const Vector *vector);
 
@@ -225,7 +230,8 @@ bool empty_vector(const Vector *vector);
 size_t size_vector(const Vector *vector);
 
 /**
- * @brief Returns the number of elements that the vector has currently allocated space for
+ * @brief Returns the number of elements that the vector has currently allocated
+ * space for
  *
  * @param vector The Vector object
  * @return Capacity of the currently allocated storage
@@ -239,7 +245,8 @@ size_t capacity_vector(const Vector *vector);
  * @param amount The number of elements to reserve
  * @return Nothing
  *
- * @note If @p amount is less than the currently allocated capacity, the function does nothing
+ * @note If @p amount is less than the currently allocated capacity, the
+ * function does nothing
  */
 void reserve_vector(Vector *vector, size_t amount);
 

@@ -29,8 +29,10 @@
  * The queue uses the same internal double-ended queue implementation as
  * the deque.
  *
- * @warning The Queue object must be constructed and destroyed by the provided functions
- * @note The Queue object is a pointer to an incomplete type and should not be dereferenced
+ * @warning The Queue object must be constructed and destroyed by the provided
+ * functions
+ * @note The Queue object is a pointer to an incomplete type and should not be
+ * dereferenced
  */
 typedef struct Queue Queue;
 
@@ -81,13 +83,15 @@ void push_range_queue(Queue *queue, const Range *range);
 /**
  * @brief Returns a pointer to the first element in the queue
  *
- * This element will be the first element to be removed on a call to @c pop_queue()
+ * This element will be the first element to be removed on a call to @c
+ * pop_queue()
  *
  * @param queue The Queue object
  * @return Pointer to the element
  *
  * @warning Calling on an empty queue is undefined behaviour
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *front_queue(const Queue *queue);
 
@@ -100,7 +104,8 @@ void *front_queue(const Queue *queue);
  * @return Pointer to the element
  *
  * @warning Calling on an empty queue is undefined behaviour
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *back_queue(const Queue *queue);
 

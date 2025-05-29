@@ -1,19 +1,29 @@
-BasedOnStyle: LLVM
-IndentWidth: 4
+AlignAfterOpenBracket: true
+AlignConsecutiveDeclarations: Consecutive
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: None
 AlwaysBreakAfterReturnType: None
-ColumnLimit: 200
-AlignAfterOpenBracket: Align
-SpaceBeforeParens: ControlStatements
 AlwaysBreakTemplateDeclarations: Yes
+
+BasedOnStyle: LLVM
 BinPackParameters: false
-UseTab: ForIndentation
-TabWidth: 4
+BreakBeforeBraces: Allman
+
+ColumnLimit: 80
+
+IndentWidth: 4
+
+PointerAlignment: Right
+
 ReflowComments: true
+
+SpaceBeforeParens: ControlStatements
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpacesBeforeTrailingComments: 1
-BreakBeforeBraces: Allman
-PointerAlignment: Right
-AlignConsecutiveDeclarations: Consecutive
-MaxEmptyLinesToKeep: 1
 
+TabWidth: 4
+
+UseTab: ForIndentation
+
+PenaltyReturnTypeOnItsOwnLine: 100

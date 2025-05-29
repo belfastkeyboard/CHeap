@@ -14,7 +14,7 @@ typedef struct PriorityQueue PriorityQueue, PQueue;
 typedef int (*CompareFunc)(const void *, const void *);
 
 ALLOC PQueue *create_pqueue(size_t size, CompareFunc comparator);
-void destroy_pqueue(PQueue **pqueue);
+void          destroy_pqueue(PQueue **pqueue);
 
 void push_pqueue(PQueue *pqueue, const void *value);
 
@@ -26,7 +26,7 @@ void pop_pqueue(PQueue *pqueue);
 
 void *top_pqueue(const PQueue *pqueue);
 
-bool empty_pqueue(const PQueue *pqueue);
+bool   empty_pqueue(const PQueue *pqueue);
 size_t size_pqueue(const PQueue *pqueue);
 
 void set_comparator_pqueue(PQueue *pqueue, CompareFunc comparator);

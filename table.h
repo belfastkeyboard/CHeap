@@ -20,14 +20,17 @@
 #define ALLOC __attribute__((warn_unused_result))
 
 /**
- * @brief A sorted associative container that stores key-value pairs with unique keys
+ * @brief A sorted associative container that stores key-value pairs with unique
+ * keys
  *
- * Keys are sorted using the @p compare function pointer provided during initialisation.
- * Find, erase, and insert operations have logarithmic complexity.
- * The table is implemented as a red-black tree.
+ * Keys are sorted using the @p compare function pointer provided during
+ * initialisation. Find, erase, and insert operations have logarithmic
+ * complexity. The table is implemented as a red-black tree.
  *
- * @warning The Table object must be constructed and destroyed by the provided functions
- * @note The Table object is a pointer to an incomplete type and should not be dereferenced
+ * @warning The Table object must be constructed and destroyed by the provided
+ * functions
+ * @note The Table object is a pointer to an incomplete type and should not be
+ * dereferenced
  */
 typedef struct Table Table;
 
@@ -37,7 +40,8 @@ typedef struct Table Table;
  * @param a The first key
  * @param b The second key
  *
- * @return An integer less than, equal to, or greater than zero depending on the comparison.
+ * @return An integer less than, equal to, or greater than zero depending on the
+ * comparison.
  */
 typedef int (*KComp)(const void *, const void *);
 
@@ -74,12 +78,14 @@ void destroy_table(Table **table);
  * @return Nothing
  *
  * @warning Ensure @p key and @p value are of the correct specialised types
- * @note If key already exists, the function is does not overwrite the existing value
+ * @note If key already exists, the function is does not overwrite the existing
+ * value
  */
 void insert_table(Table *table, const void *key, const void *value);
 
 /**
- * @brief Count the number of @p key @c value pairs in the table with an equivalent @p key
+ * @brief Count the number of @p key @c value pairs in the table with an
+ * equivalent @p key
  *
  * @param table The Table object
  * @param key Key from which to count the resulting stored elements

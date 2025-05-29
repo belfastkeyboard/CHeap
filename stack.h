@@ -30,8 +30,10 @@
  * The stack uses the same internal contiguous array implementation as
  * the vector.
  *
- * @warning The Stack object must be constructed and destroyed by the provided functions
- * @note The Stack object is a pointer to an incomplete type and should not be dereferenced
+ * @warning The Stack object must be constructed and destroyed by the provided
+ * functions
+ * @note The Stack object is a pointer to an incomplete type and should not be
+ * dereferenced
  */
 typedef struct Stack Stack;
 
@@ -86,7 +88,8 @@ void push_range_stack(Stack *stack, const Range *range);
  * @return Pointer to the element
  *
  * @warning Calling on an empty stack is undefined behaviour
- * @note The return value is of type @c void* and must be cast to the correct type
+ * @note The return value is of type @c void* and must be cast to the correct
+ * type
  */
 void *top_stack(const Stack *stack);
 

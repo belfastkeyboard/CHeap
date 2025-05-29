@@ -8,10 +8,10 @@
 typedef struct RingBuffer RingBuffer;
 
 ALLOC RingBuffer *create_ringbuffer(size_t capacity, size_t size);
-void destroy_ringbuffer(RingBuffer **rbuff);
+void              destroy_ringbuffer(RingBuffer **rbuff);
 
 void *read_ringbuffer(RingBuffer *rbuff);
-void write_ringbuffer(RingBuffer *rbuff, const void *item);
+void  write_ringbuffer(RingBuffer *rbuff, const void *item);
 
 void clear_ringbuffer(RingBuffer *rbuff);
 

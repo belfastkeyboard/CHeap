@@ -27,8 +27,13 @@ typedef struct PairKV
 Hash djb2(const void *item, size_t size);
 Hash djb2s(const void *item, size_t size);
 
-ALLOC HashTable *create_hash_table(size_t key_size, size_t value_size, KComp kc);
-ALLOC HashTable *create_hash_table_ext(size_t key_size, size_t value_size, KComp kc, HashFnc hash);
+ALLOC HashTable *create_hash_table(size_t key_size,
+                                   size_t value_size,
+                                   KComp  kc);
+ALLOC HashTable *create_hash_table_ext(size_t  key_size,
+                                       size_t  value_size,
+                                       KComp   kc,
+                                       HashFnc hash);
 void             destroy_hash_table(HashTable **table);
 
 void insert_hash_table(HashTable *table, const void *key, const void *value);

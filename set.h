@@ -22,12 +22,14 @@
 /**
  * @brief A sorted associative container that stores unique keys
  *
- * Keys are sorted using the @p compare function pointer provided during initialisation.
- * Find, erase, and insert operations have logarithmic complexity.
- * The set is implemented as a red-black tree.
+ * Keys are sorted using the @p compare function pointer provided during
+ * initialisation. Find, erase, and insert operations have logarithmic
+ * complexity. The set is implemented as a red-black tree.
  *
- * @warning The Set object must be constructed and destroyed by the provided functions
- * @note The Set object is a pointer to an incomplete type and should not be dereferenced
+ * @warning The Set object must be constructed and destroyed by the provided
+ * functions
+ * @note The Set object is a pointer to an incomplete type and should not be
+ * dereferenced
  */
 typedef struct Set Set;
 
@@ -37,7 +39,8 @@ typedef struct Set Set;
  * @param a The first key
  * @param b The second key
  *
- * @return An integer less than, equal to, or greater than zero depending on the comparison.
+ * @return An integer less than, equal to, or greater than zero depending on the
+ * comparison.
  */
 typedef int (*KComp)(const void *, const void *);
 
