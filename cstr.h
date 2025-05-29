@@ -18,10 +18,10 @@ typedef const char *StringView;
 
 ALLOC FORMAT String string_new(const char *fmt, ...);
 ALLOC String        string_from_stream(FILE *stream);
-void                string_free(String string);
+void                string_free(String str);
 
-uint32_t string_buffer(ConstString string);
-uint32_t string_len(ConstString string);
+uint32_t string_buffer(ConstString str);
+uint32_t string_len(ConstString str);
 
 ALLOC String string_cpy(String dest, ConstString src);
 ALLOC String string_cat(String dest, ConstString src);
@@ -29,13 +29,17 @@ ALLOC String string_dup(ConstString src);
 
 int string_cmp(ConstString str1, ConstString str2);
 
-StringView string_chr(ConstString string, int c);
-StringView string_rchr(ConstString string, int c);
-StringView string_pbrk(ConstString string, ConstString accept);
+StringView string_chr(ConstString str, int c);
+StringView string_rchr(ConstString str, int c);
+StringView string_pbrk(ConstString str, ConstString accept);
 StringView string_str(ConstString haystack, ConstString needle);
 
-uint32_t string_cspn(ConstString string, ConstString reject);
-uint32_t string_spn(ConstString string, ConstString accept);
+uint32_t string_cspn(ConstString str, ConstString reject);
+uint32_t string_spn(ConstString str, ConstString accept);
+
+void string_tolower(String str);
+void string_toupper(String str);
+void string_totitle(String str);
 
 #ifdef CHEAP_ARENA_AVAILABLE
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
