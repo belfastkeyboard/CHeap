@@ -297,7 +297,6 @@ uint32_t string_spn(ConstString string, ConstString accept)
 	return strspn(string, accept);
 }
 
-/* ARENA VERSIONS */
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...)
 {
 	va_list args;

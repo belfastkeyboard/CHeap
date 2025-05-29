@@ -37,7 +37,6 @@ StringView string_str(ConstString haystack, ConstString needle);
 uint32_t string_cspn(ConstString string, ConstString reject);
 uint32_t string_spn(ConstString string, ConstString accept);
 
-/* ARENA VERSIONS */
 #ifdef CHEAP_ARENA_AVAILABLE
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
 ALLOC String            arena_string_from_stream(Arena *arena, FILE *stream);
