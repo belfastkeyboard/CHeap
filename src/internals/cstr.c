@@ -40,7 +40,7 @@ stdlib_realloc(String string, const uint32_t sz, uint32_t old, Arena *)
 
 	assert(ptr);
 
-	memset(ptr + old, 0, sz - old);
+	memset(ptr + old + METADATA_SIZE, 0, sz - old - METADATA_SIZE);
 
 	return ptr;
 }
@@ -216,32 +216,46 @@ ALLOC static String string_replace(String      str,
                                    AllocationStrategy strategy,
                                    Arena             *arena)
 {
-	uint32_t       len   = string_len(str);
-	const size_t   n     = strlen(new);
-	const size_t   o     = strlen(old);
-	const uint32_t diff  = n - o;
-	uint32_t       count = 0;
-
-	char *substr = str;
-	while ((substr = strstr(substr, old))) {
-		count++;
-		substr += o;
-	}
+	uint32_t      len    = string_len(str);
+	const size_t  n      = strlen(new);
+	const size_t  o      = strlen(old);
+	const int32_t diff   = (int32_t)(n - o);
+	char         *substr = str;
 
 	if (diff > 0) {
+		uint32_t count = 0;
+		while ((substr = strstr(substr, old))) {
+			count++;
+			substr += o;
+		}
+
 		const uint32_t buffsz = string_buffer(str);
 
 		if (buffsz - len < count * diff) {
 			const uint32_t sz = max(buffsz + count * diff, buffsz * 2);
-
 			str = generic_allocation(str, sz, buffsz, strategy, arena);
 		}
+
+		substr = str;
 	}
 
-	substr = str;
 	while ((substr = strstr(substr, old))) {
 		const ptrdiff_t pos = substr - str;
-		memmove(substr + diff, substr, len - pos);
+		char *dest;
+		char *src;
+		size_t amount;
+
+		if (diff < 0) {
+			dest = substr;
+			src = substr + (diff * -1);
+			amount = len - pos - (diff * -1);
+		} else {
+			dest = substr + diff;
+			src = substr;
+			amount = len - pos;
+		}
+
+		memmove(dest, src, amount);
 		memcpy(substr, new, n);
 		len += diff;
 		substr += n;
@@ -295,40 +309,6 @@ String string_dup(ConstString restrict src)
 String string_sub(String str, const char *old, const char *new)
 {
 	return string_replace(str, old, new, stdlib_realloc, NULL);
-	//	uint32_t       len   = string_len(str);
-	//	const size_t   n     = strlen(new);
-	//	const size_t   o     = strlen(old);
-	//	const uint32_t diff  = n - o;
-	//	uint32_t       count = 0;
-	//
-	//	char *substr = str;
-	//	while ((substr = strstr(substr, old))) {
-	//		count++;
-	//		substr += o;
-	//	}
-	//
-	//	if (diff > 0) {
-	//		const uint32_t buffsz = string_buffer(str);
-	//
-	//		if (buffsz - len < count * diff) {
-	//			const uint32_t sz = max(buffsz + count * diff, buffsz * 2);
-	//
-	//			str = generic_allocation(str, sz, buffsz, stdlib_realloc, NULL);
-	//		}
-	//	}
-	//
-	//	substr = str;
-	//	while ((substr = strstr(substr, old))) {
-	//		const ptrdiff_t pos = substr - str;
-	//		memmove(substr + diff, substr, len - pos);
-	//		memcpy(substr, new, n);
-	//		len += diff;
-	//		substr += n;
-	//	}
-	//
-	//	write_string_len(str, len);
-	//
-	//	return null_terminate(str);
 }
 
 int string_cmp(ConstString str1, ConstString str2)
