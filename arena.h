@@ -2,7 +2,9 @@
 
 #include <stddef.h>
 
+#ifndef CHEAP_ARENA_AVAILABLE
 #define CHEAP_ARENA_AVAILABLE
+#endif
 
 
 typedef struct Arena Arena;
