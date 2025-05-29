@@ -1,8 +1,6 @@
-#include <memory.h>
-#include "../../internals/cassert.h"
-#include "../../internals/nalloc.h"
 #include "../../internals/hash.h"
-
+#include "../../internals/cassert.h"
+#include <memory.h>
 
 #define GROW_FACTOR        2.0f
 #define SHRINK_FACTOR      0.5f
@@ -13,621 +11,459 @@
 #define INVALID   UNSET
 #define NOT_FOUND INVALID
 
-
 struct Bucket
 {
-    Hash hash;
-    PairKV pair;
-    bool tombstone;
+	Hash   hash;
+	PairKV pair;
+	bool   tombstone;
 };
 
-
-Hash djb2s(const void *item,
-           const size_t size)
+Hash djb2s(const void *item, const size_t size)
 {
-    Hash hash = 5381;
-    unsigned char *data = *(unsigned char**)item;
+	Hash           hash = 5381;
+	unsigned char *data = *(unsigned char **)item;
 
-    while (*data)
-    {
-        hash = ((hash << 5) + hash) + (*data);
-        data++;
-    }
+	while (*data) {
+		hash = ((hash << 5) + hash) + (*data);
+		data++;
+	}
 
-    return hash;
+	return hash;
 }
 
-Hash djb2(const void *item,
-          const size_t size)
+Hash djb2(const void *item, const size_t size)
 {
-    Hash hash = 5381;
+	Hash          hash = 5381;
+	unsigned char data[size];
 
-    unsigned char data[size];
+	memcpy(data, item, size);
 
-    memcpy(data,
-           item,
-           size);
+	for (int i = 0; i < size; i++) {
+		hash = ((hash << 5) + hash) + data[i];
+	}
 
-    for (int i = 0; i < size; i++)
-    {
-        hash = ((hash << 5) + hash) + data[i];
-    }
-
-    return hash;
+	return hash;
 }
 
-
-static size_t get_index(const Hash hash,
-                        const size_t capacity)
+static size_t get_index(const Hash hash, const size_t capacity)
 {
-    return hash % capacity;
+	return hash % capacity;
 }
 
-static bool key_exists(const struct Bucket *buckets,
-                       const size_t index)
+static bool key_exists(const struct Bucket *buckets, const size_t index)
 {
-    return !buckets[index].tombstone && buckets[index].pair.key != (void*)UNSET;
+	return !buckets[index].tombstone &&
+	       buckets[index].pair.key != (void *)UNSET;
 }
 
-static bool is_found(const KComp k_comp,
+static bool is_found(const KComp         k_comp,
                      const struct Bucket bucket,
-                     const void *key,
-                     const bool skip_tombstones)
+                     const void         *key,
+                     const bool          skip_tombstones)
 {
-    bool found_bucket = !bucket.tombstone &&
-                        bucket.pair.key != (void*)UNSET &&
-                        k_comp(key,
-                               bucket.pair.key);
+	bool found_bucket = !bucket.tombstone && bucket.pair.key != (void *)UNSET &&
+	                    k_comp(key, bucket.pair.key);
 
-    bool invalid_or_tombstone = !skip_tombstones &&
-                                (bucket.hash == INVALID || // TODO: think about .hash == INVALID
-                                bucket.tombstone);         //   from the future: why?
+	bool invalid_or_tombstone = !skip_tombstones &&
+	                            (bucket.hash == INVALID || bucket.tombstone);
 
-    return found_bucket ||
-           invalid_or_tombstone;
+	return found_bucket || invalid_or_tombstone;
 }
-
 
 static size_t probe(struct Bucket *buckets,
-                    const KComp k_comp,
-                    const size_t capacity,
-                    const void *key,
-                    size_t index,
-                    const bool skip_tombstones)
+                    const KComp    k_comp,
+                    const size_t   capacity,
+                    const void    *key,
+                    size_t         index,
+                    const bool     skip_tombstones)
 {
-    CHEAP_ASSERT(buckets,
-                 "Buckets cannot be NULL.");
+	CHEAP_ASSERT(buckets, "Buckets cannot be NULL.");
 
-    size_t found = NOT_FOUND;
-    size_t tombstone = INVALID;
-    size_t count = 1;
+	size_t found     = NOT_FOUND;
+	size_t tombstone = INVALID;
+	size_t count     = 1;
 
-    while (found == NOT_FOUND)
-    {
-        struct Bucket bucket = buckets[index];
+	while (found == NOT_FOUND) {
+		struct Bucket bucket = buckets[index];
 
-        if (skip_tombstones)
-        {
-            if (tombstone == INVALID &&
-                bucket.hash != INVALID &&
-                bucket.tombstone)
-            {
-                tombstone = index;
-            }
-            else if (bucket.hash == INVALID)
-            {
-                break;
-            }
-        }
+		if (skip_tombstones) {
+			if (tombstone == INVALID && bucket.hash != INVALID &&
+			    bucket.tombstone)
+			{
+				tombstone = index;
+			} else if (bucket.hash == INVALID) {
+				break;
+			}
+		}
 
-        if (is_found(k_comp,
-                     bucket,
-                     key,
-                     skip_tombstones))
-        {
-            found = index;
-        }
-        else
-        {
-            index = (index + 1) % capacity;
-        }
+		if (is_found(k_comp, bucket, key, skip_tombstones)) {
+			found = index;
+		} else {
+			index = (index + 1) % capacity;
+		}
 
-        if (++count > capacity)
-        {
-            break;
-        }
-    }
+		if (++count > capacity) {
+			break;
+		}
+	}
 
-    if (tombstone != INVALID && found != NOT_FOUND)
-    {
-        buckets[tombstone].tombstone = false;
-        buckets[tombstone].pair.key = buckets[found].pair.key;
-        buckets[tombstone].pair.value = buckets[found].pair.value;
-        buckets[tombstone].hash = buckets[found].hash;
+	if (tombstone != INVALID && found != NOT_FOUND) {
+		buckets[tombstone].tombstone  = false;
+		buckets[tombstone].pair.key   = buckets[found].pair.key;
+		buckets[tombstone].pair.value = buckets[found].pair.value;
+		buckets[tombstone].hash       = buckets[found].hash;
+		buckets[found].tombstone      = true;
+		buckets[found].pair.key       = (void *)UNSET;
+		found                         = tombstone;
+	}
 
-        buckets[found].tombstone = true;
-        buckets[found].pair.key = (void*)UNSET;
-
-        found = tombstone;
-    }
-
-    return found;
+	return found;
 }
 
 static size_t find_bucket(struct Bucket *buckets,
-                          const HashFnc fnc,
-                          const size_t k_size,
-                          const KComp k_comp,
-                          const size_t capacity,
-                          const void *key)
+                          const HashFnc  fnc,
+                          const size_t   k_size,
+                          const KComp    k_comp,
+                          const size_t   capacity,
+                          const void    *key)
 {
-    size_t index = NOT_FOUND;
+	size_t index = NOT_FOUND;
 
-    if (capacity)
-    {
-        Hash hash = fnc(key,
-                        k_size);
+	if (capacity) {
+		Hash hash = fnc(key, k_size);
+		index     = get_index(hash, capacity);
+		index     = probe(buckets, k_comp, capacity, key, index, true);
+	}
 
-        index = get_index(hash,
-                          capacity);
-
-        index = probe(buckets,
-                      k_comp,
-                      capacity,
-                      key,
-                      index,
-                      true);
-    }
-
-    return index;
+	return index;
 }
 
-
-static struct Bucket create_bucket(const Hash hash,
+static struct Bucket create_bucket(const Hash        hash,
                                    struct NodeAlloc *alloc,
-                                   const void *key,
-                                   const size_t k_size,
-                                   const void *value,
-                                   const size_t v_size)
+                                   const void       *key,
+                                   const size_t      k_size,
+                                   const void       *value,
+                                   const size_t      v_size)
 {
-    void *memory = alloc_node(alloc);
+	void *memory = alloc_node(alloc);
+	void *k      = memory;
+	void *v      = (value) ? memory + k_size : NULL;
 
-    void *k = memory;
-    void *v = (value) ? memory + k_size :
-                        NULL;
+	memcpy(k, key, k_size);
 
-    memcpy(k,
-           key,
-           k_size);
+	if (value) {
+		memcpy(v, value, v_size);
+	}
 
-    if (value)
-    {
-        memcpy(v,
-               value,
-               v_size);
-    }
+	struct Bucket bucket = {
+		.hash      = hash,
+		.pair      = { .key = k, .value = v },
+		.tombstone = false
+	};
 
-    struct Bucket bucket = {
-        .hash = hash,
-        .pair = {
-            .key = k,
-            .value = v
-        },
-        .tombstone = false
-    };
-
-    return bucket;
+	return bucket;
 }
 
-static void initialise_buckets(struct Bucket **buckets,
-                               size_t *capacity)
+static void initialise_buckets(struct Bucket **buckets, size_t *capacity)
 {
-    if (*buckets)
-    {
-        free(*buckets);
-    }
+	if (*buckets) {
+		free(*buckets);
+	}
 
-    *capacity = TABLE_MIN;
-    const size_t size = *capacity * sizeof(struct Bucket);
+	*capacity         = TABLE_MIN;
+	const size_t size = *capacity * sizeof(struct Bucket);
+	*buckets          = malloc(size);
 
-    *buckets = malloc(size);
-
-    memset(*buckets,
-           UNSET,
-           size);
+	memset(*buckets, UNSET, size);
 }
 
-static void reindex_buckets(struct Bucket *buckets,
+static void reindex_buckets(struct Bucket       *buckets,
                             const struct Bucket *tmp,
-                            const KComp k_comp,
-                            const size_t old_capacity,
-                            const size_t new_capacity)
+                            const KComp          k_comp,
+                            const size_t         old_capacity,
+                            const size_t         new_capacity)
 {
-    for (int i = 0; i < old_capacity; i++)
-    {
-        struct Bucket bucket = tmp[i];
+	for (int i = 0; i < old_capacity; i++) {
+		struct Bucket bucket = tmp[i];
 
-        if (bucket.hash == INVALID ||
-            bucket.tombstone)
-        {
-            continue;
-        }
+		if (bucket.hash == INVALID || bucket.tombstone) {
+			continue;
+		}
 
-        size_t index = get_index(bucket.hash,
-                                 new_capacity);
+		size_t index = get_index(bucket.hash, new_capacity);
 
-        index = probe(buckets,
-                      k_comp,
-                      new_capacity,
-                      bucket.pair.key,
-                      index,
-                      false);
+		index = probe(buckets,
+		              k_comp,
+		              new_capacity,
+		              bucket.pair.key,
+		              index,
+		              false);
 
-        buckets[index] = bucket;
-    }
+		buckets[index] = bucket;
+	}
 }
-
 
 static float get_resize_factor(const size_t nmemb,
                                const size_t capacity,
-                               const bool capacity_to_shrink)
+                               const bool   capacity_to_shrink)
 {
-    float factor = 0;
+	float factor = 0;
 
-    if (capacity)
-    {
-        float load_factor = (float)nmemb / (float)capacity;
+	if (capacity) {
+		float load_factor = (float)nmemb / (float)capacity;
 
-        if (load_factor >= LF_UPPER_THRESHOLD)
-        {
-            factor = GROW_FACTOR;
-        }
-        else if (load_factor <= LF_LOWER_THRESHOLD && capacity_to_shrink)
-        {
-            factor = SHRINK_FACTOR;
-        }
-    }
+		if (load_factor >= LF_UPPER_THRESHOLD) {
+			factor = GROW_FACTOR;
+		} else if (load_factor <= LF_LOWER_THRESHOLD && capacity_to_shrink) {
+			factor = SHRINK_FACTOR;
+		}
+	}
 
-    return factor;
+	return factor;
 }
 
 static void resize_buckets(struct Bucket **buckets,
-                           KComp k_comp,
-                           size_t *capacity,
-                           const float factor)
+                           KComp           k_comp,
+                           size_t         *capacity,
+                           const float     factor)
 {
-    CHEAP_ASSERT(*buckets,
-                 "Buckets cannot be NULL.");
+	CHEAP_ASSERT(*buckets, "Buckets cannot be NULL.");
 
-    size_t old_capacity = *capacity;
-    size_t new_capacity = (size_t)((float)old_capacity * factor);
-    size_t t_size = old_capacity * sizeof(struct Bucket);
-    size_t m_size = new_capacity * sizeof(struct Bucket);
+	size_t old_capacity = *capacity;
+	size_t new_capacity = (size_t)((float)old_capacity * factor);
+	size_t t_size       = old_capacity * sizeof(struct Bucket);
+	size_t m_size       = new_capacity * sizeof(struct Bucket);
+	*capacity           = new_capacity;
+	struct Bucket *tmp  = malloc(t_size);
 
-    *capacity = new_capacity;
+	CHEAP_ASSERT(tmp, "Failed to allocate memory.");
 
-    struct Bucket *tmp = malloc(t_size);
+	memcpy(tmp, *buckets, t_size);
+	free(*buckets);
 
-    CHEAP_ASSERT(tmp,
-                 "Failed to allocate memory.");
+	*buckets = malloc(m_size);
 
-    memcpy(tmp,
-           *buckets,
-           t_size);
+	CHEAP_ASSERT(*buckets, "Failed to allocate memory,");
 
-    free(*buckets);
-
-    *buckets = malloc(m_size);
-
-    CHEAP_ASSERT(*buckets,
-                 "Failed to allocate memory,");
-
-    memset(*buckets,
-           UNSET,
-           m_size);
-
-    reindex_buckets(*buckets,
-                    tmp,
-                    k_comp,
-                    old_capacity,
-                    new_capacity);
-
-    free(tmp);
+	memset(*buckets, UNSET, m_size);
+	reindex_buckets(*buckets, tmp, k_comp, old_capacity, new_capacity);
+	free(tmp);
 }
-
 
 static void should_resize(struct Bucket **buckets,
-                          const KComp k_comp,
-                          const size_t nmemb,
-                          size_t *capacity)
+                          const KComp     k_comp,
+                          const size_t    nmemb,
+                          size_t         *capacity)
 {
-    float resize_factor = get_resize_factor(nmemb,
-                                            *capacity,
-                                            *capacity > TABLE_MIN);
+	float resize_factor = get_resize_factor(nmemb,
+	                                        *capacity,
+	                                        *capacity > TABLE_MIN);
 
-    if (!*buckets)
-    {
-        initialise_buckets(buckets,
-                           capacity);
-    }
-    else if (resize_factor)
-    {
-        resize_buckets(buckets,
-                       k_comp,
-                       capacity,
-                       resize_factor);
-    }
+	if (!*buckets) {
+		initialise_buckets(buckets, capacity);
+	} else if (resize_factor) {
+		resize_buckets(buckets, k_comp, capacity, resize_factor);
+	}
 }
 
-
-void hash_insert(struct Bucket **buckets,
+void hash_insert(struct Bucket   **buckets,
                  struct NodeAlloc *alloc,
-                 const HashFnc fnc,
-                 const size_t k_size,
-                 const size_t v_size,
-                 const KComp k_comp,
-                 size_t *nmemb,
-                 size_t *capacity,
-                 const void *key,
-                 const void *value)
+                 const HashFnc     fnc,
+                 const size_t      k_size,
+                 const size_t      v_size,
+                 const KComp       k_comp,
+                 size_t           *nmemb,
+                 size_t           *capacity,
+                 const void       *key,
+                 const void       *value)
 {
-    should_resize(buckets,
-                  k_comp,
-                  *nmemb,
-                  capacity);
+	should_resize(buckets, k_comp, *nmemb, capacity);
 
-    CHEAP_ASSERT(buckets,
-                 "Buckets cannot be NULL.");
+	CHEAP_ASSERT(buckets, "Buckets cannot be NULL.");
 
-    Hash hash = fnc(key,
-                    k_size);
+	Hash   hash  = fnc(key, k_size);
+	size_t index = get_index(hash, *capacity);
+	index        = probe(*buckets, k_comp, *capacity, key, index, false);
+	bool exists  = key_exists(*buckets, index);
 
-    size_t index = get_index(hash,
-                             *capacity);
+	if (!exists) {
+		(*buckets)[index] = create_bucket(hash,
+		                                  alloc,
+		                                  key,
+		                                  k_size,
+		                                  value,
+		                                  v_size);
 
-    index = probe(*buckets,
-                  k_comp,
-                  *capacity,
-                  key,
-                  index,
-                  false);
-
-    bool exists = key_exists(*buckets,
-                             index);
-
-    if (!exists)
-    {
-        (*buckets)[index] = create_bucket(hash,
-                                          alloc,
-                                          key,
-                                          k_size,
-                                          value,
-                                          v_size);
-
-        (*nmemb)++;
-    }
-    else
-    {
-        memcpy((*buckets)[index].pair.value,
-               value,
-               v_size);
-    }
+		(*nmemb)++;
+	} else {
+		memcpy((*buckets)[index].pair.value, value, v_size);
+	}
 }
-
 
 void hash_erase(struct Bucket **buckets,
-                const HashFnc fnc,
-                const size_t k_size,
-                const KComp k_comp,
-                size_t *nmemb,
-                size_t *capacity,
-                const void *key)
+                const HashFnc   fnc,
+                const size_t    k_size,
+                const KComp     k_comp,
+                size_t         *nmemb,
+                size_t         *capacity,
+                const void     *key)
 {
-    size_t index = find_bucket(*buckets,
-                               fnc,
-                               k_size,
-                               k_comp,
-                               *capacity,
-                               key);
+	size_t index = find_bucket(*buckets, fnc, k_size, k_comp, *capacity, key);
 
-    if (index != NOT_FOUND)
-    {
-        struct Bucket *bucket_erase = &(*buckets)[index];
-        bucket_erase->tombstone = true;
-
-        (*nmemb)--;
-
-        should_resize(buckets,
-                      k_comp,
-                      *nmemb,
-                      capacity);
-    }
+	if (index != NOT_FOUND) {
+		struct Bucket *bucket_erase = &(*buckets)[index];
+		bucket_erase->tombstone     = true;
+		(*nmemb)--;
+		should_resize(buckets, k_comp, *nmemb, capacity);
+	}
 }
 
-void hash_clear(struct Bucket **buckets,
+void hash_clear(struct Bucket   **buckets,
                 struct NodeAlloc *alloc,
-                size_t *nmemb,
-                size_t *capacity)
+                size_t           *nmemb,
+                size_t           *capacity)
 {
-    if (*buckets)
-    {
-        free(*buckets);
-        *buckets = NULL;
-    }
+	if (*buckets) {
+		free(*buckets);
+		*buckets = NULL;
+	}
 
-    clear_nodes(alloc);
+	clear_nodes(alloc);
 
-    *capacity = 0;
-    *nmemb = 0;
+	*capacity = 0;
+	*nmemb    = 0;
 }
-
 
 size_t hash_count(struct Bucket *buckets,
-                  const HashFnc fnc,
-                  const size_t k_size,
-                  const KComp k_comp,
-                  const size_t capacity,
-                  const void *key)
+                  const HashFnc  fnc,
+                  const size_t   k_size,
+                  const KComp    k_comp,
+                  const size_t   capacity,
+                  const void    *key)
 {
-    return (find_bucket(buckets,
-                        fnc,
-                        k_size,
-                        k_comp,
-                        capacity,
-                        key) != NOT_FOUND) ? 1 : 0;
+	return (find_bucket(buckets, fnc, k_size, k_comp, capacity, key) !=
+	        NOT_FOUND)
+	           ? 1
+	           : 0;
 }
 
 void *hash_find(struct Bucket *buckets,
-                const HashFnc fnc,
-                const size_t k_size,
-                const KComp k_comp,
-                const size_t capacity,
-                const size_t nmemb,
-                const void *key)
+                const HashFnc  fnc,
+                const size_t   k_size,
+                const KComp    k_comp,
+                const size_t   capacity,
+                const size_t   nmemb,
+                const void    *key)
 {
-    void *value = NULL;
+	void *value = NULL;
 
-    if (nmemb)
-    {
-        size_t index = find_bucket(buckets,
-                                   fnc,
-                                   k_size,
-                                   k_comp,
-                                   capacity,
-                                   key);
+	if (nmemb) {
+		size_t index = find_bucket(buckets, fnc, k_size, k_comp, capacity, key);
 
-        if (index != NOT_FOUND)
-        {
-            struct Bucket bucket = buckets[index];
+		if (index != NOT_FOUND) {
+			struct Bucket bucket = buckets[index];
+			value                = (bucket.pair.value) ? bucket.pair.value
+			                                           : (void *)bucket.pair.key;
+		}
+	}
 
-            value = (bucket.pair.value) ? bucket.pair.value :
-                                          (void*)bucket.pair.key;
-        }
-    }
-
-    return value;
+	return value;
 }
 
 bool hash_contains(struct Bucket *buckets,
-                   HashFnc fnc,
-                   const size_t k_size,
-                   const KComp k_comp,
-                   const size_t capacity,
-                   const void *key)
+                   HashFnc        fnc,
+                   const size_t   k_size,
+                   const KComp    k_comp,
+                   const size_t   capacity,
+                   const void    *key)
 {
-    return (find_bucket(buckets,
-                        fnc,
-                        k_size,
-                        k_comp,
-                        capacity,
-                        key) != NOT_FOUND);
+	return (find_bucket(buckets, fnc, k_size, k_comp, capacity, key) !=
+	        NOT_FOUND);
 }
-
 
 /* ITERATOR HELPER FUNCTIONS */
-static struct Bucket *front_hash(struct Bucket* buckets)
+static struct Bucket *front_hash(struct Bucket *buckets)
 {
-    return buckets;
+	return buckets;
 }
 
-static struct Bucket *back_hash(struct Bucket* buckets,
-                                const size_t capacity)
+static struct Bucket *back_hash(struct Bucket *buckets, const size_t capacity)
 {
-    return buckets + capacity - 1;
+	return buckets + capacity - 1;
 }
-
 
 static bool valid_iterator(const Iter *iter)
 {
-    struct Bucket *bucket = (struct Bucket*)iter->ptr;
-
-    return !bucket->tombstone && bucket->pair.key != (void*)UNSET;
+	struct Bucket *bucket = (struct Bucket *)iter->ptr;
+	return !bucket->tombstone && bucket->pair.key != (void *)UNSET;
 }
 
-
 Iter begin_hash(const IteratorType type,
-                struct Bucket *buckets,
-                const size_t capacity)
+                struct Bucket     *buckets,
+                const size_t       capacity)
 {
-    void *ptr = front_hash(buckets);
+	void *ptr  = front_hash(buckets);
+	void *end  = back_hash(buckets, capacity);
+	Iter  iter = { .type = type,
+		           .ptr  = ptr,
+		           .end  = end,
+		           .size = sizeof(struct Bucket) };
 
-    void *end = back_hash(buckets,
-                          capacity);
+	if (!valid_iterator(&iter)) {
+		next_iter(&iter);
+	}
 
-    Iter iter = {
-        .type = type,
-        .ptr = ptr,
-        .end = end,
-        .size = sizeof(struct Bucket)
-    };
-
-    if (!valid_iterator(&iter))
-    {
-        next_iter(&iter);
-    }
-
-    return iter;
+	return iter;
 }
 
 Iter end_hash(const IteratorType type,
-              struct Bucket *buckets,
-              const size_t capacity)
+              struct Bucket     *buckets,
+              const size_t       capacity)
 {
-    void *ptr = back_hash(buckets,
-                          capacity);
+	void *ptr  = back_hash(buckets, capacity);
+	void *end  = front_hash(buckets);
+	Iter  iter = { .type = type,
+		           .ptr  = ptr,
+		           .end  = end,
+		           .size = sizeof(struct Bucket) };
 
-    void *end = front_hash(buckets);
+	if (!valid_iterator(&iter)) {
+		prev_iter(&iter);
+	}
 
-    Iter iter = {
-        .type = type,
-        .ptr = ptr,
-        .end = end,
-        .size = sizeof(struct Bucket)
-    };
-
-    if (!valid_iterator(&iter))
-    {
-        prev_iter(&iter);
-    }
-
-    return iter;
+	return iter;
 }
-
 
 Iter *next_hash(Iter *iter)
 {
-    iter->ptr = iter->ptr + iter->size;
+	iter->ptr = iter->ptr + iter->size;
 
-    while (!valid_iterator(iter))
-    {
-        iter->ptr = iter->ptr + iter->size;
-    }
+	while (!valid_iterator(iter)) {
+		iter->ptr = iter->ptr + iter->size;
+	}
 
-    return iter;
+	return iter;
 }
 
 Iter *prev_hash(Iter *iter)
 {
-    iter->ptr = iter->ptr - iter->size;
+	iter->ptr = iter->ptr - iter->size;
 
-    while (!valid_iterator(iter))
-    {
-        iter->ptr = iter->ptr - iter->size;
-    }
+	while (!valid_iterator(iter)) {
+		iter->ptr = iter->ptr - iter->size;
+	}
 
-    return iter;
+	return iter;
 }
 
 void *get_hash_table(const Iter *iter)
 {
-    struct Bucket *bucket = iter->ptr;
-
-    return &bucket->pair;
+	struct Bucket *bucket = iter->ptr;
+	return &bucket->pair;
 }
 
 void *get_hash_set(const Iter *iter)
 {
-    struct Bucket *bucket = iter->ptr;
-
-    return (void*)bucket->pair.key;
+	struct Bucket *bucket = iter->ptr;
+	return (void *)bucket->pair.key;
 }
