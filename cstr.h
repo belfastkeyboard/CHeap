@@ -1,11 +1,27 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stddef.h>
+#include <stdint.h>
 
 
 typedef char *String;
 typedef const char *ConstString;
+typedef const char *StringView;
+
+typedef void *(*AllocatorCallback)(void *allocator,
+                                   uint32_t size);
+
+typedef void *(*ReallocatorCallback)(void *allocator,
+                                     void *ptr,
+                                     uint32_t size);
+
+
+
+void set_string_allocator(void *allocator,
+                          AllocatorCallback cb_allocate,
+                          ReallocatorCallback cb_reallocate);
+
+void reset_string_allocator(void);
 
 
 __attribute__((format(printf, 1, 2)))
@@ -20,15 +36,21 @@ void string_free(String string);
 
 
 // returns the size of the string buffer
-size_t string_size(ConstString string);
+uint32_t string_size(ConstString string);
 
 // returns the number of characters in the string
-size_t string_len(ConstString string);
+uint32_t string_len(ConstString string);
 
 
+__attribute__((warn_unused_result))
 String string_cpy(String restrict dest,
                   ConstString restrict src);
 
+__attribute__((warn_unused_result))
+String string_cat(String restrict dest,
+                  ConstString restrict src);
+
+__attribute__((warn_unused_result))
 String string_dup(ConstString restrict src);
 
 
@@ -36,90 +58,20 @@ int string_cmp(ConstString str1,
                ConstString str2);
 
 
-/*  The below are a mix of proposed functions inspired by Python and some random utility functions
-    None of them are yet implemented
-__attribute__((warn_unused_result))
-String *copy_string(const String *string);
+StringView string_chr(ConstString string,
+                      int c);
 
-String *append_string(String *dest,
-                      const String *src);
+StringView string_rchr(ConstString string,
+                       int c);
 
-String *insert_string(String *dest,
-                      const String *src,
-                      size_t index);
+StringView string_pbrk(ConstString string,
+                       ConstString accept);
 
-String *replace_string(String *string,
-                       const String *find,
-                       const String *replace);
+StringView string_str(ConstString haystack,
+                      ConstString needle);
 
-String *lpad_string(String *string,
-                    size_t pad);
+uint32_t string_cspn(ConstString string,
+                     ConstString reject);
 
-String *rpad_string(String *string,
-                    size_t pad);
-
-
-String *reverse_string(String *string);
-
-String *capitalise_string(String *string);
-
-String *lower_string(String *string);
-
-String *upper_string(String *string);
-
-String *title_string(String *string);
-
-String *swapcase_string(String *string);
-
-String *lstrip_string(String *string);
-
-String *rstrip_string(String *string);
-
-String *strip_string(String *string);
-
-String *truncate_string(String *string, size_t size);
-
-String *join_string(Vector *strings,
-                    const String *delim);
-
-Vector *split_string(const String *string,
-                     const String *delim);
-
-
-bool is_lower_string(const String *string);
-
-bool is_upper_string(const String *string);
-
-bool is_title_string(const String *string);
-
-bool starts_with_string(const String *string,
-                        const String *prefix);
-
-bool ends_with_string(const String *string,
-                      const String *suffix);
-
-bool is_alnum_string(const String *string);
-
-bool is_alpha_string(const String *string);
-
-bool is_ascii_string(const String *string);
-
-bool is_decimal_string(const String *string);
-
-bool is_printable_string(const String *string);
-
-bool is_space_string(const String *string);
-
-
-size_t count_string(const String *string,
-                    const String *value);
-
-size_t find_string(const String *string,
-                   const String *value);
-
-size_t rfind_string(const String *string,
-                    const String *value);
-
-size_t word_count_string(const String *string);
-
-*/
+uint32_t string_spn(ConstString string,
+                   ConstString accept);
