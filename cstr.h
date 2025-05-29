@@ -27,6 +27,7 @@ ALLOC String string_cpy(String dest, ConstString src);
 ALLOC String string_cat(String dest, ConstString src);
 ALLOC String string_dup(ConstString src);
 
+void string_clear(String str);
 void string_slice(String str, uint32_t start, uint32_t end);
 
 int string_cmp(ConstString str1, ConstString str2);

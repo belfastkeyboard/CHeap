@@ -269,6 +269,12 @@ String string_dup(ConstString restrict src)
 	return string_duplicate(src, stdlib_alloc, NULL);
 }
 
+void string_clear(String str)
+{
+	write_string_len(str, 0);
+	null_terminate(str);
+}
+
 void string_slice(String str, uint32_t start, uint32_t end)
 {
 	assert(start < end);
