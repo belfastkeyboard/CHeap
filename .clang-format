@@ -62,3 +62,5 @@ BreakBeforeBinaryOperators: None
 BreakAdjacentStringLiterals: true
 BreakStringLiterals: true
 PenaltyBreakAssignment: 10000
+
+IndentCaseLabels: true
