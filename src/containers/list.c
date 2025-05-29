@@ -1,136 +1,115 @@
-#include "../../internals/base.h"
-#include "../../internals/nalloc.h"
-#include "../../internals/linked.h"
 #include "../../list.h"
-
+#include "../../internals/base.h"
+#include "../../internals/linked.h"
+#include "../../internals/nalloc.h"
 
 typedef struct List
 {
-    struct NodeAlloc alloc;
-    size_t nmemb;
-    size_t size;
-    struct Node *head;
-    struct Node *tail;
+	struct NodeAlloc alloc;
+	size_t           nmemb;
+	size_t           size;
+	struct Node     *head;
+	struct Node     *tail;
 } List;
-
 
 List *create_list(const size_t size)
 {
-    return create_list_capacity(size, NODE_COUNT_DEFAULT);
+	return create_list_capacity(size, NODE_COUNT_DEFAULT);
 }
 
-__attribute__((warn_unused_result))
-List *create_list_capacity(size_t size,
-                           size_t init)
+List *create_list_capacity(size_t size, size_t init)
 {
-    List *list = memory_allocate_container(sizeof(List));
+	List *list = memory_allocate_container(sizeof(List));
 
-    list->alloc = create_node_allocator(sizeof(struct Node),
-                                        init,
-                                        size,
-                                        0);
+	list->alloc = create_node_allocator(sizeof(struct Node), init, size, 0);
+	list->size = size;
 
-    list->size = size;
-
-    return list;
+	return list;
 }
 
 void destroy_list(List **list)
 {
-    destroy_node_allocator(&(*list)->alloc);
-
-    memory_free_buffer((void**)list);
+	destroy_node_allocator(&(*list)->alloc);
+	memory_free_buffer((void **)list);
 }
 
-
-void push_back_list(List *list,
-                    const void *value)
+void push_back_list(List *list, const void *value)
 {
-    generic_push_back_doubly_linked(&list->alloc,
-                                    &list->nmemb,
-                                    list->size,
-                                    &list->head,
-                                    &list->tail,
-                                    value);
+	generic_push_back_doubly_linked(&list->alloc,
+	                                &list->nmemb,
+	                                list->size,
+	                                &list->head,
+	                                &list->tail,
+	                                value);
 }
 
-void push_front_list(List *list,
-                     const void *value)
+void push_front_list(List *list, const void *value)
 {
-    generic_push_front_doubly_linked(&list->alloc,
-                                     &list->nmemb,
-                                     list->size,
-                                     &list->head,
-                                     &list->tail,
-                                     value);
+	generic_push_front_doubly_linked(&list->alloc,
+	                                 &list->nmemb,
+	                                 list->size,
+	                                 &list->head,
+	                                 &list->tail,
+	                                 value);
 }
 
-size_t insert_list(List *list,
-                   const void *value,
-                   const size_t index)
+size_t insert_list(List *list, const void *value, const size_t index)
 {
-    return generic_insert_doubly_linked(&list->alloc,
-                                        &list->nmemb,
-                                        list->size,
-                                        &list->head,
-                                        &list->tail,
-                                        value,
-                                        index);
+	return generic_insert_doubly_linked(&list->alloc,
+	                                    &list->nmemb,
+	                                    list->size,
+	                                    &list->head,
+	                                    &list->tail,
+	                                    value,
+	                                    index);
 }
-
 
 void *front_list(const List *list)
 {
-    return generic_access_linked(list->head);
+	return generic_access_linked(list->head);
 }
 
 void *back_list(const List *list)
 {
-    return generic_access_linked(list->tail);
+	return generic_access_linked(list->tail);
 }
-
 
 void pop_front_list(List *list)
 {
-    generic_pop_front_doubly_linked(&list->alloc,
-                                    &list->nmemb,
-                                    &list->head,
-                                    &list->tail);
+	generic_pop_front_doubly_linked(&list->alloc,
+	                                &list->nmemb,
+	                                &list->head,
+	                                &list->tail);
 }
 
 void pop_back_list(List *list)
 {
-    generic_pop_back_doubly_linked(&list->alloc,
-                                   &list->nmemb,
-                                   &list->head,
-                                   &list->tail);
+	generic_pop_back_doubly_linked(&list->alloc,
+	                               &list->nmemb,
+	                               &list->head,
+	                               &list->tail);
 }
 
-size_t erase_list(List *list,
-                  const size_t index)
+size_t erase_list(List *list, const size_t index)
 {
-    return generic_erase_doubly_linked(&list->alloc,
-                                       &list->nmemb,
-                                       index,
-                                       &list->head,
-                                       &list->tail);
+	return generic_erase_doubly_linked(&list->alloc,
+	                                   &list->nmemb,
+	                                   index,
+	                                   &list->head,
+	                                   &list->tail);
 }
 
 void clear_list(List *list)
 {
-    generic_clear_linked(&list->alloc,
-                         &list->head,
-                         &list->tail,
-                         &list->nmemb);
+	generic_clear_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
 }
-
 
 bool empty_list(const List *list)
 {
-    return generic_empty(list->nmemb);
+	return generic_empty(list->nmemb);
 }
 
 size_t size_list(const List *list)
 {
-    return generic_size(list->nmemb);
+	return generic_size(list->nmemb);
 }

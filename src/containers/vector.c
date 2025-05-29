@@ -1,193 +1,168 @@
+#include "../../vector.h"
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
 #include "../../iter.h"
-#include "../../vector.h"
 
 typedef struct Vector
 {
-    void *array;
-    size_t capacity;
-    size_t nmemb;
-    size_t size;
+	void  *array;
+	size_t capacity;
+	size_t nmemb;
+	size_t size;
 } Vector;
-
 
 Vector *create_vector(size_t size)
 {
-    Vector *vector = memory_allocate_container(sizeof(Vector));
+	Vector *vector = memory_allocate_container(sizeof(Vector));
 
-    vector->size = size;
+	vector->size = size;
 
-    return vector;
+	return vector;
 }
 
 void destroy_vector(Vector **vector)
 {
-    memory_free_container_generic((void **) vector,
-                                  (*vector)->array);
+	memory_free_container_generic((void **)vector, (*vector)->array);
 }
 
-
-void push_back_vector(Vector *vector,
-                      const void *value)
+void push_back_vector(Vector *vector, const void *value)
 {
-    generic_mempool_push_back(&vector->array,
-                              value,
-                              &vector->capacity,
-                              &vector->nmemb,
-                              vector->size);
+	generic_mempool_push_back(&vector->array,
+	                          value,
+	                          &vector->capacity,
+	                          &vector->nmemb,
+	                          vector->size);
 }
 
-void insert_vector(Vector *vector,
-                   const void *value,
-                   const size_t index)
+void insert_vector(Vector *vector, const void *value, const size_t index)
 {
-    generic_mempool_insert(&vector->array,
-                           value,
-                           index,
-                           &vector->capacity,
-                           &vector->nmemb,
-                           vector->size);
+	generic_mempool_insert(&vector->array,
+	                       value,
+	                       index,
+	                       &vector->capacity,
+	                       &vector->nmemb,
+	                       vector->size);
 }
 
-void push_back_range_vector(Vector *vector,
-                            const Range *range)
+void push_back_range_vector(Vector *vector, const Range *range)
 {
-    generic_mempool_range_insert(&vector->array,
-                                 vector->nmemb,
-                                 &vector->capacity,
-                                 &vector->nmemb,
-                                 vector->size,
-                                 range);
+	generic_mempool_range_insert(&vector->array,
+	                             vector->nmemb,
+	                             &vector->capacity,
+	                             &vector->nmemb,
+	                             vector->size,
+	                             range);
 }
 
-void insert_range_vector(Vector *vector,
-                         const size_t index,
-                         const Range *range)
+void insert_range_vector(Vector *vector, const size_t index, const Range *range)
 {
-    generic_mempool_range_insert(&vector->array,
-                                 index,
-                                 &vector->capacity,
-                                 &vector->nmemb,
-                                 vector->size,
-                                 range);
+	generic_mempool_range_insert(&vector->array,
+	                             index,
+	                             &vector->capacity,
+	                             &vector->nmemb,
+	                             vector->size,
+	                             range);
 }
 
 Range get_range_vector(const Vector *vector,
-                       const size_t begin,
-                       const size_t end)
+                       const size_t  begin,
+                       const size_t  end)
 {
-    return generic_mempool_get_range(vector->array,
-                                     vector->capacity,
-                                     vector->size,
-                                     begin,
-                                     end);
+	return generic_mempool_get_range(vector->array,
+	                                 vector->capacity,
+	                                 vector->size,
+	                                 begin,
+	                                 end);
 }
-
 
 void pop_back_vector(Vector *vector)
 {
-    generic_mempool_pop_back(&vector->nmemb);
+	generic_mempool_pop_back(&vector->nmemb);
 }
 
-void erase_vector(Vector *vector,
-                    const size_t index)
+void erase_vector(Vector *vector, const size_t index)
 {
-    generic_mempool_erase(&vector->array,
-                          index,
-                          &vector->nmemb,
-                          vector->size);
+	generic_mempool_erase(&vector->array, index, &vector->nmemb, vector->size);
 }
 
 void clear_vector(Vector *vector)
 {
-    generic_mempool_clear(&vector->nmemb);
+	generic_mempool_clear(&vector->nmemb);
 }
 
-
-void *at_vector(const Vector *vector,
-                const size_t index)
+void *at_vector(const Vector *vector, const size_t index)
 {
-    return generic_mempool_random_access(vector->array,
-                                         index,
-                                         vector->nmemb,
-                                         vector->size);
+	return generic_mempool_random_access(vector->array,
+	                                     index,
+	                                     vector->nmemb,
+	                                     vector->size);
 }
 
 void *front_vector(const Vector *vector)
 {
-    return generic_mempool_access_front(vector->array,
-                                        vector->nmemb);
+	return generic_mempool_access_front(vector->array, vector->nmemb);
 }
 
 void *back_vector(const Vector *vector)
 {
-    return generic_mempool_access_back(vector->array,
-                                       vector->nmemb,
-                                       vector->size);
+	return generic_mempool_access_back(vector->array,
+	                                   vector->nmemb,
+	                                   vector->size);
 }
-
 
 Iter begin_vector(const Vector *vector)
 {
-    void *ptr = front_vector(vector);
-    const size_t size = vector->size;
+	void        *ptr  = front_vector(vector);
+	const size_t size = vector->size;
 
-    Iter iter = {
-        .type = ITERATOR_VECTOR,
-        .ptr = ptr,
-        .end = back_vector(vector),
-        .size = size
-    };
+	Iter iter = { .type = ITERATOR_VECTOR,
+		          .ptr  = ptr,
+		          .end  = back_vector(vector),
+		          .size = size };
 
-    return iter;
+	return iter;
 }
 
 Iter end_vector(const Vector *vector)
 {
-    void *ptr = back_vector(vector);
-    const size_t size = vector->size;
+	void        *ptr  = back_vector(vector);
+	const size_t size = vector->size;
 
-    Iter iter = {
-        .type = ITERATOR_VECTOR,
-        .ptr = ptr,
-        .end = front_vector(vector),
-        .size = size
-    };
+	Iter iter = { .type = ITERATOR_VECTOR,
+		          .ptr  = ptr,
+		          .end  = front_vector(vector),
+		          .size = size };
 
-    return iter;
+	return iter;
 }
-
 
 bool empty_vector(const Vector *vector)
 {
-    return generic_empty(vector->nmemb);
+	return generic_empty(vector->nmemb);
 }
 
 size_t size_vector(const Vector *vector)
 {
-    return generic_size(vector->nmemb);
+	return generic_size(vector->nmemb);
 }
 
 size_t capacity_vector(const Vector *vector)
 {
-    return generic_capacity(vector->capacity);
+	return generic_capacity(vector->capacity);
 }
 
-
-void reserve_vector(Vector *vector,
-                    const size_t amount)
+void reserve_vector(Vector *vector, const size_t amount)
 {
-    generic_mempool_reserve(&vector->array,
-                            &vector->capacity,
-                            vector->size,
-                            amount);
+	generic_mempool_reserve(&vector->array,
+	                        &vector->capacity,
+	                        vector->size,
+	                        amount);
 }
 
 void shrink_to_fit_vector(Vector *vector)
 {
-    generic_mempool_shrink_to_fit(&vector->array,
-                                  &vector->capacity,
-                                  vector->nmemb,
-                                  vector->size);
+	generic_mempool_shrink_to_fit(&vector->array,
+	                              &vector->capacity,
+	                              vector->nmemb,
+	                              vector->size);
 }
