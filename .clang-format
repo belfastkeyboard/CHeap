@@ -12,6 +12,7 @@ AlignConsecutiveAssignments: Consecutive
 AlignArrayOfStructures: Left
 AlignConsecutiveBitFields: true
 PointerAlignment: Right
+AlignOperands: true
 
 # arguments
 AllowAllArgumentsOnNextLine: false
