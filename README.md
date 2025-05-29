@@ -94,3 +94,4 @@ by Robert Sedgewick and Kevin Wayne.
 _Algorithms in C_ by Robert Sedgewick. 1990.
 
 [Simple Dynamic Strings](https://github.com/antirez/sds)
+by Salvatore Sanfilippo
