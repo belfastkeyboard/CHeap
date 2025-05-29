@@ -25,12 +25,9 @@ uint32_t string_len(ConstString str);
 
 ALLOC String string_cat(String dest, ConstString src);
 ALLOC String string_dup(ConstString src);
-
-void string_clear(String str);
-void string_slice(String str, uint32_t start, uint32_t end);
+ALLOC String string_sub(String str, const char *old, const char *new);
 
 int string_cmp(ConstString str1, ConstString str2);
-
 
 StringView string_chr(ConstString str, int c);
 StringView string_rchr(ConstString str, int c);
@@ -44,10 +41,18 @@ void string_tolower(String str);
 void string_toupper(String str);
 void string_totitle(String str);
 
+void string_clear(String str);
+void string_slice(String str, uint32_t start, uint32_t end);
+void string_strip(String str, const char *reject);
+
 #ifdef CHEAP_ARENA_AVAILABLE
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
 ALLOC String            arena_string_from_stream(Arena *arena, FILE *stream);
 
 ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src);
 ALLOC String arena_string_dup(Arena *arena, ConstString src);
+ALLOC String arena_string_sub(Arena      *arena,
+                              String      str,
+                              const char *old,
+                              const char *new);
 #endif
