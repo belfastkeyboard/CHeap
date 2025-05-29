@@ -7,7 +7,19 @@ AlwaysBreakTemplateDeclarations: Yes
 
 BasedOnStyle: LLVM
 BinPackParameters: false
-BreakBeforeBraces: Allman
+
+BreakBeforeTernaryOperators: true
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterControlStatement: MultiLine
+  AfterEnum: true
+  AfterFunction: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeElse: false
+  BeforeWhile: false
 
 ColumnLimit: 80
 
