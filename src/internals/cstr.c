@@ -7,18 +7,18 @@
 #include <string.h>
 
 #define METADATA_ITEM_SIZE sizeof(uint32_t)
-#define NULLTERM_SIZE 1
-#define METADATA_SIZE (METADATA_ITEM_SIZE * 2)
-#define NON_STRING_SIZE (METADATA_SIZE + NULLTERM_SIZE)
+#define NULLTERM_SIZE      1
+#define METADATA_SIZE      (METADATA_ITEM_SIZE * 2)
+#define NON_STRING_SIZE    (METADATA_SIZE + NULLTERM_SIZE)
 
-#define BUFFER(str) (str) ? (str - METADATA_SIZE) : NULL
-#define LENGTH(str) (str) ? (str - METADATA_ITEM_SIZE) : NULL
+#define BUFFER(str)  (str) ? (str - METADATA_SIZE) : NULL
+#define LENGTH(str)  (str) ? (str - METADATA_ITEM_SIZE) : NULL
 #define STRING(meta) (meta) ? (meta + METADATA_SIZE) : NULL
 
 typedef char       *Buffer;
 typedef const char *ConstBuffer;
 
-typedef char *(*AllocationStrategy)(String, uint32_t);
+typedef char *(*AllocationStrategy)(String, uint32_t, Arena *);
 typedef String (*WriteStrategy)(String, const void *, uint32_t, void *);
 
 //              SCHEMA             \\
@@ -26,31 +26,30 @@ typedef String (*WriteStrategy)(String, const void *, uint32_t, void *);
 // |BUFF|LEN |   STRING   | FREE | \\
 // |----|----|------------|------| \\
 
-
-static void *stdlib_allocate(void *, uint32_t size)
+ALLOC static char *stdlib_alloc(String, const uint32_t sz, Arena *)
 {
-	return malloc(size);
+	return malloc(sz);
 }
 
-static void *stdlib_realloc(void *, void *ptr, uint32_t size)
+ALLOC static char *stdlib_realloc(String string, const uint32_t sz, Arena *)
 {
-	void *tmp = realloc(ptr, size);
+	char *ptr = realloc(BUFFER(string), sz);
 
-	assert(tmp);
+	assert(ptr);
 
-	return tmp;
+	return ptr;
 }
 
-void *arena_string_alloc(void *arena, uint32_t size)
+ALLOC static char *arena_alloc(String, const uint32_t sz, Arena *arena)
 {
-	return alloc_arena(arena, size);
+	return alloc_arena(arena, sz);
 }
 
-void *arena_string_realloc(void *arena, void *src, uint32_t size)
+ALLOC static char *arena_realloc(String string, const uint32_t sz, Arena *arena)
 {
-	void *ptr = alloc_arena(arena, size);
+	void *ptr = alloc_arena(arena, sz);
 
-	memcpy(ptr, src, size);
+	memcpy(ptr, BUFFER(string), sz);
 
 	return ptr;
 }
@@ -92,30 +91,16 @@ uint32_t string_len(ConstString string)
 static String null_terminate(String string)
 {
 	const uint32_t n = string_len(string);
-	string[n] = '\0';
+	string[n]        = '\0';
 	return string;
-}
-
-ALLOC static char *allocate(String string, const uint32_t sz)
-{
-	return allocator_callback(string_allocator, NON_STRING_SIZE + sz);
-}
-
-ALLOC static char *reallocate(String string, const uint32_t sz)
-{
-	char *ptr = reallocator_callback(string_allocator, BUFFER(string),
-	                                 NON_STRING_SIZE + sz);
-
-	assert(ptr);
-
-	return ptr;
 }
 
 ALLOC static String generic_allocation(String             string,
                                        const uint32_t     sz,
-                                       AllocationStrategy strategy)
+                                       AllocationStrategy strategy,
+                                       Arena             *arena)
 {
-	char *buff = strategy(string, sz);
+	char *buff = strategy(string, NON_STRING_SIZE + sz, arena);
 
 	write_buffer_size(buff, sz);
 
@@ -133,7 +118,7 @@ write_formatted(String string, const void *src, const uint32_t len, void *data)
 }
 
 ALLOC static String
-write_stream(String string, const void *src, const uint32_t len, void *data)
+write_stream(String string, const void *src, const uint32_t len, void *)
 {
 	fread(string, sizeof(char), len, (FILE *)src);
 
@@ -153,24 +138,106 @@ ALLOC static String generic_write(String         string,
 	return null_terminate(string);
 }
 
+ALLOC static String string_construct_formatted(const char        *fmt,
+                                               va_list            args,
+                                               va_list            len_args,
+                                               AllocationStrategy strategy,
+                                               Arena             *arena)
+{
+	const size_t len    = vsnprintf(NULL, 0, fmt, len_args);
+	String       string = generic_allocation(NULL, len, strategy, arena);
+
+	return generic_write(string, fmt, len, args, write_formatted);
+}
+
+ALLOC static String string_construct_from_stream(FILE              *stream,
+                                                 AllocationStrategy strategy,
+                                                 Arena             *arena)
+{
+	fseek(stream, 0, SEEK_END);
+
+	long   n      = ftell(stream);
+	String string = generic_allocation(NULL, n, strategy, arena);
+
+	rewind(stream);
+
+	string = generic_write(string, stream, n, NULL, write_stream);
+
+	return string;
+}
+
+ALLOC static String string_copy(restrict String      dest,
+                                restrict ConstString src,
+                                AllocationStrategy   strategy,
+                                Arena               *arena)
+{
+	const size_t n = string_len(src);
+
+	if (string_buffer(dest) < n) {
+		dest = generic_allocation(dest, n, strategy, arena);
+	}
+
+	memset(dest, 0, n + 1);
+	memcpy(dest, src, n);
+
+	return dest;
+}
+
+ALLOC static String string_concatenate(restrict String      dest,
+                                       restrict ConstString src,
+                                       AllocationStrategy   strategy,
+                                       Arena               *arena)
+{
+	const uint32_t req    = string_len(src);
+	const uint32_t buffsz = string_buffer(dest);
+	const uint32_t len    = string_len(dest);
+
+	if (buffsz - len < req) {
+		const uint32_t sz = max(req, buffsz * 2);
+		dest              = generic_allocation(dest, sz, strategy, arena);
+	}
+
+	const uint32_t new_len = req + len;
+
+	memcpy(dest + len, src, req);
+	write_string_len(LENGTH(dest), new_len);
+
+	return null_terminate(dest);
+}
+
+ALLOC static String string_duplicate(ConstString        src,
+                                     AllocationStrategy strategy,
+                                     Arena             *arena)
+{
+	const size_t sz  = string_buffer(src);
+	String       dup = generic_allocation(NULL, sz, strategy, arena);
+
+	memcpy(BUFFER(dup), BUFFER(src), NON_STRING_SIZE + sz);
+
+	return dup;
+}
+
 String string_new(const char *fmt, ...)
 {
 	va_list args;
 	va_list len_args;
-
 	va_start(args, fmt);
-
 	va_copy(len_args, args);
 
-	const size_t len = vsnprintf(NULL, 0, fmt, len_args);
-
-	String string = generic_allocation(NULL, len, allocate);
-
-	string = generic_write(string, fmt, len, args, write_formatted);
+	String string = string_construct_formatted(fmt,
+	                                           args,
+	                                           len_args,
+	                                           stdlib_alloc,
+	                                           NULL);
 
 	va_end(args);
 
 	return string;
+}
+
+String string_from_stream(FILE *stream)
+{
+	return string_construct_from_stream(stream, stdlib_alloc, NULL);
 }
 
 void string_free(String string)
@@ -180,67 +247,19 @@ void string_free(String string)
 	free(buff);
 }
 
-String string_from_stream(FILE *stream)
-{
-	fseek(stream, 0, SEEK_END);
-
-	long   n = ftell(stream);
-	String string = generic_allocation(NULL, n, allocate);
-
-	rewind(stream);
-
-	string = generic_write(string, stream, n, NULL, write_stream);
-
-	return string;
-}
-
 String string_cpy(String restrict dest, ConstString restrict src)
 {
-	const size_t sz = string_len(src);
-
-	if (string_buffer(dest) < sz)
-	{
-		dest = generic_allocation(dest, sz, reallocate);
-	}
-
-	memset(dest, 0, sz + 1);
-
-	const size_t n = string_len(src);
-
-	memcpy(dest, src, n);
-
-	return dest;
+	return string_copy(dest, src, stdlib_realloc, NULL);
 }
 
 String string_cat(String restrict dest, ConstString restrict src)
 {
-	const uint32_t req = string_len(src);
-	const uint32_t buffsz = string_buffer(dest);
-	const uint32_t len = string_len(dest);
-
-	if (buffsz - len < req)
-	{
-		const uint32_t sz = max(req, buffsz * 2);
-
-		dest = generic_allocation(dest, sz, reallocate);
-	}
-
-	const uint32_t new_len = req + len;
-
-	memcpy(dest + len, src, req);
-
-	write_string_len(LENGTH(dest), new_len);
-
-	return null_terminate(dest);
+	return string_concatenate(dest, src, stdlib_realloc, NULL);
 }
 
 String string_dup(ConstString restrict src)
 {
-	const size_t sz = string_buffer(src);
-
-	String dup = generic_allocation(NULL, sz, allocate);
-
-	return string_cpy(dup, src);
+	return string_duplicate(src, stdlib_alloc, NULL);
 }
 
 int string_cmp(ConstString str1, ConstString str2)
@@ -278,9 +297,41 @@ uint32_t string_spn(ConstString string, ConstString accept)
 	return strspn(string, accept);
 }
 
-ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
-ALLOC String            arena_string_from_stream(Arena *arena, FILE *stream);
+/* ARENA VERSIONS */
+ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...)
+{
+	va_list args;
+	va_list len_args;
+	va_start(args, fmt);
+	va_copy(len_args, args);
 
-ALLOC String arena_string_cpy(Arena *arena, String dest, ConstString src);
-ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src);
-ALLOC String arena_string_dup(Arena *arena, ConstString src);
+	String string = string_construct_formatted(fmt,
+	                                           args,
+	                                           len_args,
+	                                           arena_alloc,
+	                                           arena);
+
+	va_end(args);
+
+	return string;
+}
+
+ALLOC String arena_string_from_stream(Arena *arena, FILE *stream)
+{
+	return string_construct_from_stream(stream, arena_alloc, arena);
+}
+
+ALLOC String arena_string_cpy(Arena *arena, String dest, ConstString src)
+{
+	return string_copy(dest, src, arena_realloc, arena);
+}
+
+ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src)
+{
+	return string_concatenate(dest, src, arena_realloc, arena);
+}
+
+ALLOC String arena_string_dup(Arena *arena, ConstString src)
+{
+	return string_duplicate(src, arena_alloc, arena);
+}

@@ -5,11 +5,11 @@
 #include <stdio.h>
 
 #ifdef CHEAP_ARENA_AVAILABLE
-#include "arena"
+#include "arena.h"
 #endif
 
-#define ALLOC __attribute__((warn_unused_result))
-#define FORMAT __attribute__((format(printf, 1, 2)))
+#define ALLOC      __attribute__((warn_unused_result))
+#define FORMAT     __attribute__((format(printf, 1, 2)))
 #define FORMAT_EXT __attribute__((format(printf, 2, 3)))
 
 typedef char       *String;
