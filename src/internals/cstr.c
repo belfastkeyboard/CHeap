@@ -173,23 +173,6 @@ ALLOC static String string_construct_from_stream(FILE              *stream,
 	return string;
 }
 
-ALLOC static String string_copy(restrict String      dest,
-                                restrict ConstString src,
-                                AllocationStrategy   strategy,
-                                Arena               *arena)
-{
-	const size_t n = string_len(src);
-
-	if (string_buffer(dest) < n) {
-		dest = generic_allocation(dest, n, strategy, arena);
-	}
-
-	memset(dest, 0, n + 1);
-	memcpy(dest, src, n);
-
-	return dest;
-}
-
 ALLOC static String string_concatenate(restrict String      dest,
                                        restrict ConstString src,
                                        AllocationStrategy   strategy,
@@ -254,11 +237,6 @@ void string_free(String string)
 	free(buff);
 }
 
-String string_cpy(String restrict dest, ConstString restrict src)
-{
-	return string_copy(dest, src, stdlib_realloc, NULL);
-}
-
 String string_cat(String restrict dest, ConstString restrict src)
 {
 	return string_concatenate(dest, src, stdlib_realloc, NULL);
@@ -281,9 +259,9 @@ void string_slice(String str, uint32_t start, uint32_t end)
 
 	const uint32_t len = end - start;
 
-	memcpy(str,
-	       str + start,
-	       len);
+	memmove(str,
+	        str + start,
+	        len);
 
 	write_string_len(str, len);
 
@@ -385,11 +363,6 @@ ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...)
 ALLOC String arena_string_from_stream(Arena *arena, FILE *stream)
 {
 	return string_construct_from_stream(stream, arena_alloc, arena);
-}
-
-ALLOC String arena_string_cpy(Arena *arena, String dest, ConstString src)
-{
-	return string_copy(dest, src, arena_realloc, arena);
 }
 
 ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src)

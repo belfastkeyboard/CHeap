@@ -23,7 +23,6 @@ void                string_free(String str);
 uint32_t string_buffer(ConstString str);
 uint32_t string_len(ConstString str);
 
-ALLOC String string_cpy(String dest, ConstString src);
 ALLOC String string_cat(String dest, ConstString src);
 ALLOC String string_dup(ConstString src);
 
@@ -49,7 +48,6 @@ void string_totitle(String str);
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
 ALLOC String            arena_string_from_stream(Arena *arena, FILE *stream);
 
-ALLOC String arena_string_cpy(Arena *arena, String dest, ConstString src);
 ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src);
 ALLOC String arena_string_dup(Arena *arena, ConstString src);
 #endif
