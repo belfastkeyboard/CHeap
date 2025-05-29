@@ -57,3 +57,8 @@ SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 
 Cpp11BracedListStyle: false
+
+BreakBeforeBinaryOperators: None
+BreakAdjacentStringLiterals: true
+BreakStringLiterals: true
+PenaltyBreakAssignment: 10000
