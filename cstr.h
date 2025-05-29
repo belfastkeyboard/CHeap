@@ -3,8 +3,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef CHEAP_ARENA_AVAILABLE
+#include "arena"
+#endif
+
 #define ALLOC __attribute__((warn_unused_result))
 #define FORMAT __attribute__((format(printf, 1, 2)))
+#define FORMAT_EXT __attribute__((format(printf, 2, 3)))
 
 typedef char       *String;
 typedef const char *ConstString;
@@ -30,3 +35,13 @@ StringView string_str(ConstString haystack, ConstString needle);
 
 uint32_t string_cspn(ConstString string, ConstString reject);
 uint32_t string_spn(ConstString string, ConstString accept);
+
+/* ARENA VERSIONS */
+#ifdef CHEAP_ARENA_AVAILABLE
+ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...);
+ALLOC String            arena_string_from_stream(Arena *arena, FILE *stream);
+
+ALLOC String arena_string_cpy(Arena *arena, String dest, ConstString src);
+ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src);
+ALLOC String arena_string_dup(Arena *arena, ConstString src);
+#endif
