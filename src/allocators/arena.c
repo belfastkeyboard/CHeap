@@ -28,13 +28,14 @@ ALLOC static struct Page *construct_page(struct Page *prev,
 
 	struct Page *page = memory;
 
-	page->prev = prev;
-	page->base = memory + sizeof(struct Page);
-	page->size = n_size;
+	page->prev   = prev;
+	page->base   = memory + sizeof(struct Page);
+	page->size   = n_size;
 	page->offset = 0;
 
 	return page;
 }
+
 ALLOC static struct Page *arena_destroy_page(struct Page *page)
 {
 	struct Page *prev = page->prev;
@@ -43,6 +44,7 @@ ALLOC static struct Page *arena_destroy_page(struct Page *page)
 
 	return prev;
 }
+
 static void arena_destroy_pages(struct Page **page)
 {
 	do {

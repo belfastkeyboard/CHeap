@@ -14,7 +14,7 @@ BumpAlloc *create_bump_allocator(const size_t size)
 {
 	BumpAlloc *b_alloc = memory_allocate_container(sizeof(BumpAlloc));
 
-	b_alloc->ptr = malloc(size);
+	b_alloc->ptr  = malloc(size);
 	b_alloc->size = size;
 
 	return b_alloc;
