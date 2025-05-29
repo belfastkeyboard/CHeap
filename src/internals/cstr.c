@@ -101,7 +101,7 @@ static uint32_t get_metadata_item(ConstBuffer meta)
     return sz;
 }
 
-uint32_t string_size(ConstString string)
+uint32_t string_buffer(ConstString string)
 {
     return get_metadata_item(BUFFER(string));
 }
@@ -291,7 +291,7 @@ String string_cpy(String restrict dest,
 {
     const size_t sz = string_len(src);
 
-    if (string_size(dest) < sz)
+    if (string_buffer(dest) < sz)
     {
         dest = generic_allocation(dest,
                                   sz,
@@ -315,7 +315,7 @@ String string_cat(String restrict dest,
                   ConstString restrict src)
 {
     const uint32_t req = string_len(src);
-    const uint32_t buffsz = string_size(dest);
+    const uint32_t buffsz = string_buffer(dest);
     const uint32_t len = string_len(dest);
 
     if (buffsz - len < req)
@@ -342,7 +342,7 @@ String string_cat(String restrict dest,
 
 String string_dup(ConstString restrict src)
 {
-    const size_t sz = string_size(src);
+    const size_t sz = string_buffer(src);
 
     String dup = generic_allocation(NULL,
                                     sz,
