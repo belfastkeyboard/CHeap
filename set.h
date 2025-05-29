@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define ALLOC __attribute__((warn_unused_result))
 
 /**
  * @brief A sorted associative container that stores unique keys
@@ -30,7 +31,6 @@
  */
 typedef struct Set Set;
 
-
 /**
  * @brief A comparison function for sorting keys
  *
@@ -39,9 +39,7 @@ typedef struct Set Set;
  *
  * @return An integer less than, equal to, or greater than zero depending on the comparison.
  */
-typedef int (*KComp)(const void*,
-                     const void*);
-
+typedef int (*KComp)(const void *, const void *);
 
 /**
  * @brief Create a Set object
@@ -54,10 +52,7 @@ typedef int (*KComp)(const void*,
  * @warning Must pass set to destroy_set() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
-
-
-Set *create_set(size_t size,
-                Comp compare);
+ALLOC Set *create_set(size_t size, Comp compare);
 
 /**
  * @brief Destroy a Set object
@@ -69,7 +64,6 @@ Set *create_set(size_t size,
  */
 void destroy_set(Set **set);
 
-
 /**
  * @brief Insert a @p key into the set
  *
@@ -79,9 +73,7 @@ void destroy_set(Set **set);
  *
  * @warning Ensure @p key is of the correct specialised type
  */
-void insert_set(Set *set,
-                const void *key);
-
+void insert_set(Set *set, const void *key);
 
 /**
  * @brief Count the number of @c keys in the set
@@ -92,8 +84,7 @@ void insert_set(Set *set,
  *
  * @note Because keys are unique the result is always either 1 or 0
  */
-size_t count_set(const Set *set,
-                 const void *key);
+size_t count_set(const Set *set, const void *key);
 
 /**
  * @brief Finds a @p key in the set
@@ -104,8 +95,7 @@ size_t count_set(const Set *set,
  *
  * @note The result is of @c void* type and must be cast to the correct type
  */
-void *find_set(const Set *set,
-               const void *key);
+void *find_set(const Set *set, const void *key);
 
 /**
  * @brief Check if there is a @p key in the set
@@ -114,9 +104,7 @@ void *find_set(const Set *set,
  * @param key Key to check
  * @return @c true if found, @c false otherwise
  */
-bool contains_set(const Set *set,
-                  const void *key);
-
+bool contains_set(const Set *set, const void *key);
 
 /**
  * @brief Erases the @p key from the set
@@ -127,8 +115,7 @@ bool contains_set(const Set *set,
  *
  * @note If no @p key is found the function does nothing
  */
-void erase_set(Set *set,
-               const void *key);
+void erase_set(Set *set, const void *key);
 
 /**
  * @brief Erases all keys from the set
@@ -137,7 +124,6 @@ void erase_set(Set *set,
  * @return Nothing
  */
 void clear_set(Set *set);
-
 
 /**
  * @brief Checks if the set has no keys

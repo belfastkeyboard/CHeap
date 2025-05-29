@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define ALLOC __attribute__((warn_unused_result))
 
 /**
  * @brief A sorted associative container that stores key-value pairs with unique keys
@@ -30,7 +31,6 @@
  */
 typedef struct Table Table;
 
-
 /**
  * @brief A comparison function for sorting keys
  *
@@ -39,9 +39,7 @@ typedef struct Table Table;
  *
  * @return An integer less than, equal to, or greater than zero depending on the comparison.
  */
-typedef int (*KComp)(const void*,
-                     const void*);
-
+typedef int (*KComp)(const void *, const void *);
 
 /**
  * @brief Create a Table object
@@ -55,10 +53,7 @@ typedef int (*KComp)(const void*,
  * @warning Must pass table to destroy_table() or memory will be leaked
  * @note Use sizeof() to capture the correct @p k_size and @p v_size
  */
-__attribute__((warn_unused_result))
-Table *create_table(size_t k_size,
-                    size_t v_size,
-                    KComp compare);
+ALLOC Table *create_table(size_t k_size, size_t v_size, KComp compare);
 
 /**
  * @brief Destroy a Table object
@@ -69,7 +64,6 @@ Table *create_table(size_t k_size,
  * @note The Table object is set to NULL upon successful execution
  */
 void destroy_table(Table **table);
-
 
 /**
  * @brief Insert a @p key @p value pair into the table
@@ -82,10 +76,7 @@ void destroy_table(Table **table);
  * @warning Ensure @p key and @p value are of the correct specialised types
  * @note If key already exists, the function is does not overwrite the existing value
  */
-void insert_table(Table *table,
-                  const void *key,
-                  const void *value);
-
+void insert_table(Table *table, const void *key, const void *value);
 
 /**
  * @brief Count the number of @p key @c value pairs in the table with an equivalent @p key
@@ -96,8 +87,7 @@ void insert_table(Table *table,
  *
  * @note Because keys are unique the result is always either 1 or 0
  */
-size_t count_table(const Table *table,
-                   const void *key);
+size_t count_table(const Table *table, const void *key);
 
 /**
  * @brief Finds a @c value with key equivalent to @p key
@@ -108,8 +98,7 @@ size_t count_table(const Table *table,
  *
  * @note The result is of @c void* type and must be cast to the correct type
  */
-void *find_table(const Table *table,
-                 const void *key);
+void *find_table(const Table *table, const void *key);
 
 /**
  * @brief Check if there is a @c value with @p key equivalent in the table
@@ -118,8 +107,7 @@ void *find_table(const Table *table,
  * @param key Key from which to find the @c value
  * @return @c true if found, @c false otherwise
  */
-bool contains_table(const Table *table,
-                    const void *key);
+bool contains_table(const Table *table, const void *key);
 
 /**
  * @brief Erases the @p key @c value pair from the table
@@ -130,8 +118,7 @@ bool contains_table(const Table *table,
  *
  * @note If no @p key @c value pair is found the function does nothing
  */
-void erase_table(Table *table,
-                 const void *key);
+void erase_table(Table *table, const void *key);
 
 /**
  * @brief Erases all pairs from the table

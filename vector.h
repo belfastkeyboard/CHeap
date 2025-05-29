@@ -2,10 +2,10 @@
  * @file vector.h
  * @brief Vector implementation for C
  *
- * This header defines a generic dynamic array type @c Vector
- * which can store an arbitrary number of elements. It resizes
- * automatically when new elements are added and supports
- * standard operations such as @c push @c pop @c insert and @c erase .
+ * This header defines a generic dynamic array type @c Vector which can store an
+ * arbitrary number of elements. It resizes automatically when new elements are
+ * added and supports standard operations such as @c push @c pop @c insert and
+ * @c erase .
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-21
@@ -16,6 +16,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
+#define ALLOC __attribute__((warn_unused_result))
 
 #ifdef CHEAP_ITERATOR_AVAILABLE
 #include "iter.h"
@@ -52,8 +54,7 @@ typedef struct Vector Vector;
  * @warning Must pass vector to destroy_vector() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
-__attribute__((warn_unused_result))
-Vector *create_vector(size_t size);
+ALLOC Vector *create_vector(size_t size);
 
 /**
  * @brief Destroy a Vector object
@@ -65,7 +66,6 @@ Vector *create_vector(size_t size);
  */
 void destroy_vector(Vector **vector);
 
-
 /**
  * @brief Appends a copy of @p value to the end of the vector
  *
@@ -75,8 +75,7 @@ void destroy_vector(Vector **vector);
  *
  * @warning Ensure @p value is of the correct specialised type
  */
-void push_back_vector(Vector *vector,
-                      const void *value);
+void push_back_vector(Vector *vector, const void *value);
 
 /**
  * @brief Insert a copy of @p value at the specified index
@@ -89,10 +88,7 @@ void push_back_vector(Vector *vector,
  * @warning Ensure @p value is of the correct specialised type
  * @warning In release mode out-of-bounds @p index errors are not caught
  */
-void insert_vector(Vector *vector,
-                   const void *value,
-                   size_t index);
-
+void insert_vector(Vector *vector, const void *value, size_t index);
 
 #ifdef CHEAP_RANGE_AVAILABLE
 /**
@@ -102,8 +98,7 @@ void insert_vector(Vector *vector,
  * @param range The range to append
  * @return Nothing
  */
-void push_back_range_vector(Vector *vector,
-                            const Range *range);
+void push_back_range_vector(Vector *vector, const Range *range);
 
 /**
  * @brief Inserts a copy of @p range to the end of the vector
@@ -113,9 +108,7 @@ void push_back_range_vector(Vector *vector,
  * @param range The range to insert
  * @return Nothing
  */
-void insert_range_vector(Vector *vector,
-                         size_t index,
-                         const Range *range);
+void insert_range_vector(Vector *vector, size_t index, const Range *range);
 
 /**
  * @brief Get a slice of the Vector as a Range object
@@ -127,9 +120,7 @@ void insert_range_vector(Vector *vector,
  *
  * @note Range objects are intended to be read-only
  */
-Range get_range_vector(const Vector *vector,
-                       size_t begin,
-                       size_t end);
+Range get_range_vector(const Vector *vector, size_t begin, size_t end);
 #endif
 
 /**
@@ -142,7 +133,6 @@ Range get_range_vector(const Vector *vector,
  */
 void pop_back_vector(Vector *vector);
 
-
 /**
  * @brief Erases the element at the specified index from the vector
  *
@@ -152,8 +142,7 @@ void pop_back_vector(Vector *vector);
  *
  * @warning In release mode out-of-bounds @p index errors are not caught
  */
-void erase_vector(Vector *vector,
-                  size_t index);
+void erase_vector(Vector *vector, size_t index);
 
 /**
  * @brief Erases all elements from the vector
@@ -162,7 +151,6 @@ void erase_vector(Vector *vector,
  * @return Nothing
  */
 void clear_vector(Vector *vector);
-
 
 /**
  * @brief Returns a pointer to the element at specified index
@@ -174,8 +162,7 @@ void clear_vector(Vector *vector);
  * @warning Out-of-bounds @p index errors are not caught
  * @note The return value is of type @c void* and must be cast to the correct type
  */
-void *at_vector(const Vector *vector,
-                size_t index);
+void *at_vector(const Vector *vector, size_t index);
 
 /**
  * @brief Returns a pointer to the first element in the vector
@@ -199,9 +186,7 @@ void *front_vector(const Vector *vector);
  */
 void *back_vector(const Vector *vector);
 
-
 #ifdef CHEAP_ITERATOR_AVAILABLE
-
 /**
  * @brief Returns an iterator to the first element of the vector
  *
@@ -247,7 +232,6 @@ size_t size_vector(const Vector *vector);
  */
 size_t capacity_vector(const Vector *vector);
 
-
 /**
  * @brief Increase the capacity of the vector to the specified size
  *
@@ -257,8 +241,7 @@ size_t capacity_vector(const Vector *vector);
  *
  * @note If @p amount is less than the currently allocated capacity, the function does nothing
  */
-void reserve_vector(Vector *vector,
-                    size_t amount);
+void reserve_vector(Vector *vector, size_t amount);
 
 /**
  * @brief Removes unused capacity

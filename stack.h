@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define ALLOC __attribute__((warn_unused_result))
+
 #ifdef CHEAP_RANGE_AVAILABLE
 #include "range.h"
 #endif
@@ -43,8 +45,7 @@ typedef struct Stack Stack;
  * @warning Must pass stack to destroy_stack() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
-__attribute__((warn_unused_result))
-Stack *create_stack(size_t size);
+ALLOC Stack *create_stack(size_t size);
 
 /**
  * @brief Destroy a Stack object
@@ -56,7 +57,6 @@ Stack *create_stack(size_t size);
  */
 void destroy_stack(Stack **stack);
 
-
 /**
  * @brief Push a copy of @p value to the top of the stack
  *
@@ -66,8 +66,7 @@ void destroy_stack(Stack **stack);
  *
  * @warning Ensure @p value is of the correct specialised type
  */
-void push_stack(Stack *stack,
-                const void* value);
+void push_stack(Stack *stack, const void *value);
 
 #ifdef CHEAP_RANGE_AVAILABLE
 /**
@@ -77,10 +76,8 @@ void push_stack(Stack *stack,
  * @param range The range to push
  * @return Nothing
  */
-void push_range_stack(Stack *stack,
-                      const Range *range);
+void push_range_stack(Stack *stack, const Range *range);
 #endif
-
 
 /**
  * @brief Returns a pointer to the top element in the stack
@@ -93,7 +90,6 @@ void push_range_stack(Stack *stack,
  */
 void *top_stack(const Stack *stack);
 
-
 /**
  * @brief Erases the top element from the stack
  *
@@ -103,7 +99,6 @@ void *top_stack(const Stack *stack);
  * @warning Popping back an empty stack in release mode is undefined behaviour
  */
 void pop_stack(Stack *stack);
-
 
 /**
  * @brief Checks if the stack has no elements

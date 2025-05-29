@@ -1,6 +1,19 @@
 BasedOnStyle: LLVM
 IndentWidth: 4
 AlwaysBreakAfterReturnType: None
-ColumnLimit: 80
+ColumnLimit: 200
 AlignAfterOpenBracket: Align
 SpaceBeforeParens: ControlStatements
+AlwaysBreakTemplateDeclarations: Yes
+BinPackParameters: false
+UseTab: ForIndentation
+TabWidth: 4
+ReflowComments: true
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpacesBeforeTrailingComments: 1
+BreakBeforeBraces: Allman
+PointerAlignment: Right
+AlignConsecutiveDeclarations: Consecutive
+MaxEmptyLinesToKeep: 1
+

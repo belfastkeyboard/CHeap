@@ -2,11 +2,10 @@
  * @file queue.h
  * @brief Queue implementation for C
  *
- * This header defines a generic double-ended queue wrapper
- * type @c Queue for the purpose of providing a FIFO
- * (first-in, first-out) API. It grows to accommodate new
- * elements when memory is exhausted. It supports standard
- * queue operations such as @c push @c pop @c front and @c back .
+ * This header defines a generic double-ended queue wrapper type @c Queue for
+ * the purpose of providing a FIFO (first-in, first-out) API. It grows to
+ * accommodate new elements when memory is exhausted. It supports standard queue
+ * operations such as @c push @c pop @c front and @c back .
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-24
@@ -17,8 +16,12 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "range.h"
 
+#define ALLOC __attribute__((warn_unused_result))
+
+#ifdef CHEAP_RANGE_AVAILABLE
+#include "range.h"
+#endif
 
 /**
  * @brief A container that provides FIFO (first-in, first-out) functionality
@@ -31,7 +34,6 @@
  */
 typedef struct Queue Queue;
 
-
 /**
  * @brief Create a Queue object
  *
@@ -42,8 +44,7 @@ typedef struct Queue Queue;
  * @warning Must pass queue to destroy_queue() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
-__attribute__((warn_unused_result))
-Queue *create_queue(size_t size);
+ALLOC Queue *create_queue(size_t size);
 
 /**
  * @brief Destroy a Queue object
@@ -55,7 +56,6 @@ Queue *create_queue(size_t size);
  */
 void destroy_queue(Queue **queue);
 
-
 /**
  * @brief Push a copy of @p value to the back of the queue
  *
@@ -65,9 +65,9 @@ void destroy_queue(Queue **queue);
  *
  * @warning Ensure @p value is of the correct specialised type
  */
-void push_queue(Queue *queue,
-                const void *value);
+void push_queue(Queue *queue, const void *value);
 
+#ifdef CHEAP_RANGE_AVAILABLE
 /**
  * @brief Push a copy of each element of @p range to the back of the queue
  *
@@ -75,8 +75,8 @@ void push_queue(Queue *queue,
  * @param range The range to push
  * @return Nothing
  */
-void push_range_queue(Queue *queue,
-                      const Range *range);
+void push_range_queue(Queue *queue, const Range *range);
+#endif
 
 /**
  * @brief Returns a pointer to the first element in the queue
@@ -104,7 +104,6 @@ void *front_queue(const Queue *queue);
  */
 void *back_queue(const Queue *queue);
 
-
 /**
  * @brief Erases the element at the front of the queue
  *
@@ -114,7 +113,6 @@ void *back_queue(const Queue *queue);
  * @warning Popping back an empty queue in release mode is undefined behaviour
  */
 void pop_queue(Queue *queue);
-
 
 /**
  * @brief Checks if the queue has no elements
