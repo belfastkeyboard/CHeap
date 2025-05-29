@@ -4,33 +4,16 @@
 #include <stdint.h>
 
 
-typedef char *String;
+typedef char       *String;
 typedef const char *ConstString;
 typedef const char *StringView;
 
-typedef void *(*AllocatorCallback)(void *allocator,
-                                   uint32_t size);
 
-typedef void *(*ReallocatorCallback)(void *allocator,
-                                     void *ptr,
-                                     uint32_t size);
-
-
-
-void set_string_allocator(void *allocator,
-                          AllocatorCallback cb_allocate,
-                          ReallocatorCallback cb_reallocate);
-
-void reset_string_allocator(void);
-
-
-__attribute__((format(printf, 1, 2)))
-__attribute__((warn_unused_result))
-String string_new(const char *fmt,
-                  ...);
+__attribute__( (format(printf, 1, 2), warn_unused_result()) )
+String string_new (const char *fmt, ...);
 
 __attribute__((warn_unused_result))
-String string_from_stream(FILE *stream);
+String string_from_stream (FILE *stream);
 
 void string_free(String string);
 
@@ -75,3 +58,7 @@ uint32_t string_cspn(ConstString string,
 
 uint32_t string_spn(ConstString string,
                    ConstString accept);
+
+#ifdef CHEAP_ARENA_AVAILABLE
+
+#endif

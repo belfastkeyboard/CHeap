@@ -23,36 +23,45 @@ typedef char *(*AllocationStrategy)(String, uint32_t);
 typedef String (*WriteStrategy)(String, const void*, uint32_t, void*);
 
 
-static void *default_allocator_callback(void*, uint32_t);
-static void *default_reallocator_callback(void*, void*, uint32_t);
-
-
-void *string_allocator = NULL;
-AllocatorCallback allocator_callback = default_allocator_callback;
-ReallocatorCallback reallocator_callback = default_reallocator_callback;
-
-
 //              SCHEMA             \\
 // |----|----|------------|------| \\
 // |BUFF|LEN |   STRING   | FREE | \\
 // |----|----|------------|------| \\
 
 
-static void *default_allocator_callback(void*,
-                                        uint32_t size)
+static void *stdlib_allocate(void*,
+                             uint32_t size)
 {
     return malloc(size);
 }
 
-static void *default_reallocator_callback(void*,
-                                          void *ptr,
-                                          uint32_t size)
+static void *stdlib_realloc(void*,
+                            void *ptr,
+                            uint32_t size)
 {
     void *tmp = realloc(ptr, size);
 
     assert(tmp);
 
     return tmp;
+}
+
+void *arena_string_alloc(void *arena, uint32_t size)
+{
+    return alloc_arena(arena,
+                       size);
+}
+
+void *arena_string_realloc(void *arena, void *src, uint32_t size)
+{
+    void *ptr = alloc_arena(arena,
+                            size);
+
+    memcpy(ptr,
+           src,
+           size);
+
+    return ptr;
 }
 
 
@@ -210,8 +219,8 @@ void set_string_allocator(void *allocator,
 void reset_string_allocator(void)
 {
     string_allocator = NULL;
-    allocator_callback = default_allocator_callback;
-    reallocator_callback = default_reallocator_callback;
+    allocator_callback = stdlib_allocate;
+    reallocator_callback = stdlib_realloc;
 }
 
 
@@ -328,7 +337,7 @@ String string_cat(String restrict dest,
     write_string_len(LENGTH(dest),
                      new_len);
 
-    return null_terminate(dest); // TODO: this terminated the char before null terminator
+    return null_terminate(dest);
 }
 
 String string_dup(ConstString restrict src)

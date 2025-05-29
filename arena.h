@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#define CHEAP_ARENA_AVAILABLE
+
 
 typedef struct Arena Arena;
 
