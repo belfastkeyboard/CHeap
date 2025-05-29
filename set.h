@@ -55,7 +55,7 @@ typedef int (*KComp)(const void *, const void *);
  * @warning Must pass set to destroy_set() or memory will be leaked
  * @note Use sizeof() to capture the correct @p size
  */
-ALLOC Set *create_set(size_t size, Comp compare);
+ALLOC Set *create_set(size_t size, KComp compare);
 
 /**
  * @brief Destroy a Set object
