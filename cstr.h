@@ -27,7 +27,10 @@ ALLOC String string_cpy(String dest, ConstString src);
 ALLOC String string_cat(String dest, ConstString src);
 ALLOC String string_dup(ConstString src);
 
+void string_slice(String str, uint32_t start, uint32_t end);
+
 int string_cmp(ConstString str1, ConstString str2);
+
 
 StringView string_chr(ConstString str, int c);
 StringView string_rchr(ConstString str, int c);

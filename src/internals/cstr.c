@@ -1,8 +1,10 @@
 #include "../../cstr.h"
 #include "../../arena.h"
 #include <assert.h>
+#include <ctype.h>
 #include <malloc.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -59,14 +61,19 @@ static uint32_t max(uint32_t a, uint32_t b)
 	return (a > b) ? a : b;
 }
 
-static void write_buffer_size(Buffer meta, const uint32_t size)
+static void write_buffer_item(Buffer meta, const uint32_t sz)
 {
-	memcpy(meta, &size, sizeof(size));
+	memcpy(meta, &sz, sizeof(sz));
 }
 
-static void write_string_len(Buffer meta, const uint32_t len)
+static void write_buffer_size(String string, const uint32_t size)
 {
-	memcpy(meta, &len, sizeof(len));
+	write_buffer_item(BUFFER(string), size);
+}
+
+static void write_string_len(String string, const uint32_t len)
+{
+	write_buffer_item(LENGTH(string), len);
 }
 
 static uint32_t get_metadata_item(ConstBuffer meta)
@@ -133,7 +140,7 @@ ALLOC static String generic_write(String         string,
 {
 	string = strategy(string, src, len, data);
 
-	write_string_len(LENGTH(string), len);
+	write_string_len(string, len);
 
 	return null_terminate(string);
 }
@@ -200,7 +207,7 @@ ALLOC static String string_concatenate(restrict String      dest,
 	const uint32_t new_len = req + len;
 
 	memcpy(dest + len, src, req);
-	write_string_len(LENGTH(dest), new_len);
+	write_string_len(dest, new_len);
 
 	return null_terminate(dest);
 }
@@ -262,6 +269,21 @@ String string_dup(ConstString restrict src)
 	return string_duplicate(src, stdlib_alloc, NULL);
 }
 
+void string_slice(String str, uint32_t start, uint32_t end)
+{
+	assert(start < end);
+
+	const uint32_t len = end - start;
+
+	memcpy(str,
+	       str + start,
+	       len);
+
+	write_string_len(str, len);
+
+	null_terminate(str);
+}
+
 int string_cmp(ConstString str1, ConstString str2)
 {
 	return strcmp(str1, str2);
@@ -295,6 +317,45 @@ uint32_t string_cspn(ConstString string, ConstString reject)
 uint32_t string_spn(ConstString string, ConstString accept)
 {
 	return strspn(string, accept);
+}
+
+void string_tolower(String str)
+{
+	const uint32_t len = string_len(str);
+
+	for (uint32_t i = 0; i < len; ++i) {
+		char c = str[i];
+		str[i] = (char)tolower(c);
+	}
+}
+
+void string_toupper(String str)
+{
+	const uint32_t len = string_len(str);
+
+	for (uint32_t i = 0; i < len; ++i) {
+		char c = str[i];
+		str[i] = (char)toupper(c);
+	}
+}
+
+void string_totitle(String str)
+{
+	const uint32_t len   = string_len(str);
+	bool           space = true;
+
+	for (uint32_t i = 0; i < len; ++i) {
+		char c      = str[i];
+		bool letter = isalpha(c);
+
+		if (space && letter) {
+			str[i] = (char)toupper(c);
+		} else if (letter) {
+			str[i] = (char)tolower(c);
+		}
+
+		space = (isspace(c) || ispunct(c)) ? true : false;
+	}
 }
 
 ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...)
