@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 struct Block
 {
 	void  *array;
