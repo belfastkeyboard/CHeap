@@ -241,17 +241,17 @@ ALLOC static String string_replace(String      str,
 
 	while ((substr = strstr(substr, old))) {
 		const ptrdiff_t pos = substr - str;
-		char *dest;
-		char *src;
-		size_t amount;
+		char           *dest;
+		char           *src;
+		size_t          amount;
 
 		if (diff < 0) {
-			dest = substr;
-			src = substr + (diff * -1);
+			dest   = substr;
+			src    = substr + (diff * -1);
 			amount = len - pos - (diff * -1);
 		} else {
-			dest = substr + diff;
-			src = substr;
+			dest   = substr + diff;
+			src    = substr;
 			amount = len - pos;
 		}
 
