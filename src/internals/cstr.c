@@ -259,6 +259,7 @@ ALLOC static String string_replace(String      str,
 		memcpy(substr, new, n);
 		len += diff;
 		substr += n;
+		str[len] = '\0';
 	}
 
 	write_string_len(str, len);
