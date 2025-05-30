@@ -95,10 +95,16 @@ uint32_t string_len(ConstString string)
 	return get_metadata_item(LENGTH(string));
 }
 
-static String null_terminate(String string)
+static void null_terminate(String string, const uint32_t len)
 {
-	const uint32_t n = string_len(string);
-	string[n]        = '\0';
+	string[len] = '\0';
+}
+
+static String clean_up(String string, const uint32_t len)
+{
+	write_string_len(string, len);
+	null_terminate(string, len);
+
 	return string;
 }
 
@@ -141,9 +147,7 @@ ALLOC static String generic_write(String         string,
 {
 	string = strategy(string, src, len, data);
 
-	write_string_len(string, len);
-
-	return null_terminate(string);
+	return clean_up(string, len);
 }
 
 ALLOC static String string_construct_formatted(const char        *fmt,
@@ -193,9 +197,8 @@ ALLOC static String string_concatenate(restrict String      dest,
 	const uint32_t new_len = req + len;
 
 	memcpy(dest + len, src, req);
-	write_string_len(dest, new_len);
 
-	return null_terminate(dest);
+	return clean_up(dest, new_len);
 }
 
 ALLOC static String string_duplicate(ConstString        src,
@@ -259,12 +262,10 @@ ALLOC static String string_replace(String      str,
 		memcpy(substr, new, n);
 		len += diff;
 		substr += n;
-		str[len] = '\0';
+		null_terminate(str, len);
 	}
 
-	write_string_len(str, len);
-
-	return null_terminate(str);
+	return clean_up(str, len);
 }
 
 String string_new(const char *fmt, ...)
@@ -369,8 +370,11 @@ void string_toupper(String str)
 
 void string_clear(String str)
 {
-	write_string_len(str, 0);
-	null_terminate(str);
+	const uint32_t len = 0;
+	const uint32_t buff = string_buffer(str);
+
+	memset(str, 0, buff);
+	clean_up(str, len);
 }
 
 void string_slice(String str, uint32_t start, uint32_t end)
@@ -380,10 +384,7 @@ void string_slice(String str, uint32_t start, uint32_t end)
 	const uint32_t len = end - start;
 
 	memmove(str, str + start, len);
-
-	write_string_len(str, len);
-
-	null_terminate(str);
+	clean_up(str, len);
 }
 
 void string_strip(String str, const char *reject)
@@ -406,8 +407,7 @@ void string_strip(String str, const char *reject)
 		memmove(str, sp, len);
 	}
 
-	write_string_len(str, len);
-	null_terminate(str);
+	clean_up(str, len);
 }
 
 void string_totitle(String str)
