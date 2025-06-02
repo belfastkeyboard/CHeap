@@ -11,6 +11,7 @@ typedef enum IteratorType
 {
 	ITERATOR_ARRAY,
 	ITERATOR_VECTOR,
+	ITERATOR_LIST,
 	ITERATOR_HASH_SET,
 	ITERATOR_HASH_TABLE
 } IteratorType;
@@ -33,10 +34,10 @@ bool done_iter_r(const Iter *begin, const Iter *end);
 
 #define range(begin, end)                                                      \
 	;                                                                          \
-	done_iter(&begin, &end);                                                   \
+	!done_iter(&begin, &end);                                                  \
 	next_iter(&begin)
 
 #define range_r(begin, end)                                                    \
 	;                                                                          \
-	done_iter_r(&begin, &end);                                                 \
+	!done_iter_r(&begin, &end);                                                \
 	prev_iter(&begin)

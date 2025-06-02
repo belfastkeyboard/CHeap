@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "../../iter.h"
 
 extern Iter *next_mempool(Iter *iter);
@@ -9,6 +11,10 @@ extern Iter *prev_hash(Iter *iter);
 extern void *get_hash_table(const Iter *iter);
 extern void *get_hash_set(const Iter *iter);
 
+extern Iter *next_linked(Iter *iter);
+extern Iter *prev_linked(Iter *iter);
+extern void *get_linked(const Iter *iter);
+
 Iter *next_iter(Iter *iter)
 {
 	switch (iter->type) {
@@ -18,6 +24,11 @@ Iter *next_iter(Iter *iter)
 		case ITERATOR_HASH_TABLE:
 		case ITERATOR_HASH_SET:
 			return next_hash(iter);
+		case ITERATOR_LIST:
+			return next_linked(iter);
+		default:
+			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
+			exit(EXIT_FAILURE);
 	}
 }
 
@@ -30,6 +41,11 @@ Iter *prev_iter(Iter *iter)
 		case ITERATOR_HASH_TABLE:
 		case ITERATOR_HASH_SET:
 			return prev_hash(iter);
+		case ITERATOR_LIST:
+			return prev_linked(iter);
+		default:
+			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
+			exit(EXIT_FAILURE);
 	}
 }
 
@@ -43,15 +59,42 @@ void *get_iter(const Iter *iter)
 			return get_hash_table(iter);
 		case ITERATOR_HASH_SET:
 			return get_hash_set(iter);
+		case ITERATOR_LIST:
+			return get_linked(iter);
+		default:
+			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
+			exit(EXIT_FAILURE);
 	}
 }
 
 bool done_iter(const Iter *begin, const Iter *end)
 {
-	return begin->ptr <= end->ptr;
+	switch (begin->type) {
+		case ITERATOR_ARRAY:
+		case ITERATOR_VECTOR:
+		case ITERATOR_HASH_SET:
+		case ITERATOR_HASH_TABLE:
+			return begin->ptr > end->ptr;
+		case ITERATOR_LIST:
+			return !begin->ptr;
+		default:
+			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
+			exit(EXIT_FAILURE);
+	}
 }
 
 bool done_iter_r(const Iter *begin, const Iter *end)
 {
-	return begin->ptr >= end->ptr;
+	switch (begin->type) {
+		case ITERATOR_ARRAY:
+		case ITERATOR_VECTOR:
+		case ITERATOR_HASH_SET:
+		case ITERATOR_HASH_TABLE:
+			return begin->ptr < end->ptr;
+		case ITERATOR_LIST:
+			return !begin->ptr;
+		default:
+			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
+			exit(EXIT_FAILURE);
+	}
 }

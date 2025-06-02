@@ -23,5 +23,10 @@ void   pop_back_list(List *list);
 size_t erase_list(List *list, size_t index);
 void   clear_list(List *list);
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+Iter begin_list(const List *list);
+Iter end_list(const List *list);
+#endif
+
 bool   empty_list(const List *list);
 size_t size_list(const List *list);

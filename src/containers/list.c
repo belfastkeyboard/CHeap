@@ -1,7 +1,7 @@
+#include "../../iter.h"
 #include "../../list.h"
 #include "../../internals/base.h"
 #include "../../internals/linked.h"
-#include "../../internals/nalloc.h"
 
 typedef struct List
 {
@@ -102,6 +102,32 @@ size_t erase_list(List *list, const size_t index)
 void clear_list(List *list)
 {
 	generic_clear_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
+}
+
+Iter begin_list(const List *list)
+{
+	void        *ptr  = list->head;
+	const size_t size = list->size;
+
+	Iter iter = { .type = ITERATOR_LIST,
+		          .ptr  = ptr,
+		          .end  = list->tail,
+		          .size = size };
+
+	return iter;
+}
+
+Iter end_list(const List *list)
+{
+	void        *ptr  = list->tail;
+	const size_t size = list->size;
+
+	Iter iter = { .type = ITERATOR_LIST,
+		          .ptr  = ptr,
+		          .end  = list->head,
+		          .size = size };
+
+	return iter;
 }
 
 bool empty_list(const List *list)

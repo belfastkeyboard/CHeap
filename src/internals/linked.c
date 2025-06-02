@@ -1,3 +1,4 @@
+#include "../../iter.h"
 #include "../../internals/linked.h"
 #include "../../internals/nalloc.h"
 #include <memory.h>
@@ -258,5 +259,29 @@ void generic_clear_linked(struct NodeAlloc *alloc,
 
 void *generic_access_linked(struct Node *node)
 {
+	return node->value;
+}
+
+Iter *next_linked(Iter *iter)
+{
+	struct Node *node = iter->ptr;
+
+	iter->ptr = node->next;
+
+	return iter;
+}
+
+Iter *prev_linked(Iter *iter)
+{
+	struct Node *node = iter->ptr;
+
+	iter->ptr = node->prev;
+
+	return iter;
+}
+
+void *get_linked(const Iter *iter)
+{
+	struct Node *node = iter->ptr;
 	return node->value;
 }
