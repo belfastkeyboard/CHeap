@@ -1,5 +1,6 @@
 #include "../../cstr.h"
 #include "../../arena.h"
+#include "../../vector.h"
 #include <assert.h>
 #include <ctype.h>
 #include <malloc.h>
@@ -22,6 +23,8 @@ typedef const char *ConstBuffer;
 
 typedef char *(*AllocationStrategy)(String, uint32_t, uint32_t, Arena *);
 typedef String (*WriteStrategy)(String, const void *, uint32_t, void *);
+typedef String (*DuplicateStrategy)(Arena *, ConstString);
+typedef String (*DuplicateNStrategy)(Arena *, ConstString, const uint32_t);
 
 //              SCHEMA             \\
 // |----|----|------------|------| \\
@@ -122,6 +125,14 @@ ALLOC static String generic_allocation(String             string,
 }
 
 ALLOC static String
+write_copy(String string, const void *src, const uint32_t len, void *)
+{
+	memcpy(string, src, len);
+
+	return string;
+}
+
+ALLOC static String
 write_formatted(String string, const void *src, const uint32_t len, void *data)
 {
 	va_list *args = data;
@@ -162,6 +173,13 @@ ALLOC static String string_construct_formatted(const char        *fmt,
 	return generic_write(string, fmt, len, args, write_formatted);
 }
 
+ALLOC static String string_construct_empty(AllocationStrategy strategy,
+                                           Arena             *arena)
+{
+	String string = generic_allocation(NULL, 0, 0, strategy, arena);
+	return clean_up(string, 0);
+}
+
 static long get_stream_buffer_size(FILE *stream)
 {
 	const long pos = ftell(stream);
@@ -180,37 +198,35 @@ ALLOC static String string_construct_from_stream(FILE              *stream,
 	return generic_write(string, stream, n, NULL, write_stream);
 }
 
-ALLOC static String string_concatenate(restrict String      dest,
-                                       restrict ConstString src,
-                                       AllocationStrategy   strategy,
-                                       Arena               *arena)
+ALLOC static String string_concatenate(restrict String    dest,
+                                       const char        *src,
+                                       const uint32_t     n,
+                                       AllocationStrategy strategy,
+                                       Arena             *arena)
 {
-	const uint32_t req    = string_len(src);
 	const uint32_t buffsz = string_buffer(dest);
 	const uint32_t len    = string_len(dest);
 
-	if (buffsz - len < req) {
-		const uint32_t sz = max(req, buffsz * 2);
+	if (buffsz - len < n) {
+		const uint32_t sz = max(len + n, buffsz * 2);
 		dest = generic_allocation(dest, sz, buffsz, strategy, arena);
 	}
 
-	const uint32_t new_len = req + len;
+	const uint32_t new_len = n + len;
 
-	memcpy(dest + len, src, req);
+	memcpy(dest + len, src, n);
 
 	return clean_up(dest, new_len);
 }
 
 ALLOC static String string_duplicate(ConstString        src,
+                                     const uint32_t     buffer,
+                                     const uint32_t     len,
                                      AllocationStrategy strategy,
                                      Arena             *arena)
 {
-	const size_t sz  = string_buffer(src);
-	String       dup = generic_allocation(NULL, sz, 0, strategy, arena);
-
-	memcpy(BUFFER(dup), BUFFER(src), NON_STRING_SIZE + sz);
-
-	return dup;
+	String dup = generic_allocation(NULL, buffer, 0, strategy, arena);
+	return generic_write(dup, src, len, NULL, write_copy);
 }
 
 ALLOC static String string_replace(String      str,
@@ -300,17 +316,25 @@ void string_free(String string)
 
 String string_cat(String restrict dest, ConstString restrict src)
 {
-	return string_concatenate(dest, src, stdlib_realloc, NULL);
+	const uint32_t n = string_len(src);
+	return string_concatenate(dest, src, n, stdlib_realloc, NULL);
 }
 
 String string_dup(ConstString restrict src)
 {
-	return string_duplicate(src, stdlib_alloc, NULL);
+	const uint32_t buf = string_buffer(src);
+	const uint32_t len = string_len(src);
+	return string_duplicate(src, buf, len, stdlib_alloc, NULL);
 }
 
 String string_sub(String str, const char *old, const char *new)
 {
 	return string_replace(str, old, new, stdlib_realloc, NULL);
+}
+
+ALLOC String string_ndup(ConstString src, const uint32_t n)
+{
+	return string_duplicate(src, n, n, stdlib_alloc, NULL);
 }
 
 int string_cmp(ConstString str1, ConstString str2)
@@ -370,7 +394,7 @@ void string_toupper(String str)
 
 void string_clear(String str)
 {
-	const uint32_t len = 0;
+	const uint32_t len  = 0;
 	const uint32_t buff = string_buffer(str);
 
 	memset(str, 0, buff);
@@ -460,14 +484,18 @@ ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src)
 {
 	assert(arena);
 
-	return string_concatenate(dest, src, arena_realloc, arena);
+	const uint32_t n = string_len(src);
+	return string_concatenate(dest, src, n, arena_realloc, arena);
 }
 
 ALLOC String arena_string_dup(Arena *arena, ConstString src)
 {
 	assert(arena);
 
-	return string_duplicate(src, arena_alloc, arena);
+	const uint32_t buf = string_buffer(src);
+	const uint32_t len = string_len(src);
+
+	return string_duplicate(src, buf, len, arena_alloc, arena);
 }
 
 ALLOC String arena_string_sub(Arena      *arena,
@@ -478,4 +506,123 @@ ALLOC String arena_string_sub(Arena      *arena,
 	assert(arena);
 
 	return string_replace(str, old, new, arena_realloc, arena);
+}
+
+ALLOC String arena_string_ndup(Arena *arena, ConstString src, uint32_t n)
+{
+	assert(arena);
+
+	return string_duplicate(src, n, n, arena_alloc, arena);
+}
+
+ALLOC static String generic_string_dup(Arena *, ConstString string)
+{
+	return string_dup(string);
+}
+
+ALLOC static String generic_string_ndup(Arena *,
+                                        ConstString    string,
+                                        const uint32_t n)
+{
+	return string_ndup(string, n);
+}
+
+ALLOC static String arena_generic_string_dup(Arena *arena, ConstString string)
+{
+	return arena_string_dup(arena, string);
+}
+
+ALLOC static String arena_generic_string_ndup(Arena         *arena,
+                                              ConstString    string,
+                                              const uint32_t n)
+{
+	return arena_string_ndup(arena, string, n);
+}
+
+static Vector *generic_string_split(ConstString        str,
+                                    ConstString        delim,
+                                    DuplicateStrategy  dup,
+                                    DuplicateNStrategy ndup,
+                                    Arena             *arena)
+{
+	Vector *strings = create_vector(sizeof(String *));
+
+	const size_t n      = strlen(delim);
+	char        *sub    = (String)str;
+	char        *cursor = sub;
+
+	while ((sub = strstr(sub, delim))) {
+		const ptrdiff_t len    = sub - cursor;
+		ConstString     string = ndup(arena, cursor, len);
+		push_back_vector(strings, &string);
+		sub += n;
+		cursor = sub;
+	}
+
+	if (cursor != str) {
+		const size_t len   = strlen(cursor);
+		String       final = ndup(arena, cursor, len);
+		push_back_vector(strings, &final);
+	} else {
+		ConstString string = dup(arena, str);
+		push_back_vector(strings, &string);
+	}
+
+	return strings;
+}
+
+Vector *string_split(ConstString str, ConstString delim)
+{
+	return generic_string_split(str,
+	                            delim,
+	                            generic_string_dup,
+	                            generic_string_ndup,
+	                            NULL);
+}
+
+ALLOC static String generic_join(Vector            *strings,
+                                 ConstString        delim,
+                                 AllocationStrategy alloc_strat,
+                                 AllocationStrategy realloc_strat,
+                                 Arena             *arena)
+{
+	String string = string_construct_empty(alloc_strat, arena);
+
+	const size_t delim_len = strlen(delim);
+
+	const size_t c = size_vector(strings);
+	for (size_t i = 0; i < c; ++i) {
+		ConstString s = *(ConstString *)at_vector(strings, i);
+		uint32_t    n = string_len(s);
+		string        = string_concatenate(string, s, n, realloc_strat, arena);
+
+		if (i < c - 1) {
+			string = string_concatenate(string,
+			                            delim,
+			                            delim_len,
+			                            realloc_strat,
+			                            arena);
+		}
+	}
+
+	return string;
+}
+
+String string_join(Vector *strings, ConstString delim)
+{
+	return generic_join(strings, delim, stdlib_alloc, stdlib_realloc, NULL);
+}
+
+Vector *arena_string_split(Arena *arena, ConstString str, ConstString delim)
+{
+	return generic_string_split(str,
+	                            delim,
+	                            arena_generic_string_dup,
+	                            arena_generic_string_ndup,
+	                            arena);
+}
+
+String arena_string_join(Arena *arena, Vector *strings, ConstString delim)
+{
+	return generic_join(strings, delim, arena_alloc, arena_realloc, arena);
 }
