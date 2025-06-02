@@ -12,6 +12,7 @@ typedef enum IteratorType
 	ITERATOR_ARRAY,
 	ITERATOR_VECTOR,
 	ITERATOR_LIST,
+	ITERATOR_FORWARD_LIST,
 	ITERATOR_HASH_SET,
 	ITERATOR_HASH_TABLE
 } IteratorType;
@@ -20,7 +21,6 @@ typedef struct Iter
 {
 	const IteratorType type;
 	void              *ptr;
-	const void        *end;
 	const size_t       size;
 } Iter, Iterator;
 

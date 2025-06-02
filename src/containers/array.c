@@ -66,7 +66,6 @@ Iter begin_array(const Array *array)
 
 	Iter iter = { .type = ITERATOR_VECTOR,
 		          .ptr  = ptr,
-		          .end  = back_array(array),
 		          .size = size };
 
 	return iter;
@@ -79,7 +78,6 @@ Iter end_array(const Array *array)
 
 	Iter iter = { .type = ITERATOR_VECTOR,
 		          .ptr  = ptr,
-		          .end  = front_array(array),
 		          .size = size };
 
 	return iter;

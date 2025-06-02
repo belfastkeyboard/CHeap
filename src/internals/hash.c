@@ -403,10 +403,8 @@ Iter begin_hash(const IteratorType type,
                 const size_t       capacity)
 {
 	void *ptr  = front_hash(buckets);
-	void *end  = back_hash(buckets, capacity);
 	Iter  iter = { .type = type,
 		           .ptr  = ptr,
-		           .end  = end,
 		           .size = sizeof(struct Bucket) };
 
 	if (!valid_iterator(&iter)) {
@@ -421,10 +419,8 @@ Iter end_hash(const IteratorType type,
               const size_t       capacity)
 {
 	void *ptr  = back_hash(buckets, capacity);
-	void *end  = front_hash(buckets);
 	Iter  iter = { .type = type,
 		           .ptr  = ptr,
-		           .end  = end,
 		           .size = sizeof(struct Bucket) };
 
 	if (!valid_iterator(&iter)) {

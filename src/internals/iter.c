@@ -25,6 +25,7 @@ Iter *next_iter(Iter *iter)
 		case ITERATOR_HASH_SET:
 			return next_hash(iter);
 		case ITERATOR_LIST:
+		case ITERATOR_FORWARD_LIST:
 			return next_linked(iter);
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
@@ -60,6 +61,7 @@ void *get_iter(const Iter *iter)
 		case ITERATOR_HASH_SET:
 			return get_hash_set(iter);
 		case ITERATOR_LIST:
+		case ITERATOR_FORWARD_LIST:
 			return get_linked(iter);
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
@@ -76,6 +78,7 @@ bool done_iter(const Iter *begin, const Iter *end)
 		case ITERATOR_HASH_TABLE:
 			return begin->ptr > end->ptr;
 		case ITERATOR_LIST:
+		case ITERATOR_FORWARD_LIST:
 			return !begin->ptr;
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);

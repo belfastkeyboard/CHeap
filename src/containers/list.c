@@ -111,7 +111,6 @@ Iter begin_list(const List *list)
 
 	Iter iter = { .type = ITERATOR_LIST,
 		          .ptr  = ptr,
-		          .end  = list->tail,
 		          .size = size };
 
 	return iter;
@@ -124,7 +123,6 @@ Iter end_list(const List *list)
 
 	Iter iter = { .type = ITERATOR_LIST,
 		          .ptr  = ptr,
-		          .end  = list->head,
 		          .size = size };
 
 	return iter;

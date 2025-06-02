@@ -1,4 +1,5 @@
 #include "../../flist.h"
+#include "../../iter.h"
 #include "../../internals/base.h"
 #include "../../internals/linked.h"
 
@@ -74,6 +75,30 @@ size_t erase_after_forward_list(FList *flist, const size_t index)
 void clear_forward_list(FList *flist)
 {
 	generic_clear_linked(&flist->alloc, &flist->head, NULL, &flist->nmemb);
+}
+
+Iter begin_forward_list(const FList *flist)
+{
+	void        *ptr  = flist->head;
+	const size_t size = flist->size;
+
+	Iter iter = { .type = ITERATOR_FORWARD_LIST,
+		          .ptr  = ptr,
+		          .size = size };
+
+	return iter;
+}
+
+Iter end_forward_list(const FList *flist)
+{
+	void        *ptr  = NULL;
+	const size_t size = flist->size;
+
+	Iter iter = { .type = ITERATOR_FORWARD_LIST,
+		          .ptr  = ptr,
+		          .size = size };
+
+	return iter;
 }
 
 bool empty_forward_list(const FList *flist)

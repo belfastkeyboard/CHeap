@@ -117,7 +117,6 @@ Iter begin_vector(const Vector *vector)
 
 	Iter iter = { .type = ITERATOR_VECTOR,
 		          .ptr  = ptr,
-		          .end  = back_vector(vector),
 		          .size = size };
 
 	return iter;
@@ -130,7 +129,6 @@ Iter end_vector(const Vector *vector)
 
 	Iter iter = { .type = ITERATOR_VECTOR,
 		          .ptr  = ptr,
-		          .end  = front_vector(vector),
 		          .size = size };
 
 	return iter;
