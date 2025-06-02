@@ -23,14 +23,6 @@
 
 #define ALLOC __attribute__((warn_unused_result))
 
-#ifdef CHEAP_ITERATOR_AVAILABLE
-#include "iter.h"
-#endif
-
-#ifdef CHEAP_RANGE_AVAILABLE
-#include "range.h"
-#endif
-
 /**
  * @brief A container that encapsulates a dynamic size array
  *
