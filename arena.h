@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stddef.h>
-
-#define ALLOC __attribute__((warn_unused_result))
-
 #ifndef CHEAP_ARENA_AVAILABLE
 #define CHEAP_ARENA_AVAILABLE
 #endif
+
+#include <stddef.h>
+
+#define ALLOC __attribute__((warn_unused_result))
 
 typedef struct Arena Arena;
 

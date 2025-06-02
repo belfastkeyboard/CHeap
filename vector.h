@@ -14,6 +14,10 @@
 
 #pragma once
 
+#ifndef CHEAP_VECTOR_AVAILABLE
+#define CHEAP_VECTOR_AVAILABLE
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
