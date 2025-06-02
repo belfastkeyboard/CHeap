@@ -51,10 +51,24 @@ Container adaptors provide a different interface for sequential containers.
 TODO: Re-work the string library.
 See the implementation of [Simple Dynamic Strings](https://github.com/antirez/sds)
 
+## ITERATOR LIBRARY
+Very WIP. 
+
+Iterators done: 
+- array
+- vector
+- hash set
+- hash table
+- list
+- forward list
+
+Iterators to do:
+- deque
+- set
+- table
+
 ## RANGES LIBRARY
-Very WIP. Ranges in C++ operate on iterators which currently do not exist in CHeap.
-I do plan to add iterators at some point.
-Currently, ranges exist only for adding multiple elements to arrays at once instead of one at a time.
+Very WIP. 
 
 ## TODO:
 - storing pointers
