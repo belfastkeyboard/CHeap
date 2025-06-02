@@ -16,10 +16,10 @@ void *at_array(const Array *array, size_t index);
 void *front_array(const Array *array);
 void *back_array(const Array *array);
 
-bool   empty_array(const Array *array);
-size_t size_array(const Array *array);
-
 #ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_array(const Array *array);
 Iter end_array(const Array *array);
 #endif
+
+bool   empty_array(const Array *array);
+size_t size_array(const Array *array);
