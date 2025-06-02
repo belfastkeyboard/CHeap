@@ -20,5 +20,10 @@ void   pop_front_forward_list(FList *flist);
 size_t erase_after_forward_list(FList *flist, size_t index);
 void   clear_forward_list(FList *flist);
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+Iter begin_forward_list(const FList *flist);
+Iter end_forward_list(const FList *flist);
+#endif
+
 bool   empty_forward_list(const FList *flist);
 size_t size_forward_list(const FList *flist);
