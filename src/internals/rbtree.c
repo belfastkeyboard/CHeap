@@ -321,7 +321,6 @@ static void rbt_insert(struct NodeAlloc *alloc,
 
 			// key already exists
 			if (result == 0) {
-				/* node->value = value; */ // needs memcpy for ownership of data
 				// perhaps one node could be freed and replaced with another
 				// node here
 				memcpy(node->value, value, v_size);
