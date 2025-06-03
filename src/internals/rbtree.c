@@ -6,9 +6,6 @@
 
 typedef int (*KComp)(const void *, const void *);
 
-static void insert_case1(struct Node **head, struct Node *node);
-static void delete_case1(struct Node **head, struct Node *node);
-
 static struct Node *create_node(struct NodeAlloc *alloc,
                                 const void       *key,
                                 const void       *value,
@@ -146,64 +143,43 @@ static void rotate_right(struct Node **head, struct Node *node)
 	node->parent = left;
 }
 
-void insert_case5(struct Node **head, struct Node *node)
-{
-	node->parent->colour      = BLACK;
-	grandparent(node)->colour = RED;
-
-	if (node == node->parent->left && node->parent == grandparent(node)->left) {
-		rotate_right(head, grandparent(node));
-	} else {
-		assert(node == node->parent->right &&
-		       node->parent == grandparent(node)->right);
-
-		rotate_left(head, grandparent(node));
-	}
-}
-
-void insert_case4(struct Node **head, struct Node *node)
-{
-	if (node == node->parent->right && node->parent == grandparent(node)->left)
-	{
-		rotate_left(head, node->parent);
-		node = node->left;
-	} else if (node == node->parent->left &&
-	           node->parent == grandparent(node)->right)
-	{
-		rotate_right(head, node->parent);
-		node = node->right;
-	}
-
-	insert_case5(head, node);
-}
-
-void insert_case3(struct Node **head, struct Node *node)
-{
-	if (is_red(uncle(node))) {
-		node->parent->colour      = BLACK;
-		uncle(node)->colour       = BLACK;
-		grandparent(node)->colour = RED;
-		insert_case1(head, grandparent(node));
-	} else {
-		insert_case4(head, node);
-	}
-}
-
-void insert_case2(struct Node **head, struct Node *node)
-{
-	if (is_black(node->parent)) {
-		return; /* Tree is still valid */
-	} else {
-		insert_case3(head, node);
-	}
-}
-
-void insert_case1(struct Node **head, struct Node *node)
+static void insert_fixup(struct Node **head, struct Node *node)
 {
 	if (!node->parent) {
 		node->colour = BLACK;
-	} else {
-		insert_case2(head, node);
+	} else if (!is_black(node->parent)) {
+		if (is_red(uncle(node))) {
+			node->parent->colour      = BLACK;
+			uncle(node)->colour       = BLACK;
+			grandparent(node)->colour = RED;
+			insert_fixup(head, grandparent(node));
+		} else {
+			if (node == node->parent->right &&
+			    node->parent == grandparent(node)->left)
+			{
+				rotate_left(head, node->parent);
+				node = node->left;
+			} else if (node == node->parent->left &&
+			           node->parent == grandparent(node)->right)
+			{
+				rotate_right(head, node->parent);
+				node = node->right;
+			}
+
+			node->parent->colour      = BLACK;
+			grandparent(node)->colour = RED;
+
+			if (node == node->parent->left &&
+			    node->parent == grandparent(node)->left)
+			{
+				rotate_right(head, grandparent(node));
+			} else {
+				assert(node == node->parent->right &&
+				       node->parent == grandparent(node)->right);
+
+				rotate_left(head, grandparent(node));
+			}
+		}
 	}
 }
 
@@ -268,14 +244,13 @@ static void rbt_insert(struct NodeAlloc *alloc,
 			}
 		}
 
-		// this is an issue (see comments above)
-		inserted_node->parent = node; // this should probably go into the
-		                              // constructor parameters
+		// this should probably go into the constructor parameters
+		inserted_node->parent = node;
 	}
 
 	assert(inserted_node);
 
-	insert_case1(head, inserted_node);
+	insert_fixup(head, inserted_node);
 }
 
 static struct Node *maximum_node(struct Node *node)
@@ -289,69 +264,12 @@ static struct Node *maximum_node(struct Node *node)
 	return node;
 }
 
-void delete_case6(struct Node **head, struct Node *node)
+void remove_fixup(struct Node **head, struct Node *node)
 {
-	sibling(node)->colour = node_colour(node->parent);
-	node->parent->colour  = BLACK;
-
-	if (node == node->parent->left) {
-		assert(is_red(sibling(node)->right));
-		sibling(node)->right->colour = BLACK;
-		rotate_left(head, node->parent);
-	} else {
-		assert(is_red(sibling(node)->left));
-		sibling(node)->left->colour = BLACK;
-		rotate_right(head, node->parent);
-	}
-}
-
-void delete_case5(struct Node **head, struct Node *node)
-{
-	if (node == node->parent->left && is_black(sibling(node)) &&
-	    is_red(sibling(node)->left) && is_black(sibling(node)->right))
-	{
-		sibling(node)->colour       = RED;
-		sibling(node)->left->colour = BLACK;
-
-		rotate_right(head, sibling(node));
-	} else if (node == node->parent->right && is_black(sibling(node)) &&
-	           is_red(sibling(node)->right) && is_black(sibling(node)->left))
-	{
-		sibling(node)->colour        = RED;
-		sibling(node)->right->colour = BLACK;
-
-		rotate_left(head, sibling(node));
+	if (!node->parent) {
+		return;
 	}
 
-	delete_case6(head, node);
-}
-
-void delete_case4(struct Node **head, struct Node *node)
-{
-	if (is_red(node->parent) && is_black(sibling(node)) &&
-	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
-	{
-		sibling(node)->colour = RED;
-		node->parent->colour  = BLACK;
-	} else {
-		delete_case5(head, node);
-	}
-}
-
-void delete_case3(struct Node **head, struct Node *node)
-{
-	if (is_black(node->parent) && is_black(sibling(node)) &&
-	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
-	{
-		sibling(node)->colour = RED;
-		delete_case1(head, node->parent);
-	} else {
-		delete_case4(head, node);
-	}
-}
-
-void delete_case2(struct Node **head, struct Node *node)
-{
 	if (is_red(sibling(node))) {
 		node->parent->colour  = RED;
 		sibling(node)->colour = BLACK;
@@ -363,15 +281,48 @@ void delete_case2(struct Node **head, struct Node *node)
 		}
 	}
 
-	delete_case3(head, node);
-}
-
-void delete_case1(struct Node **head, struct Node *node)
-{
-	if (!node->parent) {
-		return;
+	if (is_black(node->parent) && is_black(sibling(node)) &&
+	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour = RED;
+		remove_fixup(head, node->parent);
 	} else {
-		delete_case2(head, node);
+		if (is_red(node->parent) && is_black(sibling(node)) &&
+		    is_black(sibling(node)->left) && is_black(sibling(node)->right))
+		{
+			sibling(node)->colour = RED;
+			node->parent->colour  = BLACK;
+		} else {
+			if (node == node->parent->left && is_black(sibling(node)) &&
+			    is_red(sibling(node)->left) && is_black(sibling(node)->right))
+			{
+				sibling(node)->colour       = RED;
+				sibling(node)->left->colour = BLACK;
+
+				rotate_right(head, sibling(node));
+			} else if (node == node->parent->right && is_black(sibling(node)) &&
+			           is_red(sibling(node)->right) &&
+			           is_black(sibling(node)->left))
+			{
+				sibling(node)->colour        = RED;
+				sibling(node)->right->colour = BLACK;
+
+				rotate_left(head, sibling(node));
+			}
+
+			sibling(node)->colour = node_colour(node->parent);
+			node->parent->colour  = BLACK;
+
+			if (node == node->parent->left) {
+				assert(is_red(sibling(node)->right));
+				sibling(node)->right->colour = BLACK;
+				rotate_left(head, node->parent);
+			} else {
+				assert(is_red(sibling(node)->left));
+				sibling(node)->left->colour = BLACK;
+				rotate_right(head, node->parent);
+			}
+		}
 	}
 }
 
@@ -401,7 +352,7 @@ void rbt_delete(struct NodeAlloc *alloc,
 
 	if (is_black(node)) {
 		node->colour = node_colour(child);
-		delete_case1(head, node);
+		remove_fixup(head, node);
 	}
 
 	replace_node(head, node, child);
