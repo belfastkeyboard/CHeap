@@ -30,12 +30,14 @@ void insert_rbtree(struct NodeAlloc *alloc,
                    size_t            v_size,
                    size_t           *nmemb);
 
+/*
 void insert_range_rbtree(struct NodeAlloc *alloc,
                          struct Node     **head,
                          const Range      *range,
                          Comp              compare,
                          size_t            size,
                          size_t           *nmemb);
+*/
 
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct Node     **head,
