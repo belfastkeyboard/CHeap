@@ -66,7 +66,7 @@ void erase_set(Set *set, const void *key)
 
 void clear_set(Set *set)
 {
-	clear_rbtree(&set->alloc, &set->nmemb);
+	clear_rbtree(&set->alloc, &set->head, &set->nmemb);
 }
 
 bool empty_set(const Set *set)
