@@ -78,6 +78,17 @@ void destroy_set(Set **set);
  */
 void insert_set(Set *set, const void *key);
 
+#ifdef CHEAP_RANGE_AVAILABLE
+/**
+ * @brief Inserts unique copies of @p range elements into the set
+ *
+ * @param set The Set object
+ * @param range The range to insert
+ * @return Nothing
+ */
+void insert_range_set(Set *set, const Range *range);
+#endif
+
 /**
  * @brief Count the number of @c keys in the set
  *

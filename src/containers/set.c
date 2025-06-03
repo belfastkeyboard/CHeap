@@ -47,6 +47,15 @@ void insert_set(Set *set, const void *key)
 	              &set->nmemb);
 }
 
+void insert_range_set(Set *set, const Range *range)
+{
+	for (int i = 0; i < range->nmemb; ++i)
+	{
+		const void *key = range->array + i * range->size;
+		insert_set(set, key);
+	}
+}
+
 size_t count_set(const Set *set, const void *key)
 {
 	return (rbt_search_k(set->head, key, set->k_comp)) ? 1 : 0;
