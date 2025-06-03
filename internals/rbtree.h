@@ -16,9 +16,9 @@ struct Node
 	void        *key;
 	void        *value;
 	enum Colour  colour;
-	struct Node *p;
-	struct Node *l;
-	struct Node *r;
+	struct Node *parent;
+	struct Node *left;
+	struct Node *right;
 };
 
 void insert_rbtree(struct NodeAlloc *alloc,

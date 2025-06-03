@@ -9,14 +9,17 @@
 
 typedef int (*KComp)(const void *, const void *);
 
-struct Node *create_node(struct NodeAlloc *alloc,
-                         void             *key,
-                         void             *value,
-                         enum Colour       node_color,
-                         struct Node      *left,
-                         struct Node      *right,
-                         const size_t      k_size,
-                         const size_t      v_size)
+static void insert_case1(struct Node **head, struct Node *node);
+static void delete_case1(struct Node **head, struct Node *node);
+
+static struct Node *create_node(struct NodeAlloc *alloc,
+                                void             *key,
+                                void             *value,
+                                enum Colour       node_color,
+                                struct Node      *left,
+                                struct Node      *right,
+                                const size_t      k_size,
+                                const size_t      v_size)
 {
 	void *memory = alloc_node(alloc);
 
@@ -25,18 +28,18 @@ struct Node *create_node(struct NodeAlloc *alloc,
 	node->key    = memory + sizeof(struct Node);
 	node->value  = memory + sizeof(struct Node) + k_size;
 	node->colour = node_color;
-	node->l      = left;
-	node->r      = right;
+	node->left   = left;
+	node->right  = right;
 
 	if (left) {
-		left->p = node;
+		left->parent = node;
 	}
 
 	if (right) {
-		right->p = node;
+		right->parent = node;
 	}
 
-	node->p = NULL;
+	node->parent = NULL;
 
 	node->key   = memcpy(node->key, key, k_size);
 	node->value = memcpy(node->value, value, v_size);
@@ -47,27 +50,28 @@ struct Node *create_node(struct NodeAlloc *alloc,
 static struct Node *grandparent(struct Node *node)
 {
 	assert(node);
-	assert(node->p);
-	assert(node->p->p);
+	assert(node->parent);
+	assert(node->parent->parent);
 
-	return node->p->p;
+	return node->parent->parent;
 }
 
 static struct Node *sibling(struct Node *node)
 {
 	assert(node);
-	assert(node->p);
+	assert(node->parent);
 
-	return (node == node->p->l) ? node->p->r : node->p->l;
+	return (node == node->parent->left) ? node->parent->right
+	                                    : node->parent->left;
 }
 
 static struct Node *uncle(struct Node *n)
 {
 	assert(n);
-	assert(n->p);
-	assert(n->p->p);
+	assert(n->parent);
+	assert(n->parent->parent);
 
-	return sibling(n->p);
+	return sibling(n->parent);
 }
 
 static enum Colour node_colour(struct Node *node)
@@ -85,7 +89,7 @@ static bool is_black(struct Node *node)
 	return node_colour(node) == BLACK;
 }
 
-void verify_property_1(struct Node *node)
+static void verify_property_1(struct Node *node)
 {
 	assert(is_red(node) || is_black(node));
 
@@ -93,34 +97,34 @@ void verify_property_1(struct Node *node)
 		return;
 	}
 
-	verify_property_1(node->l);
-	verify_property_1(node->r);
+	verify_property_1(node->left);
+	verify_property_1(node->right);
 }
 
-void verify_property_2(struct Node *head)
+static void verify_property_2(struct Node *head)
 {
 	assert(is_black(head) == BLACK);
 }
 
-void verify_property_4(struct Node *node)
+static void verify_property_4(struct Node *node)
 {
 	if (is_red(node) == RED) {
-		assert(is_black(node->l));
-		assert(is_black(node->r));
-		assert(is_black(node->p));
+		assert(is_black(node->left));
+		assert(is_black(node->right));
+		assert(is_black(node->parent));
 	}
 
 	if (!node) {
 		return;
 	}
 
-	verify_property_4(node->l);
-	verify_property_4(node->r);
+	verify_property_4(node->left);
+	verify_property_4(node->right);
 }
 
-void verify_property_5_helper(struct Node *node,
-                              int          black_count,
-                              int         *path_black_count)
+static void verify_property_5_helper(struct Node *node,
+                                     int          black_count,
+                                     int         *path_black_count)
 {
 	if (is_black(node)) {
 		black_count++;
@@ -135,26 +139,354 @@ void verify_property_5_helper(struct Node *node,
 		return;
 	}
 
-	verify_property_5_helper(node->l, black_count, path_black_count);
-	verify_property_5_helper(node->r, black_count, path_black_count);
+	verify_property_5_helper(node->left, black_count, path_black_count);
+	verify_property_5_helper(node->right, black_count, path_black_count);
 }
 
-void verify_property_5(struct Node *head)
+static void verify_property_5(struct Node *head)
 {
 	int black_count_path = -1;
 	verify_property_5_helper(head, 0, &black_count_path);
 }
 
-void verify_properties(struct Node *head)
+static void verify_properties(struct Node *head)
 {
 #ifdef VERIFY_RBTREE
-
 	verify_property_1(head);
 	verify_property_2(head);
 	// property 3 is implicit
 	verify_property_4(head);
 	verify_property_5(head);
 #endif
+}
+
+static struct Node *lookup_node(struct Node *head,
+                                const void  *key,
+                                KComp        compare)
+{
+	assert(!head->parent);
+
+	struct Node *node = head;
+
+	while (node) {
+		int result = compare(key, node->key);
+		if (result == 0) {
+			return node;
+		} else if (result < 0) {
+			node = node->left;
+		} else {
+			assert(result > 0);
+			node = node->right;
+		}
+	}
+
+	return node;
+}
+
+static void replace_node(struct Node **head, struct Node *old, struct Node *new)
+{
+	if (!old->parent) {
+		*head = new;
+	} else {
+		if (old == old->parent->left) {
+			old->parent->left = new;
+		} else {
+			old->parent->right = new;
+		}
+	}
+
+	if (new) {
+		new->parent = old->parent;
+	}
+}
+
+static void rotate_left(struct Node **head, struct Node *node)
+{
+	struct Node *right = node->right;
+
+	replace_node(head, node, right);
+
+	node->right = right->left;
+
+	if (right->left) {
+		right->left->parent = node;
+	}
+
+	right->left  = node;
+	node->parent = right;
+}
+
+static void rotate_right(struct Node **head, struct Node *node)
+{
+	struct Node *left = node->left;
+
+	replace_node(head, node, left);
+
+	node->left = left->right;
+
+	if (left->right) {
+		left->right->parent = node;
+	}
+
+	left->right  = node;
+	node->parent = left;
+}
+
+void insert_case5(struct Node **head, struct Node *node)
+{
+	node->parent->colour      = BLACK;
+	grandparent(node)->colour = RED;
+
+	if (node == node->parent->left && node->parent == grandparent(node)->left) {
+		rotate_right(head, grandparent(node));
+	} else {
+		assert(node == node->parent->right &&
+		       node->parent == grandparent(node)->right);
+
+		rotate_left(head, grandparent(node));
+	}
+}
+
+void insert_case4(struct Node **head, struct Node *node)
+{
+	if (node == node->parent->right && node->parent == grandparent(node)->left)
+	{
+		rotate_left(head, node->parent);
+		node = node->left;
+	} else if (node == node->parent->left &&
+	           node->parent == grandparent(node)->right)
+	{
+		rotate_right(head, node->parent);
+		node = node->right;
+	}
+
+	insert_case5(head, node);
+}
+
+void insert_case3(struct Node **head, struct Node *node)
+{
+	if (is_red(uncle(node))) {
+		node->parent->colour      = BLACK;
+		uncle(node)->colour       = BLACK;
+		grandparent(node)->colour = RED;
+		insert_case1(head, grandparent(node));
+	} else {
+		insert_case4(head, node);
+	}
+}
+
+void insert_case2(struct Node **head, struct Node *node)
+{
+	if (is_black(node->parent)) {
+		return; /* Tree is still valid */
+	} else {
+		insert_case3(head, node);
+	}
+}
+
+void insert_case1(struct Node **head, struct Node *node)
+{
+	if (!node->parent) {
+		node->colour = BLACK;
+	} else {
+		insert_case2(head, node);
+	}
+}
+
+static void rbtree_insert(struct NodeAlloc *alloc,
+                          struct Node     **head,
+                          void             *key,
+                          void             *value,
+                          KComp             compare,
+                          const size_t      k_size,
+                          const size_t      v_size)
+{
+	// this leaks memory when the key already exists
+	struct Node *inserted_node = create_node(alloc,
+	                                         key,
+	                                         value,
+	                                         RED,
+	                                         NULL,
+	                                         NULL,
+	                                         k_size,
+	                                         v_size);
+
+	if ((*head)) {
+		*head = inserted_node;
+	} else {
+		struct Node *node = *head;
+
+		while (true) {
+			int result = compare(key, node->key);
+
+			// key already exists
+			if (result == 0) {
+				node->value = value; // needs memcpy for ownership of data
+				// perhaps one node could be freed and replaced with another
+				// node here
+				return;
+			} else if (result < 0) {
+				if (!node->left) {
+					node->left = inserted_node;
+					break;
+				} else {
+					node = node->left;
+				}
+			} else {
+				assert(result > 0);
+				if (node->right == NULL) {
+					node->right = inserted_node;
+					break;
+				} else {
+					node = node->right;
+				}
+			}
+		}
+
+		// this is an issue (see comments above)
+		inserted_node->parent = node;
+	}
+
+	insert_case1(head, inserted_node);
+
+	verify_properties(*head);
+}
+
+static struct Node *maximum_node(struct Node *node)
+{
+	assert(node);
+
+	while (node->right) {
+		node = node->right;
+	}
+
+	return node;
+}
+
+void delete_case6(struct Node **head, struct Node *node)
+{
+	sibling(node)->colour = node_colour(node->parent);
+	node->parent->colour  = BLACK;
+
+	if (node == node->parent->left) {
+		assert(is_red(sibling(node)->right));
+		sibling(node)->right->colour = BLACK;
+		rotate_left(head, node->parent);
+	} else {
+		assert(is_red(sibling(node)->left));
+		sibling(node)->left->colour = BLACK;
+		rotate_right(head, node->parent);
+	}
+}
+
+void delete_case5(struct Node **head, struct Node *node)
+{
+	if (node == node->parent->left && is_black(sibling(node)) &&
+	    is_red(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour       = RED;
+		sibling(node)->left->colour = BLACK;
+
+		rotate_right(head, sibling(node));
+	} else if (node == node->parent->right && is_black(sibling(node)) &&
+	           is_red(sibling(node)->right) && is_black(sibling(node)->left))
+	{
+		sibling(node)->colour        = RED;
+		sibling(node)->right->colour = BLACK;
+
+		rotate_left(head, sibling(node));
+	}
+
+	delete_case6(head, node);
+}
+
+void delete_case4(struct Node **head, struct Node *node)
+{
+	if (is_red(node->parent) && is_black(sibling(node)) &&
+	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour = RED;
+		node->parent->colour  = BLACK;
+	} else {
+		delete_case5(head, node);
+	}
+}
+
+void delete_case3(struct Node **head, struct Node *node)
+{
+	if (is_black(node->parent) && is_black(sibling(node)) &&
+	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour = RED;
+		delete_case1(head, node->parent);
+	} else {
+		delete_case4(head, node);
+	}
+}
+
+void delete_case2(struct Node **head, struct Node *node)
+{
+	if (is_red(sibling(node))) {
+		node->parent->colour  = RED;
+		sibling(node)->colour = BLACK;
+
+		if (node == node->parent->left) {
+			rotate_left(head, node->parent);
+		} else {
+			rotate_right(head, node->parent);
+		}
+	}
+
+	delete_case3(head, node);
+}
+
+void delete_case1(struct Node **head, struct Node *node)
+{
+	if (!node->parent) {
+		return;
+	} else {
+		delete_case2(head, node);
+	}
+}
+
+void rbtree_delete(struct NodeAlloc *alloc,
+                   struct Node     **head,
+                   void             *key,
+                   KComp             compare)
+{
+	struct Node *child;
+	struct Node *node = lookup_node(*head, key, compare);
+
+	if (node == NULL) {
+		return;
+	}
+
+	if (node->left && node->right) {
+		// Copy key/value from predecessor and then delete it instead
+		struct Node *pred = maximum_node(node->left);
+		node->key         = pred->key;
+		node->value       = pred->value;
+		node              = pred;
+	}
+
+	assert(!node->left || !node->right);
+
+	child = (node->right == NULL) ? node->left : node->right;
+
+	if (is_black(node)) {
+		node->colour = node_colour(child);
+		delete_case1(head, node);
+	}
+
+	replace_node(head, node, child);
+
+	if (!node->parent && child) // root should be black
+	{
+		child->colour = BLACK;
+	}
+
+	free_node(alloc, node);
+	verify_properties(*head);
 }
 
 void insert_rbtree(struct NodeAlloc *alloc,
@@ -185,14 +517,14 @@ void delete_rbtree(struct NodeAlloc *alloc,
 		return;
 	}
 
-	if (!is_red((*head)->l) && !is_red((*head)->r)) {
+	if (!is_red((*head)->left) && !is_red((*head)->right)) {
 		(*head)->colour = RED;
 	}
 
 	*head = rbt_delete(alloc, *head, key, compare, nmemb);
 
 	if (*head) {
-		assert(!(*head)->p);
+		assert(!(*head)->parent);
 		(*head)->colour = BLACK;
 	}
 }
@@ -202,4 +534,30 @@ void clear_rbtree(struct NodeAlloc *alloc, size_t *nmemb)
 	clear_nodes(alloc);
 
 	*nmemb = 0;
+}
+
+void *rbt_search_k(struct Node *head, const void *key, KComp compare)
+{
+	void *result = NULL;
+
+	struct Node *node = lookup_node(head, key, compare);
+
+	if (node) {
+		result = node->key;
+	}
+
+	return result;
+}
+
+void *rbt_search_v(struct Node *head, const void *key, KComp compare)
+{
+	void *result = NULL;
+
+	struct Node *node = lookup_node(head, key, compare);
+
+	if (node) {
+		result = node->value;
+	}
+
+	return result;
 }
