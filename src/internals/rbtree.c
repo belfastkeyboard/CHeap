@@ -6,7 +6,23 @@
 
 typedef int (*KComp)(const void *, const void *);
 
+static enum Colour node_colour(const struct Node *node)
+{
+	return (!node) ? BLACK : node->colour;
+}
+
+static bool is_red(const struct Node *node)
+{
+	return node_colour(node) == RED;
+}
+
+static bool is_black(const struct Node *node)
+{
+	return node_colour(node) == BLACK;
+}
+
 static struct Node *create_node(struct NodeAlloc *alloc,
+                                struct Node      *parent,
                                 const void       *key,
                                 const void       *value,
                                 const size_t      k_size,
@@ -18,9 +34,9 @@ static struct Node *create_node(struct NodeAlloc *alloc,
 	node->key    = memory + sizeof(struct Node);
 	node->value  = memory + sizeof(struct Node) + k_size;
 	node->colour = RED;
+	node->parent = parent;
 	node->left   = NULL;
 	node->right  = NULL;
-	node->parent = NULL;
 
 	memcpy(node->key, key, k_size);
 	memcpy(node->value, value, v_size);
@@ -55,21 +71,6 @@ static struct Node *uncle(struct Node *n)
 	return sibling(n->parent);
 }
 
-static enum Colour node_colour(struct Node *node)
-{
-	return (!node) ? BLACK : node->colour;
-}
-
-static bool is_red(struct Node *node)
-{
-	return node_colour(node) == RED;
-}
-
-static bool is_black(struct Node *node)
-{
-	return node_colour(node) == BLACK;
-}
-
 static struct Node *lookup_node(struct Node *head,
                                 const void  *key,
                                 KComp        compare)
@@ -78,15 +79,20 @@ static struct Node *lookup_node(struct Node *head,
 
 	struct Node *node = head;
 
-	while (node) {
+	while (node)
+	{
 		int result = compare(key, node->key);
 
-		if (result == 0) {
-			return node;
-		} else if (result < 0) {
+		if (result == 0)
+		{
+			break;
+		}
+		else if (result < 0)
+		{
 			node = node->left;
-		} else {
-			assert(result > 0);
+		}
+		else
+		{
 			node = node->right;
 		}
 	}
@@ -96,17 +102,24 @@ static struct Node *lookup_node(struct Node *head,
 
 static void replace_node(struct Node **head, struct Node *old, struct Node *new)
 {
-	if (!old->parent) {
+	if (!old->parent)
+	{
 		*head = new;
-	} else {
-		if (old == old->parent->left) {
+	}
+	else
+	{
+		if (old == old->parent->left)
+		{
 			old->parent->left = new;
-		} else {
+		}
+		else
+		{
 			old->parent->right = new;
 		}
 	}
 
-	if (new) {
+	if (new)
+	{
 		new->parent = old->parent;
 	}
 }
@@ -119,7 +132,8 @@ static void rotate_left(struct Node **head, struct Node *node)
 
 	node->right = right->left;
 
-	if (right->left) {
+	if (right->left)
+	{
 		right->left->parent = node;
 	}
 
@@ -135,7 +149,8 @@ static void rotate_right(struct Node **head, struct Node *node)
 
 	node->left = left->right;
 
-	if (left->right) {
+	if (left->right)
+	{
 		left->right->parent = node;
 	}
 
@@ -145,52 +160,63 @@ static void rotate_right(struct Node **head, struct Node *node)
 
 static void insert_fixup(struct Node **head, struct Node *node)
 {
-	if (!node->parent) {
+	if (!node->parent)
+	{
 		node->colour = BLACK;
-	} else if (!is_black(node->parent)) {
-		if (is_red(uncle(node))) {
+		return;
+	}
+
+	if (is_red(node->parent))
+	{
+		if (is_red(uncle(node)))
+		{
 			node->parent->colour      = BLACK;
 			uncle(node)->colour       = BLACK;
 			grandparent(node)->colour = RED;
 			insert_fixup(head, grandparent(node));
-		} else {
-			if (node == node->parent->right &&
-			    node->parent == grandparent(node)->left)
-			{
-				rotate_left(head, node->parent);
-				node = node->left;
-			} else if (node == node->parent->left &&
-			           node->parent == grandparent(node)->right)
-			{
-				rotate_right(head, node->parent);
-				node = node->right;
-			}
+			return;
+		}
 
-			node->parent->colour      = BLACK;
-			grandparent(node)->colour = RED;
+		if (node == node->parent->right &&
+		    node->parent == grandparent(node)->left)
+		{
+			rotate_left(head, node->parent);
+			node = node->left;
+		}
+		else if (node == node->parent->left &&
+		         node->parent == grandparent(node)->right)
+		{
+			rotate_right(head, node->parent);
+			node = node->right;
+		}
 
-			if (node == node->parent->left &&
-			    node->parent == grandparent(node)->left)
-			{
-				rotate_right(head, grandparent(node));
-			} else {
-				assert(node == node->parent->right &&
-				       node->parent == grandparent(node)->right);
+		node->parent->colour      = BLACK;
+		grandparent(node)->colour = RED;
 
-				rotate_left(head, grandparent(node));
-			}
+		if (node == node->parent->left &&
+		    node->parent == grandparent(node)->left)
+		{
+			rotate_right(head, grandparent(node));
+		}
+		else
+		{
+			assert(node == node->parent->right &&
+			       node->parent == grandparent(node)->right);
+
+			rotate_left(head, grandparent(node));
 		}
 	}
 }
 
 static struct Node *insert_node(struct NodeAlloc *alloc,
                                 struct Node     **sentinel,
+                                struct Node      *parent,
                                 const void       *key,
                                 const void       *value,
                                 const size_t      k_size,
                                 const size_t      v_size)
 {
-	*sentinel = create_node(alloc, key, value, k_size, v_size);
+	*sentinel = create_node(alloc, parent, key, value, k_size, v_size);
 
 	return *sentinel;
 }
@@ -205,78 +231,104 @@ static void rbt_insert(struct NodeAlloc *alloc,
 {
 	struct Node *inserted_node = NULL;
 
-	if (!(*head)) {
-		*head = insert_node(alloc, &inserted_node, key, value, k_size, v_size);
-	} else {
+	if (!(*head))
+	{
+		*head = insert_node(alloc,
+		                    &inserted_node,
+		                    NULL,
+		                    key,
+		                    value,
+		                    k_size,
+		                    v_size);
+	}
+	else
+	{
 		struct Node *node = *head;
 
-		while (true) {
+		while (true)
+		{
 			int result = compare(key, node->key);
 
-			if (result == 0) {
+			if (result == 0)
+			{
 				memcpy(node->value, value, v_size);
-				return;
-			} else if (result < 0) {
-				if (!node->left) {
+				break;
+			}
+			else if (result < 0)
+			{
+				if (!node->left)
+				{
 					node->left = insert_node(alloc,
 					                         &inserted_node,
+					                         node,
 					                         key,
 					                         value,
 					                         k_size,
 					                         v_size);
 					break;
-				} else {
+				}
+				else
+				{
 					node = node->left;
 				}
-			} else {
-				assert(result > 0);
-				if (!node->right) {
+			}
+			else
+			{
+				if (!node->right)
+				{
 					node->right = insert_node(alloc,
 					                          &inserted_node,
+					                          node,
 					                          key,
 					                          value,
 					                          k_size,
 					                          v_size);
 					break;
-				} else {
+				}
+				else
+				{
 					node = node->right;
 				}
 			}
 		}
-
-		// this should probably go into the constructor parameters
-		inserted_node->parent = node;
 	}
 
-	assert(inserted_node);
-
-	insert_fixup(head, inserted_node);
+	if (inserted_node)
+	{
+		insert_fixup(head, inserted_node);
+	}
 }
 
 static struct Node *maximum_node(struct Node *node)
 {
 	assert(node);
 
-	while (node->right) {
+	while (node->right)
+	{
 		node = node->right;
 	}
 
 	return node;
 }
 
-void remove_fixup(struct Node **head, struct Node *node)
+static void remove_fixup(struct Node **head, struct Node *node)
 {
-	if (!node->parent) {
+	if (!node->parent)
+	{
 		return;
 	}
 
-	if (is_red(sibling(node))) {
+	if (is_red(sibling(node)))
+	{
 		node->parent->colour  = RED;
 		sibling(node)->colour = BLACK;
 
-		if (node == node->parent->left) {
+		if (node == node->parent->left)
+		{
 			rotate_left(head, node->parent);
-		} else {
+		}
+		else
+		{
 			rotate_right(head, node->parent);
 		}
 	}
@@ -286,60 +338,65 @@ void remove_fixup(struct Node **head, struct Node *node)
 	{
 		sibling(node)->colour = RED;
 		remove_fixup(head, node->parent);
-	} else {
-		if (is_red(node->parent) && is_black(sibling(node)) &&
-		    is_black(sibling(node)->left) && is_black(sibling(node)->right))
-		{
-			sibling(node)->colour = RED;
-			node->parent->colour  = BLACK;
-		} else {
-			if (node == node->parent->left && is_black(sibling(node)) &&
-			    is_red(sibling(node)->left) && is_black(sibling(node)->right))
-			{
-				sibling(node)->colour       = RED;
-				sibling(node)->left->colour = BLACK;
+		return;
+	}
 
-				rotate_right(head, sibling(node));
-			} else if (node == node->parent->right && is_black(sibling(node)) &&
-			           is_red(sibling(node)->right) &&
-			           is_black(sibling(node)->left))
-			{
-				sibling(node)->colour        = RED;
-				sibling(node)->right->colour = BLACK;
+	if (is_red(node->parent) && is_black(sibling(node)) &&
+	    is_black(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour = RED;
+		node->parent->colour  = BLACK;
+		return;
+	}
 
-				rotate_left(head, sibling(node));
-			}
+	if (node == node->parent->left && is_black(sibling(node)) &&
+	    is_red(sibling(node)->left) && is_black(sibling(node)->right))
+	{
+		sibling(node)->colour       = RED;
+		sibling(node)->left->colour = BLACK;
+		rotate_right(head, sibling(node));
+	}
+	else if (node == node->parent->right && is_black(sibling(node)) &&
+	         is_red(sibling(node)->right) && is_black(sibling(node)->left))
+	{
+		sibling(node)->colour        = RED;
+		sibling(node)->right->colour = BLACK;
+		rotate_left(head, sibling(node));
+	}
 
-			sibling(node)->colour = node_colour(node->parent);
-			node->parent->colour  = BLACK;
+	sibling(node)->colour = node_colour(node->parent);
+	node->parent->colour  = BLACK;
 
-			if (node == node->parent->left) {
-				assert(is_red(sibling(node)->right));
-				sibling(node)->right->colour = BLACK;
-				rotate_left(head, node->parent);
-			} else {
-				assert(is_red(sibling(node)->left));
-				sibling(node)->left->colour = BLACK;
-				rotate_right(head, node->parent);
-			}
-		}
+	if (node == node->parent->left)
+	{
+		assert(is_red(sibling(node)->right));
+		sibling(node)->right->colour = BLACK;
+		rotate_left(head, node->parent);
+	}
+	else
+	{
+		assert(is_red(sibling(node)->left));
+		sibling(node)->left->colour = BLACK;
+		rotate_right(head, node->parent);
 	}
 }
 
-void rbt_delete(struct NodeAlloc *alloc,
-                struct Node     **head,
-                const void       *key,
-                KComp             compare,
-                size_t           *nmemb)
+static void rbt_delete(struct NodeAlloc *alloc,
+                       struct Node     **head,
+                       const void       *key,
+                       KComp             compare,
+                       size_t           *nmemb)
 {
 	struct Node *child;
 	struct Node *node = lookup_node(*head, key, compare);
 
-	if (!node) {
+	if (!node)
+	{
 		return;
 	}
 
-	if (node->left && node->right) {
+	if (node->left && node->right)
+	{
 		struct Node *pred = maximum_node(node->left);
 		node->key         = pred->key;
 		node->value       = pred->value;
@@ -350,14 +407,16 @@ void rbt_delete(struct NodeAlloc *alloc,
 
 	child = (!node->right) ? node->left : node->right;
 
-	if (is_black(node)) {
+	if (is_black(node))
+	{
 		node->colour = node_colour(child);
 		remove_fixup(head, node);
 	}
 
 	replace_node(head, node, child);
 
-	if (!node->parent && child) {
+	if (!node->parent && child)
+	{
 		child->colour = BLACK;
 	}
 
@@ -389,7 +448,8 @@ void delete_rbtree(struct NodeAlloc *alloc,
                    const KComp       compare,
                    size_t           *nmemb)
 {
-	if (!(*head)) {
+	if (!(*head))
+	{
 		return;
 	}
 
@@ -412,7 +472,8 @@ void *rbt_search_k(struct Node *head, const void *key, KComp compare)
 
 	struct Node *node = lookup_node(head, key, compare);
 
-	if (node) {
+	if (node)
+	{
 		result = node->key;
 	}
 
@@ -425,7 +486,8 @@ void *rbt_search_v(struct Node *head, const void *key, KComp compare)
 
 	struct Node *node = lookup_node(head, key, compare);
 
-	if (node) {
+	if (node)
+	{
 		result = node->value;
 	}
 
