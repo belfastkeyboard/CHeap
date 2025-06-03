@@ -1,12 +1,11 @@
 #include "../../internals/deq.h"
-#include "../../internals/byte.h"
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#define MIN_BLOCK_SIZE KB(4)
+#define MIN_BLOCK_SIZE (4 * 1024)
 #define MIN_ELEM_COUNT 16
 
 typedef void (*PushFunc)(struct ControlArray *,
