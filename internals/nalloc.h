@@ -6,10 +6,13 @@
 
 #define NODE_COUNT_DEFAULT 8
 
+struct NodeBlock;
+struct NodePage;
+
 struct NodeAlloc
 {
-	struct Block *blocks;
-	struct Page  *pages;
+	struct NodeBlock *blocks;
+	struct NodePage  *pages;
 };
 
 ALLOC struct NodeAlloc create_node_allocator(size_t node_size,

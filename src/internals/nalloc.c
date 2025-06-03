@@ -3,19 +3,19 @@
 #include "../../internals/nalloc.h"
 
 
-struct Block
+struct NodeBlock
 {
-    struct Block *next;
+    struct NodeBlock *next;
 };
 
-struct Page
+struct NodePage
 {
     void *pool;
     size_t cursor;
     size_t max;
     size_t size;
 
-    struct Page *prev;
+    struct NodePage *prev;
 };
 
 
@@ -25,19 +25,19 @@ static size_t growth_policy(const size_t x)
 }
 
 
-static struct Page *create_page(struct Page *prev,
+static struct NodePage *create_page(struct NodePage *prev,
                                 const size_t nmemb,
                                 const size_t size)
 {
     void *mem = calloc(1,
-                       sizeof(struct Page) + nmemb * size);
+                       sizeof(struct NodePage) + nmemb * size);
 
     assert(mem);
 
-    struct Page *page = mem;
-    void *pool = mem + sizeof(struct Page);
+    struct NodePage *page = mem;
+    void *pool = mem + sizeof(struct NodePage);
 
-    *page = (struct Page){
+    *page = (struct NodePage){
         .pool = pool,
         .cursor = 0,
         .max = nmemb,
@@ -48,11 +48,11 @@ static struct Page *create_page(struct Page *prev,
     return page;
 }
 
-static struct Page *destroy_page(struct Page *page)
+static struct NodePage *destroy_page(struct NodePage *page)
 {
     assert(page);
 
-    struct Page *prev = page->prev;
+    struct NodePage *prev = page->prev;
 
     free(page);
 
@@ -60,7 +60,7 @@ static struct Page *destroy_page(struct Page *page)
 }
 
 
-static void *search_freeblocks(struct Block **blocks)
+static void *search_freeblocks(struct NodeBlock **blocks)
 {
     assert(*blocks);
 
@@ -71,11 +71,11 @@ static void *search_freeblocks(struct Block **blocks)
     return ptr;
 }
 
-static void *page_allocate(struct Page **page)
+static void *page_allocate(struct NodePage **page)
 {
     assert(*page);
 
-    struct Page *curr = *page;
+    struct NodePage *curr = *page;
 
     if (curr->cursor >= curr->max)
     {
@@ -93,8 +93,8 @@ static void *page_allocate(struct Page **page)
     return ptr;
 }
 
-static void *allocate_memory(struct Block **blocks,
-                             struct Page **page)
+static void *allocate_memory(struct NodeBlock **blocks,
+                             struct NodePage **page)
 {
     assert(page);
 
@@ -112,11 +112,11 @@ static void *allocate_memory(struct Block **blocks,
     return ptr;
 }
 
-static void free_memory(struct Page **page,
-                        struct Block **blocks,
+static void free_memory(struct NodePage **page,
+                        struct NodeBlock **blocks,
                         void *ptr)
 {
-    struct Page *curr = *page;
+    struct NodePage *curr = *page;
 
     static int i = 0;
 
@@ -132,7 +132,7 @@ static void free_memory(struct Page **page,
     }
     else
     {
-        struct Block *block = ptr;
+        struct NodeBlock *block = ptr;
 
         block->next = *blocks;
 
@@ -190,4 +190,7 @@ void clear_nodes(struct NodeAlloc *allocator)
     {
         allocator->pages = destroy_page(allocator->pages);
     }
+
+	allocator->blocks = NULL;
+	allocator->pages->cursor = 0;
 }
