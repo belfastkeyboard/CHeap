@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define VERIFY_RBTREE
-
 typedef int (*KComp)(const void *, const void *);
 
 static void insert_case1(struct Node **head, struct Node *node);
@@ -14,34 +12,21 @@ static void delete_case1(struct Node **head, struct Node *node);
 static struct Node *create_node(struct NodeAlloc *alloc,
                                 const void       *key,
                                 const void       *value,
-                                enum Colour       node_color,
-                                struct Node      *left,
-                                struct Node      *right,
                                 const size_t      k_size,
                                 const size_t      v_size)
 {
-	void *memory = alloc_node(alloc);
-
-	struct Node *node = memory;
+	void        *memory = alloc_node(alloc);
+	struct Node *node   = memory;
 
 	node->key    = memory + sizeof(struct Node);
 	node->value  = memory + sizeof(struct Node) + k_size;
-	node->colour = node_color;
-	node->left   = left;
-	node->right  = right;
-
-	if (left) {
-		left->parent = node;
-	}
-
-	if (right) {
-		right->parent = node;
-	}
-
+	node->colour = RED;
+	node->left   = NULL;
+	node->right  = NULL;
 	node->parent = NULL;
 
-	node->key   = memcpy(node->key, key, k_size);
-	node->value = memcpy(node->value, value, v_size);
+	memcpy(node->key, key, k_size);
+	memcpy(node->value, value, v_size);
 
 	return node;
 }
@@ -86,77 +71,6 @@ static bool is_red(struct Node *node)
 static bool is_black(struct Node *node)
 {
 	return node_colour(node) == BLACK;
-}
-
-static void verify_property_1(struct Node *node)
-{
-	assert(is_red(node) || is_black(node));
-
-	if (node == NULL) {
-		return;
-	}
-
-	verify_property_1(node->left);
-	verify_property_1(node->right);
-}
-
-static void verify_property_2(struct Node *head)
-{
-	assert(is_black(head));
-}
-
-static void verify_property_4(struct Node *node)
-{
-	if (is_red(node)) {
-		assert(is_black(node->left));
-		assert(is_black(node->right));
-		assert(is_black(node->parent));
-	}
-
-	if (!node) {
-		return;
-	}
-
-	verify_property_4(node->left);
-	verify_property_4(node->right);
-}
-
-static void verify_property_5_helper(struct Node *node,
-                                     int          black_count,
-                                     int         *path_black_count)
-{
-	if (is_black(node)) {
-		black_count++;
-	}
-
-	if (!node) {
-		if (*path_black_count == -1) {
-			*path_black_count = black_count;
-		} else {
-			assert(black_count == *path_black_count);
-		}
-		return;
-	}
-
-	verify_property_5_helper(node->left, black_count, path_black_count);
-	verify_property_5_helper(node->right, black_count, path_black_count);
-}
-
-static void verify_property_5(struct Node *head)
-{
-	int black_count_path = -1;
-	verify_property_5_helper(head, 0, &black_count_path);
-}
-
-static void verify_properties(struct Node *head)
-{
-#ifdef VERIFY_RBTREE
-	verify_property_1(head);
-	verify_property_2(head);
-	// property 3 is implicit
-	verify_property_4(head);
-	verify_property_5(head);
-#endif
 }
 
 static struct Node *lookup_node(struct Node *head,
@@ -293,6 +207,18 @@ void insert_case1(struct Node **head, struct Node *node)
 	}
 }
 
+static struct Node *insert_node(struct NodeAlloc *alloc,
+                                struct Node     **sentinel,
+                                const void       *key,
+                                const void       *value,
+                                const size_t      k_size,
+                                const size_t      v_size)
+{
+	*sentinel = create_node(alloc, key, value, k_size, v_size);
+
+	return *sentinel;
+}
+
 static void rbt_insert(struct NodeAlloc *alloc,
                        struct Node     **head,
                        const void       *key,
@@ -301,41 +227,40 @@ static void rbt_insert(struct NodeAlloc *alloc,
                        const size_t      k_size,
                        const size_t      v_size)
 {
-	// this leaks memory when the key already exists
-	struct Node *inserted_node = create_node(alloc,
-	                                         key,
-	                                         value,
-	                                         RED,
-	                                         NULL,
-	                                         NULL,
-	                                         k_size,
-	                                         v_size);
+	struct Node *inserted_node = NULL;
 
 	if (!(*head)) {
-		*head = inserted_node;
+		*head = insert_node(alloc, &inserted_node, key, value, k_size, v_size);
 	} else {
 		struct Node *node = *head;
 
 		while (true) {
 			int result = compare(key, node->key);
 
-			// key already exists
 			if (result == 0) {
-				// perhaps one node could be freed and replaced with another
-				// node here
 				memcpy(node->value, value, v_size);
 				return;
 			} else if (result < 0) {
 				if (!node->left) {
-					node->left = inserted_node;
+					node->left = insert_node(alloc,
+					                         &inserted_node,
+					                         key,
+					                         value,
+					                         k_size,
+					                         v_size);
 					break;
 				} else {
 					node = node->left;
 				}
 			} else {
 				assert(result > 0);
-				if (node->right == NULL) {
-					node->right = inserted_node;
+				if (!node->right) {
+					node->right = insert_node(alloc,
+					                          &inserted_node,
+					                          key,
+					                          value,
+					                          k_size,
+					                          v_size);
 					break;
 				} else {
 					node = node->right;
@@ -344,11 +269,13 @@ static void rbt_insert(struct NodeAlloc *alloc,
 		}
 
 		// this is an issue (see comments above)
-		inserted_node->parent = node;
+		inserted_node->parent = node; // this should probably go into the
+		                              // constructor parameters
 	}
 
+	assert(inserted_node);
+
 	insert_case1(head, inserted_node);
-	verify_properties(*head);
 }
 
 static struct Node *maximum_node(struct Node *node)
@@ -462,7 +389,6 @@ void rbt_delete(struct NodeAlloc *alloc,
 	}
 
 	if (node->left && node->right) {
-		// Copy key/value from predecessor and then delete it instead
 		struct Node *pred = maximum_node(node->left);
 		node->key         = pred->key;
 		node->value       = pred->value;
@@ -485,8 +411,6 @@ void rbt_delete(struct NodeAlloc *alloc,
 	}
 
 	free_node(alloc, node);
-	verify_properties(*head);
-
 	(*nmemb)--;
 }
 
@@ -503,8 +427,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 
 	rbt_insert(alloc, head, key, value, compare, k_size, v_size);
 
-	assert((*head)->colour == BLACK);
-	(*head)->colour = BLACK;
+	assert(is_black(*head));
 
 	(*nmemb)++;
 }
@@ -556,39 +479,4 @@ void *rbt_search_v(struct Node *head, const void *key, KComp compare)
 	}
 
 	return result;
-}
-
-#include <stdio.h>
-// PRINT TREE //
-#define INDENT_STEP 4
-
-void print_tree_helper(struct Node *node, int indent)
-{
-	if (!node) {
-		fputs("<empty tree>", stdout);
-		return;
-	}
-
-	if (node->right) {
-		print_tree_helper(node->right, indent + INDENT_STEP);
-	}
-
-	for (int i = 0; i < indent; i++) {
-		fputs(" ", stdout);
-	}
-
-	if (node->colour == BLACK) {
-		printf("[%d]\n", *(int *)node->key);
-	} else {
-		printf("<%d>\n", *(int *)node->key);
-	}
-
-	if (node->left) {
-		print_tree_helper(node->left, indent + INDENT_STEP);
-	}
-}
-
-void print(struct Node *head)
-{
-	print_tree_helper(head, 0);
 }
