@@ -1,5 +1,5 @@
-// This implementation is a modified version of the Red-Black Tree found
-// here: https://web.archive.org/web/20140328232325/http://en.literateprograms.org/Red-black_tree_(C)
+// This implementation is a modified version of the Red-Black Tree found here:
+// https://web.archive.org/web/20140328232325/http://en.literateprograms.org/Red-black_tree_(C)
 
 #include "../../internals/rbtree.h"
 #include <assert.h>
