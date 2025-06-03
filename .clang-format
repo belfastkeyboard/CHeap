@@ -48,13 +48,13 @@ RemoveBracesLLVM: false
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: true
-  AfterControlStatement: MultiLine
+  AfterControlStatement: true
   AfterEnum: true
   AfterFunction: true
   AfterStruct: true
   AfterUnion: true
-  BeforeElse: false
-  BeforeWhile: false
+  BeforeElse: true
+  BeforeWhile: true
 
 # spaces
 SpaceBeforeParens: ControlStatements
