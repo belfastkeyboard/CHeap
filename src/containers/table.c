@@ -76,7 +76,7 @@ void erase_table(Table *table, const void *key)
 
 void clear_table(Table *table)
 {
-	clear_rbtree(&table->alloc, &table->nmemb);
+	clear_rbtree(&table->alloc, &table->head, &table->nmemb);
 }
 
 bool empty_table(const Table *table)
