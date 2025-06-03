@@ -47,14 +47,17 @@ ALLOC static struct Page *arena_destroy_page(struct Page *page)
 
 static void arena_destroy_pages(struct Page **page)
 {
-	do {
+	do
+	{
 		*page = arena_destroy_page(*page);
-	} while (*page);
+	}
+	while (*page);
 }
 
 ALLOC static void *arena_alloc(struct Page **curr, const size_t size)
 {
-	if ((*curr)->size - (*curr)->offset < size) {
+	if ((*curr)->size - (*curr)->offset < size)
+	{
 		*curr = construct_page(*curr, 2, (*curr)->size);
 	}
 
@@ -74,7 +77,8 @@ ALLOC static void *arena_c_alloc(struct Page **curr, const size_t size)
 
 static void arena_clear(struct Page **curr)
 {
-	while ((*curr)->prev) {
+	while ((*curr)->prev)
+	{
 		(*curr) = arena_destroy_page(*curr);
 	}
 

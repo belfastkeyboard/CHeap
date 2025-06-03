@@ -26,10 +26,13 @@ ALLOC static void *pool_alloc(PoolAlloc *pool)
 {
 	void *ptr = NULL;
 
-	if (pool->blocks) {
+	if (pool->blocks)
+	{
 		ptr          = pool->blocks;
 		pool->blocks = pool->blocks->prev;
-	} else if (pool->offset < pool->nmemb) {
+	}
+	else if (pool->offset < pool->nmemb)
+	{
 		ptr = pool->ptr + pool->offset * pool->size;
 		pool->offset++;
 	}
@@ -47,9 +50,12 @@ ALLOC static void *pool_c_alloc(PoolAlloc *pool)
 
 static void pool_free(PoolAlloc *pool, void *ptr)
 {
-	if (ptr == pool->ptr + (pool->offset - 1) * pool->size) {
+	if (ptr == pool->ptr + (pool->offset - 1) * pool->size)
+	{
 		pool->offset--;
-	} else {
+	}
+	else
+	{
 		struct FreeBlock *block = ptr;
 		block->prev             = pool->blocks;
 		pool->blocks            = block;
@@ -66,8 +72,8 @@ PoolAlloc *create_pool_allocator(size_t nmemb, size_t size)
 {
 	const size_t n_size = min_size(size);
 
-	void *memory =
-	    memory_allocate_container(sizeof(struct PoolAlloc) + n_size * nmemb);
+	void *memory = memory_allocate_container(sizeof(struct PoolAlloc) +
+	                                         n_size * nmemb);
 
 	PoolAlloc *pool = memory;
 
