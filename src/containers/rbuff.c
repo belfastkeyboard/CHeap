@@ -38,9 +38,12 @@ void *read_ringbuffer(RingBuffer *rbuff)
 {
 	void *item = rbuff->array + rbuff->read;
 
-	if (rbuff->read >= (rbuff->capacity - 1) * rbuff->size) {
+	if (rbuff->read >= (rbuff->capacity - 1) * rbuff->size)
+	{
 		rbuff->read = 0;
-	} else {
+	}
+	else
+	{
 		rbuff->read += rbuff->size;
 	}
 
@@ -51,9 +54,12 @@ void write_ringbuffer(RingBuffer *rbuff, const void *item)
 {
 	memcpy(rbuff->array + rbuff->write, item, rbuff->size);
 
-	if (rbuff->write >= (rbuff->capacity - 1) * rbuff->size) {
+	if (rbuff->write >= (rbuff->capacity - 1) * rbuff->size)
+	{
 		rbuff->write = 0;
-	} else {
+	}
+	else
+	{
 		rbuff->write += rbuff->size;
 	}
 }

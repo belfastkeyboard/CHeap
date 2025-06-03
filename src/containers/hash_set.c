@@ -22,8 +22,8 @@ HashSet *create_hash_set_ext(size_t key_size, KComp kc, HashFnc hash)
 {
 	HashSet *set = memory_allocate_container(sizeof(HashSet));
 
-	set->alloc = create_node_allocator(0, TABLE_MIN, key_size, 0);
-	set->hash = hash;
+	set->alloc  = create_node_allocator(0, TABLE_MIN, key_size, 0);
+	set->hash   = hash;
 	set->k_size = key_size;
 	set->k_comp = kc;
 

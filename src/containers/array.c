@@ -1,7 +1,7 @@
 #include "../../array.h"
-#include "../../iter.h"
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
+#include "../../iter.h"
 
 typedef struct Array
 {
@@ -16,7 +16,7 @@ Array *create_array(const size_t size, const size_t nmemb)
 
 	array->array = generic_mempool_alloc(nmemb, size);
 	array->nmemb = nmemb;
-	array->size = size;
+	array->size  = size;
 
 	return array;
 }
@@ -64,9 +64,7 @@ Iter begin_array(const Array *array)
 	void        *ptr  = front_array(array);
 	const size_t size = array->size;
 
-	Iter iter = { .type = ITERATOR_VECTOR,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
 
 	return iter;
 }
@@ -76,9 +74,7 @@ Iter end_array(const Array *array)
 	void        *ptr  = back_array(array);
 	const size_t size = array->size;
 
-	Iter iter = { .type = ITERATOR_VECTOR,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
 
 	return iter;
 }

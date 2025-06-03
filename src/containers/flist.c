@@ -1,7 +1,7 @@
 #include "../../flist.h"
-#include "../../iter.h"
 #include "../../internals/base.h"
 #include "../../internals/linked.h"
+#include "../../iter.h"
 
 typedef struct ForwardList
 {
@@ -21,7 +21,7 @@ FList *create_forward_list_capacity(size_t size, size_t init)
 	FList *flist = memory_allocate_container(sizeof(FList));
 
 	flist->alloc = create_node_allocator(sizeof(struct Node), init, size, 0);
-	flist->size = size;
+	flist->size  = size;
 
 	return flist;
 }
@@ -82,9 +82,7 @@ Iter begin_forward_list(const FList *flist)
 	void        *ptr  = flist->head;
 	const size_t size = flist->size;
 
-	Iter iter = { .type = ITERATOR_FORWARD_LIST,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_FORWARD_LIST, .ptr = ptr, .size = size };
 
 	return iter;
 }
@@ -94,9 +92,7 @@ Iter end_forward_list(const FList *flist)
 	void        *ptr  = NULL;
 	const size_t size = flist->size;
 
-	Iter iter = { .type = ITERATOR_FORWARD_LIST,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_FORWARD_LIST, .ptr = ptr, .size = size };
 
 	return iter;
 }

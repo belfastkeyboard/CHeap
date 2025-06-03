@@ -1,7 +1,6 @@
 #include "../../deque.h"
 #include "../../internals/base.h"
 #include "../../internals/deq.h"
-#include "../../internals/nalloc.h"
 #include <stdbool.h>
 
 typedef struct DoubleEndedQueue

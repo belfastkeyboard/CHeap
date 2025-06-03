@@ -1,7 +1,7 @@
-#include "../../iter.h"
 #include "../../list.h"
 #include "../../internals/base.h"
 #include "../../internals/linked.h"
+#include "../../iter.h"
 
 typedef struct List
 {
@@ -22,7 +22,7 @@ List *create_list_capacity(size_t size, size_t init)
 	List *list = memory_allocate_container(sizeof(List));
 
 	list->alloc = create_node_allocator(sizeof(struct Node), init, size, 0);
-	list->size = size;
+	list->size  = size;
 
 	return list;
 }
@@ -109,9 +109,7 @@ Iter begin_list(const List *list)
 	void        *ptr  = list->head;
 	const size_t size = list->size;
 
-	Iter iter = { .type = ITERATOR_LIST,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_LIST, .ptr = ptr, .size = size };
 
 	return iter;
 }
@@ -121,9 +119,7 @@ Iter end_list(const List *list)
 	void        *ptr  = list->tail;
 	const size_t size = list->size;
 
-	Iter iter = { .type = ITERATOR_LIST,
-		          .ptr  = ptr,
-		          .size = size };
+	Iter iter = { .type = ITERATOR_LIST, .ptr = ptr, .size = size };
 
 	return iter;
 }

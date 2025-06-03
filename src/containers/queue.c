@@ -18,14 +18,14 @@ Queue *create_queue(const size_t size)
 	Queue *queue = memory_allocate_container(sizeof(Queue));
 
 	const size_t array_size = minimum_array_size(size);
-	const size_t capacity = array_size / size;
+	const size_t capacity   = array_size / size;
 	const size_t init_index = capacity / 2;
 
 	queue->control = create_control_array(capacity, size);
 	queue->arr_cap = capacity;
-	queue->size = size;
-	queue->front = init_index;
-	queue->back = init_index - 1;
+	queue->size    = size;
+	queue->front   = init_index;
+	queue->back    = init_index - 1;
 
 	return queue;
 }
@@ -49,7 +49,8 @@ void push_queue(Queue *queue, const void *value)
 
 void push_range_queue(Queue *queue, const Range *range)
 {
-	for (int i = 0; i < range->nmemb; i++) {
+	for (int i = 0; i < range->nmemb; i++)
+	{
 		deque_push_back(&queue->control,
 		                &queue->front,
 		                &queue->back,

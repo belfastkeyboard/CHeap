@@ -28,8 +28,8 @@ HashTable *create_hash_table_ext(size_t  key_size,
 {
 	HashTable *table = memory_allocate_container(sizeof(HashTable));
 
-	table->alloc = create_node_allocator(0, TABLE_MIN, key_size, value_size);
-	table->hash = hash;
+	table->alloc  = create_node_allocator(0, TABLE_MIN, key_size, value_size);
+	table->hash   = hash;
 	table->k_size = key_size;
 	table->v_size = value_size;
 	table->k_comp = kc;
