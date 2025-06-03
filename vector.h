@@ -90,20 +90,20 @@ void insert_vector(Vector *vector, const void *value, size_t index);
 
 #ifdef CHEAP_RANGE_AVAILABLE
 /**
- * @brief Appends a copy of @p range at the specified index
- *
- * @param vector The Vector object
- * @param range The range to append
- * @return Nothing
- */
-void push_back_range_vector(Vector *vector, const Range *range);
-
-/**
  * @brief Inserts a copy of @p range to the end of the vector
  *
  * @param vector The Vector object
  * @param index The index at which to insert @p range
  * @param range The range to insert
+ * @return Nothing
+ */
+void push_back_range_vector(Vector *vector, const Range *range);
+
+/**
+ * @brief Appends a copy of @p range at the specified index
+ *
+ * @param vector The Vector object
+ * @param range The range to append
  * @return Nothing
  */
 void insert_range_vector(Vector *vector, size_t index, const Range *range);
