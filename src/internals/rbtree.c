@@ -5,336 +5,156 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define BLACK 0
-#define RED   1
+#define VERIFY_RBTREE
 
 typedef int (*KComp)(const void *, const void *);
 
-static bool is_red(struct Node *node)
-{
-	return node && node->colour == RED;
-}
-
-static struct Node *create_node(struct NodeAlloc *alloc,
-                                struct Node      *parent,
-                                const void       *key,
-                                const void       *value,
-                                const size_t      k_size,
-                                const size_t      v_size)
+struct Node *create_node(struct NodeAlloc *alloc,
+                         void             *key,
+                         void             *value,
+                         enum Colour       node_color,
+                         struct Node      *left,
+                         struct Node      *right,
+                         const size_t      k_size,
+                         const size_t      v_size)
 {
 	void *memory = alloc_node(alloc);
 
 	struct Node *node = memory;
 
-	node->key   = memory + sizeof(struct Node);
-	node->value = memory + sizeof(struct Node) + k_size;
+	node->key    = memory + sizeof(struct Node);
+	node->value  = memory + sizeof(struct Node) + k_size;
+	node->colour = node_color;
+	node->l      = left;
+	node->r      = right;
 
-	node->colour = RED;
-	node->p      = parent;
-	node->l      = NULL;
-	node->r      = NULL;
+	if (left) {
+		left->p = node;
+	}
 
-	node->key = memcpy(node->key, key, k_size);
+	if (right) {
+		right->p = node;
+	}
 
+	node->p = NULL;
+
+	node->key   = memcpy(node->key, key, k_size);
 	node->value = memcpy(node->value, value, v_size);
 
 	return node;
 }
 
-static struct Node *min(struct Node *node)
-{
-	while (node->l) {
-		node = node->l;
-	}
-
-	return node;
-}
-
-static void swap_colours(struct Node *node)
-{
-	node->colour = !node->colour;
-
-	node->l->colour = !node->l->colour;
-	node->r->colour = !node->r->colour;
-}
-
-static struct Node *rotate_right(struct Node *node)
-{
-	assert(node && is_red(node->l));
-
-	struct Node *x = node->l;
-
-	node->l = x->r;
-	if (x->r) {
-		x->r->p = node;
-	}
-
-	x->r         = node;
-	x->p         = node->p;
-	node->p      = x;
-	x->colour    = node->colour;
-	node->colour = RED;
-
-	return x;
-}
-
-static struct Node *rotate_left(struct Node *node)
-{
-	assert(node && is_red(node->r));
-
-	struct Node *x = node->r;
-
-	node->r = x->l;
-	if (x->l) {
-		x->l->p = node;
-	}
-
-	x->l         = node;
-	x->p         = node->p;
-	node->p      = x;
-	x->colour    = node->colour;
-	node->colour = RED;
-
-	return x;
-}
-
-static struct Node *move_red_right(struct Node *node)
-{
-	swap_colours(node);
-
-	if (is_red(node->l->l)) {
-		node = rotate_right(node);
-
-		swap_colours(node);
-	}
-
-	return node;
-}
-
-static struct Node *move_red_left(struct Node *node)
-{
-	swap_colours(node);
-
-	if (is_red(node->r->l)) {
-		node->r = rotate_right(node->r);
-
-		node = rotate_left(node);
-
-		swap_colours(node);
-	}
-
-	return node;
-}
-
-static struct Node *balance(struct Node *node)
-{
-	if (is_red(node->r) && !is_red(node->l)) {
-		node = rotate_left(node);
-	}
-
-	if (is_red(node->l) && is_red(node->l->l)) {
-		node = rotate_right(node);
-	}
-
-	if (is_red(node->l) && is_red(node->r)) {
-		swap_colours(node);
-	}
-
-	return node;
-}
-
-static struct Node *rbt_delete_min(struct NodeAlloc *alloc,
-                                   struct Node      *node,
-                                   size_t           *nmemb)
-{
-	struct Node *result = NULL;
-
-	if (node->l) {
-		if (!is_red(node->l) && !is_red(node->l->l)) {
-			node = move_red_left(node);
-		}
-
-		node->l = rbt_delete_min(alloc, node->l, nmemb);
-
-		result = balance(node);
-	} else {
-		free_node(alloc, node);
-
-		(*nmemb)--;
-	}
-
-	return result;
-}
-
-static void delete_min(struct NodeAlloc *alloc,
-                       struct Node      *node,
-                       size_t           *nmemb)
+static struct Node *grandparent(struct Node *node)
 {
 	assert(node);
+	assert(node->p);
+	assert(node->p->p);
 
-	if (!is_red(node->l) && !is_red(node->r)) {
-		node->colour = RED;
-	}
-
-	node = rbt_delete_min(alloc, node, nmemb);
-
-	if (node) {
-		node->colour = BLACK;
-	}
+	return node->p->p;
 }
 
-static struct Node *rbt_insert(struct NodeAlloc *alloc,
-                               struct Node      *node,
-                               struct Node      *parent,
-                               const void       *key,
-                               const void       *value,
-                               const KComp       compare,
-                               const size_t      k_size,
-                               const size_t      v_size)
+static struct Node *sibling(struct Node *node)
 {
-	struct Node *result = NULL;
+	assert(node);
+	assert(node->p);
+
+	return (node == node->p->l) ? node->p->r : node->p->l;
+}
+
+static struct Node *uncle(struct Node *n)
+{
+	assert(n);
+	assert(n->p);
+	assert(n->p->p);
+
+	return sibling(n->p);
+}
+
+static enum Colour node_colour(struct Node *node)
+{
+	return (!node) ? BLACK : node->colour;
+}
+
+static bool is_red(struct Node *node)
+{
+	return node_colour(node) == RED;
+}
+
+static bool is_black(struct Node *node)
+{
+	return node_colour(node) == BLACK;
+}
+
+void verify_property_1(struct Node *node)
+{
+	assert(is_red(node) || is_black(node));
+
+	if (node == NULL) {
+		return;
+	}
+
+	verify_property_1(node->l);
+	verify_property_1(node->r);
+}
+
+void verify_property_2(struct Node *head)
+{
+	assert(is_black(head) == BLACK);
+}
+
+void verify_property_4(struct Node *node)
+{
+	if (is_red(node) == RED) {
+		assert(is_black(node->l));
+		assert(is_black(node->r));
+		assert(is_black(node->p));
+	}
 
 	if (!node) {
-		result = create_node(alloc, parent, key, value, k_size, v_size);
-	} else {
-		int cmp = compare(key, node->key);
-
-		if (cmp < 0) {
-			node->l = rbt_insert(alloc,
-			                     node->l,
-			                     node,
-			                     key,
-			                     value,
-			                     compare,
-			                     k_size,
-			                     v_size);
-		} else if (cmp > 0) {
-			node->r = rbt_insert(alloc,
-			                     node->r,
-			                     node,
-			                     key,
-			                     value,
-			                     compare,
-			                     k_size,
-			                     v_size);
-		} else {
-			node->key = memcpy(node->key, key, k_size);
-		}
-
-		if (is_red(node->r) && !is_red(node->l)) {
-			node = rotate_left(node);
-		}
-
-		if (is_red(node->l) && is_red(node->l->l)) {
-			node = rotate_right(node);
-		}
-
-		if (is_red(node->l) && is_red(node->r)) {
-			swap_colours(node);
-		}
-
-		result = node;
+		return;
 	}
 
-	return result;
+	verify_property_4(node->l);
+	verify_property_4(node->r);
 }
 
-static struct Node *rbt_delete(struct NodeAlloc *alloc,
-                               struct Node      *node,
-                               const void       *key,
-                               const KComp       compare,
-                               size_t           *nmemb)
+void verify_property_5_helper(struct Node *node,
+                              int          black_count,
+                              int         *path_black_count)
 {
+	if (is_black(node)) {
+		black_count++;
+	}
+
 	if (!node) {
-		return node;
-	}
-
-	int res = compare(key, node->key);
-
-	if (res < 0) {
-		if (!is_red(node->l) && (node->l && !is_red(node->l->l))) {
-			node = move_red_left(node);
-		}
-
-		node->l = rbt_delete(alloc, node->l, key, compare, nmemb);
-		assert(node->r == NULL || (node->r && node->r->p == node));
-	} else {
-		if (is_red(node->l)) {
-			node = rotate_right(node);
-		}
-
-		if (res == 0 && !node->r) {
-			free_node(alloc, node);
-			(*nmemb)--;
-			return NULL;
-		}
-
-		if (!is_red(node->r) && (node->r && !is_red(node->r->l))) {
-			node = move_red_right(node);
-		}
-
-		res = compare(key, node->key);
-
-		if (res == 0) {
-			struct Node *x = min(node->r);
-			node->key = x->key;
-			node->r = rbt_delete_min(alloc, node->r, nmemb);
-			assert(node->r == NULL || (node->r && node->r->p == node));
+		if (*path_black_count == -1) {
+			*path_black_count = black_count;
 		} else {
-			node->r = rbt_delete(alloc, node->r, key, compare, nmemb);
-			assert(node->r == NULL || (node->r && node->r->p == node));
+			assert(black_count == *path_black_count);
 		}
+		return;
 	}
 
-	return balance(node);
+	verify_property_5_helper(node->l, black_count, path_black_count);
+	verify_property_5_helper(node->r, black_count, path_black_count);
 }
 
-static struct Node *rbt_search(struct Node *head,
-                               const void  *key,
-                               const KComp  compare)
+void verify_property_5(struct Node *head)
 {
-	struct Node *result = NULL;
-	struct Node *node   = head;
-
-	while (node && !result) {
-		int res = compare(key, node->key);
-
-		if (res > 0) {
-			node = node->r;
-		} else if (res < 0) {
-			node = node->l;
-		} else {
-			result = node;
-		}
-	}
-
-	return result;
+	int black_count_path = -1;
+	verify_property_5_helper(head, 0, &black_count_path);
 }
 
-void *rbt_search_k(struct Node *head, const void *key, const KComp compare)
+void verify_properties(struct Node *head)
 {
-	void *result = NULL;
+#ifdef VERIFY_RBTREE
 
-	struct Node *node = rbt_search(head, key, compare);
-
-	if (node) {
-		result = node->key;
-	}
-
-	return result;
-}
-
-void *rbt_search_v(struct Node *head, const void *key, const KComp compare)
-{
-	void *result = NULL;
-
-	struct Node *node = rbt_search(head, key, compare);
-
-	if (node) {
-		result = node->value;
-	}
-
-	return result;
+	verify_property_1(head);
+	verify_property_2(head);
+	// property 3 is implicit
+	verify_property_4(head);
+	verify_property_5(head);
+#endif
 }
 
 void insert_rbtree(struct NodeAlloc *alloc,

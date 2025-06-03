@@ -5,11 +5,17 @@
 
 typedef int (*Comp)(const void *a, const void *b);
 
+enum Colour
+{
+	RED,
+	BLACK
+};
+
 struct Node
 {
 	void        *key;
 	void        *value;
-	int          colour;
+	enum Colour  colour;
 	struct Node *p;
 	struct Node *l;
 	struct Node *r;
