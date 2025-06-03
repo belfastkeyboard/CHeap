@@ -1,6 +1,6 @@
-#include "../../iter.h"
 #include "../../internals/linked.h"
 #include "../../internals/nalloc.h"
+#include "../../iter.h"
 #include <memory.h>
 
 static struct Node *create_node(struct NodeAlloc *alloc,
@@ -26,10 +26,13 @@ static void create_node_singly_linked(struct NodeAlloc *alloc,
 {
 	struct Node *node = create_node(alloc, size, value);
 
-	if (prior || !nmemb) {
+	if (prior || !nmemb)
+	{
 		*head      = node;
 		node->next = position;
-	} else {
+	}
+	else
+	{
 		node->next     = position->next;
 		position->next = node;
 	}
@@ -40,9 +43,12 @@ static void erase_node_singly_linked(struct NodeAlloc *alloc,
                                      struct Node     **head,
                                      const int         prior)
 {
-	if (prior) {
+	if (prior)
+	{
 		*head = position->next;
-	} else {
+	}
+	else
+	{
 		position->next = position->next->next;
 	}
 
@@ -59,18 +65,26 @@ static void create_node_doubly_linked(struct NodeAlloc *alloc,
 {
 	struct Node *node = create_node(alloc, size, value);
 
-	if (!nmemb) {
+	if (!nmemb)
+	{
 		*head = node;
 		*tail = node;
-	} else if (!position) {
+	}
+	else if (!position)
+	{
 		(*tail)->next = node;
 		node->prev    = *tail;
 		*tail         = node;
-	} else {
-		if (position->prev) {
+	}
+	else
+	{
+		if (position->prev)
+		{
 			position->prev->next = node;
 			node->prev           = position->prev;
-		} else {
+		}
+		else
+		{
 			*head = node;
 		}
 
@@ -84,15 +98,21 @@ static void erase_node_doubly_linked(struct NodeAlloc *alloc,
                                      struct Node     **head,
                                      struct Node     **tail)
 {
-	if (position->prev) {
+	if (position->prev)
+	{
 		position->prev->next = position->next;
-	} else {
+	}
+	else
+	{
 		*head = position->next;
 	}
 
-	if (position->next) {
+	if (position->next)
+	{
 		position->next->prev = position->prev;
-	} else {
+	}
+	else
+	{
 		*tail = position->prev;
 	}
 
@@ -106,17 +126,23 @@ static struct Node *seek_node(const size_t nmemb,
 {
 	struct Node *seek = NULL;
 
-	if (index < nmemb) {
-		if (tail && index > nmemb / 2) {
+	if (index < nmemb)
+	{
+		if (tail && index > nmemb / 2)
+		{
 			seek = tail;
 
-			for (size_t i = nmemb - 1; i > index; i--) {
+			for (size_t i = nmemb - 1; i > index; i--)
+			{
 				seek = seek->prev;
 			}
-		} else {
+		}
+		else
+		{
 			seek = head;
 
-			for (size_t i = 0; i < index; i++) {
+			for (size_t i = 0; i < index; i++)
+			{
 				seek = seek->next;
 			}
 		}
@@ -250,7 +276,8 @@ void generic_clear_linked(struct NodeAlloc *alloc,
 
 	*head = NULL;
 
-	if (tail) {
+	if (tail)
+	{
 		*tail = NULL;
 	}
 

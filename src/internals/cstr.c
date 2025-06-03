@@ -207,7 +207,8 @@ ALLOC static String string_concatenate(restrict String    dest,
 	const uint32_t buffsz = string_buffer(dest);
 	const uint32_t len    = string_len(dest);
 
-	if (buffsz - len < n) {
+	if (buffsz - len < n)
+	{
 		const uint32_t sz = max(len + n, buffsz * 2);
 		dest = generic_allocation(dest, sz, buffsz, strategy, arena);
 	}
@@ -241,16 +242,19 @@ ALLOC static String string_replace(String      str,
 	const int32_t diff   = (int32_t)(n - o);
 	char         *substr = str;
 
-	if (diff > 0) {
+	if (diff > 0)
+	{
 		uint32_t count = 0;
-		while ((substr = strstr(substr, old))) {
+		while ((substr = strstr(substr, old)))
+		{
 			count++;
 			substr += o;
 		}
 
 		const uint32_t buffsz = string_buffer(str);
 
-		if (buffsz - len < count * diff) {
+		if (buffsz - len < count * diff)
+		{
 			const uint32_t sz = max(buffsz + count * diff, buffsz * 2);
 			str = generic_allocation(str, sz, buffsz, strategy, arena);
 		}
@@ -258,17 +262,21 @@ ALLOC static String string_replace(String      str,
 		substr = str;
 	}
 
-	while ((substr = strstr(substr, old))) {
+	while ((substr = strstr(substr, old)))
+	{
 		const ptrdiff_t pos = substr - str;
 		char           *dest;
 		char           *src;
 		size_t          amount;
 
-		if (diff < 0) {
+		if (diff < 0)
+		{
 			dest   = substr;
 			src    = substr + (diff * -1);
 			amount = len - pos - (diff * -1);
-		} else {
+		}
+		else
+		{
 			dest   = substr + diff;
 			src    = substr;
 			amount = len - pos;
@@ -376,7 +384,8 @@ void string_tolower(String str)
 {
 	const uint32_t len = string_len(str);
 
-	for (uint32_t i = 0; i < len; ++i) {
+	for (uint32_t i = 0; i < len; ++i)
+	{
 		char c = str[i];
 		str[i] = (char)tolower(c);
 	}
@@ -386,7 +395,8 @@ void string_toupper(String str)
 {
 	const uint32_t len = string_len(str);
 
-	for (uint32_t i = 0; i < len; ++i) {
+	for (uint32_t i = 0; i < len; ++i)
+	{
 		char c = str[i];
 		str[i] = (char)toupper(c);
 	}
@@ -417,17 +427,20 @@ void string_strip(String str, const char *reject)
 	char *sp  = str;
 	char *ep  = end;
 
-	while (sp <= end && strchr(reject, *sp)) {
+	while (sp <= end && strchr(reject, *sp))
+	{
 		sp++;
 	}
 
-	while (ep > sp && strchr(reject, *ep)) {
+	while (ep > sp && strchr(reject, *ep))
+	{
 		ep--;
 	}
 
 	const uint32_t len = ep - sp + 1;
 
-	if (sp != str) {
+	if (sp != str)
+	{
 		memmove(str, sp, len);
 	}
 
@@ -439,13 +452,17 @@ void string_totitle(String str)
 	const uint32_t len   = string_len(str);
 	bool           space = true;
 
-	for (uint32_t i = 0; i < len; ++i) {
+	for (uint32_t i = 0; i < len; ++i)
+	{
 		char c      = str[i];
 		bool letter = isalpha(c);
 
-		if (space && letter) {
+		if (space && letter)
+		{
 			str[i] = (char)toupper(c);
-		} else if (letter) {
+		}
+		else if (letter)
+		{
 			str[i] = (char)tolower(c);
 		}
 
@@ -551,7 +568,8 @@ static Vector *generic_string_split(ConstString        str,
 	char        *sub    = (String)str;
 	char        *cursor = sub;
 
-	while ((sub = strstr(sub, delim))) {
+	while ((sub = strstr(sub, delim)))
+	{
 		const ptrdiff_t len    = sub - cursor;
 		ConstString     string = ndup(arena, cursor, len);
 		push_back_vector(strings, &string);
@@ -559,11 +577,14 @@ static Vector *generic_string_split(ConstString        str,
 		cursor = sub;
 	}
 
-	if (cursor != str) {
+	if (cursor != str)
+	{
 		const size_t len   = strlen(cursor);
 		String       final = ndup(arena, cursor, len);
 		push_back_vector(strings, &final);
-	} else {
+	}
+	else
+	{
 		ConstString string = dup(arena, str);
 		push_back_vector(strings, &string);
 	}
@@ -591,12 +612,14 @@ ALLOC static String generic_join(Vector            *strings,
 	const size_t delim_len = strlen(delim);
 
 	const size_t c = size_vector(strings);
-	for (size_t i = 0; i < c; ++i) {
+	for (size_t i = 0; i < c; ++i)
+	{
 		ConstString s = *(ConstString *)at_vector(strings, i);
 		uint32_t    n = string_len(s);
 		string        = string_concatenate(string, s, n, realloc_strat, arena);
 
-		if (i < c - 1) {
+		if (i < c - 1)
+		{
 			string = string_concatenate(string,
 			                            delim,
 			                            delim_len,

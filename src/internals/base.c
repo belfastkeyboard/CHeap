@@ -13,7 +13,8 @@ void *memory_allocate_container(const size_t size)
 
 void memory_free_buffer(void **buffer)
 {
-	if (*buffer) {
+	if (*buffer)
+	{
 		free(*buffer);
 	}
 

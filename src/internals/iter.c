@@ -1,6 +1,6 @@
+#include "../../iter.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../iter.h"
 
 extern Iter *next_mempool(Iter *iter);
 extern Iter *prev_mempool(Iter *iter);
@@ -17,7 +17,8 @@ extern void *get_linked(const Iter *iter);
 
 Iter *next_iter(Iter *iter)
 {
-	switch (iter->type) {
+	switch (iter->type)
+	{
 		case ITERATOR_VECTOR:
 		case ITERATOR_ARRAY:
 			return next_mempool(iter);
@@ -35,7 +36,8 @@ Iter *next_iter(Iter *iter)
 
 Iter *prev_iter(Iter *iter)
 {
-	switch (iter->type) {
+	switch (iter->type)
+	{
 		case ITERATOR_VECTOR:
 		case ITERATOR_ARRAY:
 			return prev_mempool(iter);
@@ -52,7 +54,8 @@ Iter *prev_iter(Iter *iter)
 
 void *get_iter(const Iter *iter)
 {
-	switch (iter->type) {
+	switch (iter->type)
+	{
 		case ITERATOR_VECTOR:
 		case ITERATOR_ARRAY:
 			return get_mempool(iter);
@@ -71,7 +74,8 @@ void *get_iter(const Iter *iter)
 
 bool done_iter(const Iter *begin, const Iter *end)
 {
-	switch (begin->type) {
+	switch (begin->type)
+	{
 		case ITERATOR_ARRAY:
 		case ITERATOR_VECTOR:
 		case ITERATOR_HASH_SET:
@@ -88,7 +92,8 @@ bool done_iter(const Iter *begin, const Iter *end)
 
 bool done_iter_r(const Iter *begin, const Iter *end)
 {
-	switch (begin->type) {
+	switch (begin->type)
+	{
 		case ITERATOR_ARRAY:
 		case ITERATOR_VECTOR:
 		case ITERATOR_HASH_SET:

@@ -54,7 +54,8 @@ static void mempool_insert(void        *array,
 
 	CHEAP_ASSERT(shift > 0, "Attempting to shift elements by 0 bytes.");
 
-	if (index < nmemb) {
+	if (index < nmemb)
+	{
 		memmove(array + (index + shift) * size,
 		        array + index * size,
 		        (nmemb - index) * size);
@@ -130,7 +131,8 @@ void generic_mempool_insert(void       **array,
 {
 	CHEAP_ASSERT(value, "Value cannot be NULL.");
 
-	if (*nmemb >= *capacity) {
+	if (*nmemb >= *capacity)
+	{
 		*array = mempool_resize(*array, capacity, size);
 	}
 
@@ -159,7 +161,8 @@ void generic_mempool_range_insert(void       **array,
 {
 	CHEAP_ASSERT(size == range->size, "Type size mismatch.");
 
-	if (*nmemb + range->nmemb >= *capacity) {
+	if (*nmemb + range->nmemb >= *capacity)
+	{
 		*array = mempool_range_resize(*array, capacity, size, range->nmemb);
 	}
 
@@ -253,7 +256,8 @@ void generic_mempool_reserve(void       **array,
                              const size_t size,
                              const size_t new_cap)
 {
-	if (new_cap > *capacity) {
+	if (new_cap > *capacity)
+	{
 		*array = mempool_realloc(*array, new_cap * size);
 
 		*capacity = new_cap;
@@ -265,7 +269,8 @@ void generic_mempool_shrink_to_fit(void       **array,
                                    const size_t nmemb,
                                    const size_t size)
 {
-	if (nmemb < *capacity) {
+	if (nmemb < *capacity)
+	{
 		*capacity = nmemb;
 
 		*array = mempool_realloc(*array, *capacity * size);

@@ -48,7 +48,8 @@ static size_t locate_block(size_t             *index,
 	size_t result     = front;
 	size_t accumulate = blocks[result].nmemb;
 
-	while (accumulate <= *index) {
+	while (accumulate <= *index)
+	{
 		*index -= accumulate;
 		result     = (result + 1) % capacity;
 		accumulate = blocks[result].nmemb;
@@ -68,11 +69,14 @@ static void resize_from_single(struct ControlArray *control,
 
 	struct Block *blocks;
 
-	if (control->capacity == 1) {
+	if (control->capacity == 1)
+	{
 		blocks = malloc(sizeof(struct Block) * 2);
 		memcpy(blocks + 1 - index, control->blocks, sizeof(struct Block));
 		free(control->blocks);
-	} else {
+	}
+	else
+	{
 		blocks            = control->blocks;
 		blocks[1 - index] = control->blocks[0];
 	}
@@ -96,7 +100,8 @@ static void resize_from_multiple(struct ControlArray *control,
                                  const size_t         size,
                                  const bool           forward)
 {
-	if (control->block_count >= control->capacity) {
+	if (control->block_count >= control->capacity)
+	{
 		control->capacity *= 2;
 
 		const size_t f_index = (control->capacity) / 2 -
@@ -107,7 +112,8 @@ static void resize_from_multiple(struct ControlArray *control,
 
 		struct Block *blocks = calloc(control->capacity, sizeof(struct Block));
 
-		if ((*front) > (*back)) {
+		if ((*front) > (*back))
+		{
 			const size_t span = control->block_count - *front;
 			const size_t diff = (forward) ? *front
 			                              : control->block_count - span;
@@ -119,7 +125,9 @@ static void resize_from_multiple(struct ControlArray *control,
 			memcpy(blocks + f + span,
 			       control->blocks,
 			       sizeof(struct Block) * diff);
-		} else {
+		}
+		else
+		{
 			memcpy(blocks + f,
 			       control->blocks,
 			       sizeof(struct Block) * control->block_count);
@@ -133,11 +141,14 @@ static void resize_from_multiple(struct ControlArray *control,
 		*back  = b;
 	}
 
-	if (forward) {
+	if (forward)
+	{
 		*front = (*front - 1) % control->capacity;
 
 		*block = control->blocks + *front;
-	} else {
+	}
+	else
+	{
 		*back = (*back + 1) % control->capacity;
 
 		*block = control->blocks + *back;
@@ -158,11 +169,14 @@ static void push_front_single(struct ControlArray *control,
 {
 	void *dest;
 
-	if (!has_space_at_front(*front)) {
+	if (!has_space_at_front(*front))
+	{
 		resize_from_single(control, front, back, 0, arr_cap, size);
 
 		dest = control->blocks[0].array + (arr_cap - 1) * size;
-	} else {
+	}
+	else
+	{
 		(*front)--;
 
 		dest = control->blocks[0].array + ((*front) * size);
@@ -182,7 +196,8 @@ static void push_front_multiple(struct ControlArray *control,
 {
 	struct Block *block = &control->blocks[*front];
 
-	if (is_full(block->nmemb, arr_cap)) {
+	if (is_full(block->nmemb, arr_cap))
+	{
 		resize_from_multiple(control, &block, front, back, arr_cap, size, true);
 	}
 
@@ -201,12 +216,15 @@ static void push_back_single(struct ControlArray *control,
 	void  *dest;
 	size_t i;
 
-	if (!has_space_at_back(*back, arr_cap)) {
+	if (!has_space_at_back(*back, arr_cap))
+	{
 		resize_from_single(control, front, back, 1, arr_cap, size);
 
 		dest = control->blocks[1].array;
 		i    = 1;
-	} else {
+	}
+	else
+	{
 		(*back)++;
 
 		dest = control->blocks[0].array + *back * size;
@@ -227,7 +245,8 @@ static void push_back_multiple(struct ControlArray *control,
 {
 	struct Block *block = &control->blocks[*back];
 
-	if (is_full(block->nmemb, arr_cap)) {
+	if (is_full(block->nmemb, arr_cap))
+	{
 		resize_from_multiple(control,
 		                     &block,
 		                     front,
@@ -252,9 +271,12 @@ static void generic_deque_push(struct ControlArray *control,
                                PushFunc             push_single,
                                PushFunc             push_multiple)
 {
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		push_single(control, value, front, back, arr_cap, size);
-	} else {
+	}
+	else
+	{
 		push_multiple(control, value, front, back, arr_cap, size);
 	}
 
@@ -272,7 +294,8 @@ static void insert_back(struct ControlArray *control,
 {
 	struct Block *block = control->blocks + b_index;
 
-	if (is_full(block->nmemb, arr_cap)) {
+	if (is_full(block->nmemb, arr_cap))
+	{
 		void *hold = block->array + ((block->nmemb - 1) * size);
 
 		insert_back(control,
@@ -289,7 +312,9 @@ static void insert_back(struct ControlArray *control,
 		        (block->nmemb - index - 1) * size);
 
 		memcpy(block->array + index * size, value, size);
-	} else {
+	}
+	else
+	{
 		void        *dest = block->array + (index + 1) * size;
 		void        *src  = block->array + index * size;
 		const size_t n    = (block->nmemb - index) * size;
@@ -313,7 +338,8 @@ static void insert_front(struct ControlArray *control,
 {
 	struct Block *block = control->blocks + b_index;
 
-	if (is_full(block->nmemb, arr_cap)) {
+	if (is_full(block->nmemb, arr_cap))
+	{
 		void *hold = block->array;
 
 		const size_t prev = (b_index - 1) % control->capacity;
@@ -332,7 +358,9 @@ static void insert_front(struct ControlArray *control,
 		        index * size);
 
 		memcpy(block->array + index * size, value, size);
-	} else {
+	}
+	else
+	{
 		memmove(block->array + (arr_cap - block->nmemb - 1) * size,
 		        block->array + (arr_cap - block->nmemb) * size,
 		        index * size);
@@ -362,8 +390,10 @@ static void insert_single(struct ControlArray *control,
 
 	index += f;
 
-	if (index < mid) {
-		if (!has_space_at_front(f)) {
+	if (index < mid)
+	{
+		if (!has_space_at_front(f))
+		{
 			resize_from_single(control, front, back, 0, arr_cap, size);
 
 			memcpy(control->blocks[0].array + (arr_cap - 1) * size,
@@ -377,7 +407,9 @@ static void insert_single(struct ControlArray *control,
 			        (index - 1) * size);
 
 			memcpy(control->blocks[1].array + index * size, value, size);
-		} else {
+		}
+		else
+		{
 			(*front)--;
 
 			control->blocks[0].nmemb++;
@@ -392,8 +424,11 @@ static void insert_single(struct ControlArray *control,
 		}
 
 		(*nmemb)++;
-	} else {
-		if (!has_space_at_back(b, arr_cap)) {
+	}
+	else
+	{
+		if (!has_space_at_back(b, arr_cap))
+		{
 			resize_from_single(control, front, back, 1, arr_cap, size);
 
 			memcpy(control->blocks[1].array,
@@ -401,7 +436,9 @@ static void insert_single(struct ControlArray *control,
 			       size);
 
 			control->blocks[1].nmemb++;
-		} else {
+		}
+		else
+		{
 			(*back)++;
 
 			control->blocks[0].nmemb++;
@@ -429,10 +466,12 @@ static void insert_multiple(struct ControlArray *control,
 	const size_t mid     = *nmemb / 2;
 	size_t       n_index = index;
 
-	if (index > mid) {
+	if (index > mid)
+	{
 		struct Block *back_block = control->blocks + *back;
 
-		if (is_full(back_block->nmemb, arr_cap)) {
+		if (is_full(back_block->nmemb, arr_cap))
+		{
 			void *last_elem = back_block->array +
 			                  (back_block->nmemb - 1) * size;
 
@@ -462,10 +501,13 @@ static void insert_multiple(struct ControlArray *control,
 		            n_index,
 		            b_index,
 		            size);
-	} else {
+	}
+	else
+	{
 		struct Block *front_block = control->blocks + *front;
 
-		if (is_full(front_block->nmemb, arr_cap)) {
+		if (is_full(front_block->nmemb, arr_cap))
+		{
 			void *first_elem = front_block->array;
 
 			resize_from_multiple(control,
@@ -512,7 +554,8 @@ static void shift_up(struct ControlArray *control,
 {
 	index += arr_cap - control->blocks[b_index].nmemb;
 
-	while (1) {
+	while (1)
+	{
 		struct Block *block = &control->blocks[b_index];
 
 		void  *dest = block->array + (arr_cap - block->nmemb + 1) * size;
@@ -521,22 +564,27 @@ static void shift_up(struct ControlArray *control,
 
 		memmove(dest, src, n);
 
-		if (is_front(b_index, *front)) {
+		if (is_front(b_index, *front))
+		{
 			block->nmemb--;
 
-			if (!block->nmemb) {
+			if (!block->nmemb)
+			{
 				free(block->array);
 				block->array = NULL;
 
 				control->block_count--;
 
-				if (control->block_count == 1) {
+				if (control->block_count == 1)
+				{
 					control->blocks[0]           = control->blocks[*back];
 					control->blocks[*back].array = NULL;
 
 					*back  = control->blocks[0].nmemb - 1;
 					*front = 0;
-				} else {
+				}
+				else
+				{
 					*front = ((*front) + 1) % control->capacity;
 				}
 			}
@@ -563,31 +611,38 @@ static void shift_down(struct ControlArray *control,
                        size_t               index,
                        size_t               b_index)
 {
-	while (1) {
+	while (1)
+	{
 		struct Block *block = &control->blocks[b_index];
 
-		if (index < arr_cap - 1) {
+		if (index < arr_cap - 1)
+		{
 			memmove(block->array + index * size,
 			        block->array + (index + 1) * size,
 			        (block->nmemb - index - 1) * size);
 		}
 
-		if (is_back(b_index, *back)) {
+		if (is_back(b_index, *back))
+		{
 			block->nmemb--;
 
-			if (!block->nmemb) {
+			if (!block->nmemb)
+			{
 				free(block->array);
 				block->array = NULL;
 
 				control->block_count--;
 
-				if (control->block_count == 1) {
+				if (control->block_count == 1)
+				{
 					control->blocks[0]            = control->blocks[*front];
 					control->blocks[*front].array = NULL;
 
 					*back  = arr_cap - 1;
 					*front = (*back) - (control->blocks[0].nmemb - 1);
-				} else {
+				}
+				else
+				{
 					*back = ((*back) - 1) % control->capacity;
 				}
 			}
@@ -626,13 +681,16 @@ static void erase_single(struct ControlArray *control,
 	void  *src;
 	size_t n;
 
-	if (n_index < mid) {
+	if (n_index < mid)
+	{
 		dest = block->array + (f + 1) * size;
 		src  = block->array + f * size;
 		n    = (n_index - f) * size;
 
 		(*front)++;
-	} else {
+	}
+	else
+	{
 		dest = block->array + n_index * size;
 		src  = block->array + (n_index + 1) * size;
 		n    = (block->nmemb - index - 1) * size;
@@ -662,9 +720,12 @@ static void erase_multiple(struct ControlArray *control,
 
 	const size_t mid = nmemb / 2;
 
-	if (index < mid) {
+	if (index < mid)
+	{
 		shift_up(control, arr_cap, size, front, back, n_index, b_index);
-	} else {
+	}
+	else
+	{
 		shift_down(control, arr_cap, size, front, back, n_index, b_index);
 	}
 }
@@ -691,9 +752,12 @@ struct ControlArray create_control_array(const size_t arr_cap,
 
 void destroy_control_array(struct ControlArray *control, const size_t front)
 {
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		free(control->blocks[0].array);
-	} else {
+	}
+	else
+	{
 		for (size_t i = front, j = 0; j < control->block_count;
 		     i = (i + 1) % control->capacity, j++)
 		{
@@ -753,12 +817,18 @@ void deque_insert(struct ControlArray *control,
 {
 	assert(index <= *nmemb);
 
-	if (!index) {
+	if (!index)
+	{
 		deque_push_front(control, front, back, arr_cap, value, size, nmemb);
-	} else if (index == *nmemb) {
+	}
+	else if (index == *nmemb)
+	{
 		deque_push_back(control, front, back, arr_cap, value, size, nmemb);
-	} else {
-		if (control->block_count == 1) {
+	}
+	else
+	{
+		if (control->block_count == 1)
+		{
 			insert_single(control,
 			              front,
 			              back,
@@ -767,7 +837,9 @@ void deque_insert(struct ControlArray *control,
 			              value,
 			              index,
 			              nmemb);
-		} else {
+		}
+		else
+		{
 			insert_multiple(control,
 			                value,
 			                index,
@@ -791,21 +863,27 @@ void *deque_at(const struct ControlArray *control,
 
 	void *result = NULL;
 
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		const struct Block block = control->blocks[0];
 
 		result = block.array + (front + index) * size;
-	} else {
+	}
+	else
+	{
 		const size_t b_index = locate_block(&index,
 		                                    control->blocks,
 		                                    front,
 		                                    control->capacity);
 
-		if (is_front(b_index, front)) {
+		if (is_front(b_index, front))
+		{
 			const struct Block block = control->blocks[b_index];
 
 			result = block.array + (arr_cap - block.nmemb + index) * size;
-		} else {
+		}
+		else
+		{
 			result = control->blocks[b_index].array + index * size;
 		}
 	}
@@ -823,9 +901,12 @@ void *deque_front(const struct ControlArray *control,
 
 	void *result = NULL;
 
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		result = control->blocks[0].array + (front * size);
-	} else {
+	}
+	else
+	{
 		struct Block block = control->blocks[front];
 
 		result = block.array + (arr_cap - block.nmemb) * size;
@@ -843,9 +924,12 @@ void *deque_back(const struct ControlArray *control,
 
 	void *result = NULL;
 
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		result = control->blocks[0].array + (back * size);
-	} else {
+	}
+	else
+	{
 		struct Block block = control->blocks[back];
 
 		result = block.array + (block.nmemb - 1) * size;
@@ -861,29 +945,36 @@ void deque_pop_front(struct ControlArray *control,
 {
 	assert(*nmemb);
 
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		(*nmemb)--;
 		control->blocks[0].nmemb--;
 		(*front)++;
-	} else {
+	}
+	else
+	{
 		struct Block *front_block = &control->blocks[*front];
 
 		front_block->nmemb--;
 		(*nmemb)--;
 
-		if (!(front_block->nmemb)) {
+		if (!(front_block->nmemb))
+		{
 			free(front_block->array);
 			front_block->array = NULL;
 
 			control->block_count--;
 
-			if (control->block_count == 1) {
+			if (control->block_count == 1)
+			{
 				control->blocks[0]           = control->blocks[*back];
 				control->blocks[*back].array = NULL;
 
 				*back  = control->blocks[0].nmemb - 1;
 				*front = 0;
-			} else {
+			}
+			else
+			{
 				*front = ((*front) + 1) % control->capacity;
 			}
 		}
@@ -898,29 +989,36 @@ void deque_pop_back(struct ControlArray *control,
 {
 	assert(*nmemb);
 
-	if (control->block_count == 1) {
+	if (control->block_count == 1)
+	{
 		(*nmemb)--;
 		control->blocks[0].nmemb--;
 		(*back)--;
-	} else {
+	}
+	else
+	{
 		struct Block *back_block = &control->blocks[*back];
 
 		back_block->nmemb--;
 		(*nmemb)--;
 
-		if (!(back_block->nmemb)) {
+		if (!(back_block->nmemb))
+		{
 			free(back_block->array);
 			back_block->array = NULL;
 
 			control->block_count--;
 
-			if (control->block_count == 1) {
+			if (control->block_count == 1)
+			{
 				control->blocks[0]            = control->blocks[*front];
 				control->blocks[*front].array = NULL;
 
 				*back  = arr_cap - 1;
 				*front = *back - (control->blocks[0].nmemb - 1);
-			} else {
+			}
+			else
+			{
 				*back = (*back - 1) % control->capacity;
 			}
 		}
@@ -937,14 +1035,22 @@ size_t deque_erase(struct ControlArray *control,
 {
 	assert(index < *nmemb);
 
-	if (!index) {
+	if (!index)
+	{
 		deque_pop_front(control, front, back, nmemb);
-	} else if (index == *nmemb) {
+	}
+	else if (index == *nmemb)
+	{
 		deque_pop_back(control, front, back, nmemb, arr_cap);
-	} else {
-		if (control->block_count == 1) {
+	}
+	else
+	{
+		if (control->block_count == 1)
+		{
 			erase_single(control, front, back, size, index);
-		} else {
+		}
+		else
+		{
 			erase_multiple(control, front, back, arr_cap, *nmemb, size, index);
 		}
 
@@ -960,13 +1066,15 @@ void deque_clear(struct ControlArray *control,
                  size_t              *nmemb,
                  const size_t         arr_cap)
 {
-	if (control->block_count > 1) {
+	if (control->block_count > 1)
+	{
 		for (size_t i = *front + 1, j = 1; j < control->block_count;
 		     i = (i + 1) % control->capacity, j++)
 		{
 			struct Block *block = &control->blocks[i];
 
-			if (block->array) {
+			if (block->array)
+			{
 				free(block->array);
 				block->array = NULL;
 			}

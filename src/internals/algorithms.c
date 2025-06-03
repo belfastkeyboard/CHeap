@@ -25,7 +25,8 @@ void shuffle(const Iter begin, const Iter end)
 	Iter            iter  = begin;
 	void           *temp  = malloc(size);
 
-	for (range(iter, end)) {
+	for (range(iter, end))
+	{
 		size_t i = random() % nmemb;
 
 		memcpy(temp, iter.ptr, size);

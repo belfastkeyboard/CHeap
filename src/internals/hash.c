@@ -23,7 +23,8 @@ Hash djb2s(const void *item, const size_t size)
 	Hash           hash = 5381;
 	unsigned char *data = *(unsigned char **)item;
 
-	while (*data) {
+	while (*data)
+	{
 		hash = ((hash << 5) + hash) + (*data);
 		data++;
 	}
@@ -38,7 +39,8 @@ Hash djb2(const void *item, const size_t size)
 
 	memcpy(data, item, size);
 
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < size; i++)
+	{
 		hash = ((hash << 5) + hash) + data[i];
 	}
 
@@ -83,31 +85,40 @@ static size_t probe(struct Bucket *buckets,
 	size_t tombstone = INVALID;
 	size_t count     = 1;
 
-	while (found == NOT_FOUND) {
+	while (found == NOT_FOUND)
+	{
 		struct Bucket bucket = buckets[index];
 
-		if (skip_tombstones) {
+		if (skip_tombstones)
+		{
 			if (tombstone == INVALID && bucket.hash != INVALID &&
 			    bucket.tombstone)
 			{
 				tombstone = index;
-			} else if (bucket.hash == INVALID) {
+			}
+			else if (bucket.hash == INVALID)
+			{
 				break;
 			}
 		}
 
-		if (is_found(k_comp, bucket, key, skip_tombstones)) {
+		if (is_found(k_comp, bucket, key, skip_tombstones))
+		{
 			found = index;
-		} else {
+		}
+		else
+		{
 			index = (index + 1) % capacity;
 		}
 
-		if (++count > capacity) {
+		if (++count > capacity)
+		{
 			break;
 		}
 	}
 
-	if (tombstone != INVALID && found != NOT_FOUND) {
+	if (tombstone != INVALID && found != NOT_FOUND)
+	{
 		buckets[tombstone].tombstone  = false;
 		buckets[tombstone].pair.key   = buckets[found].pair.key;
 		buckets[tombstone].pair.value = buckets[found].pair.value;
@@ -129,7 +140,8 @@ static size_t find_bucket(struct Bucket *buckets,
 {
 	size_t index = NOT_FOUND;
 
-	if (capacity) {
+	if (capacity)
+	{
 		Hash hash = fnc(key, k_size);
 		index     = get_index(hash, capacity);
 		index     = probe(buckets, k_comp, capacity, key, index, true);
@@ -151,7 +163,8 @@ static struct Bucket create_bucket(const Hash        hash,
 
 	memcpy(k, key, k_size);
 
-	if (value) {
+	if (value)
+	{
 		memcpy(v, value, v_size);
 	}
 
@@ -166,7 +179,8 @@ static struct Bucket create_bucket(const Hash        hash,
 
 static void initialise_buckets(struct Bucket **buckets, size_t *capacity)
 {
-	if (*buckets) {
+	if (*buckets)
+	{
 		free(*buckets);
 	}
 
@@ -183,10 +197,12 @@ static void reindex_buckets(struct Bucket       *buckets,
                             const size_t         old_capacity,
                             const size_t         new_capacity)
 {
-	for (int i = 0; i < old_capacity; i++) {
+	for (int i = 0; i < old_capacity; i++)
+	{
 		struct Bucket bucket = tmp[i];
 
-		if (bucket.hash == INVALID || bucket.tombstone) {
+		if (bucket.hash == INVALID || bucket.tombstone)
+		{
 			continue;
 		}
 
@@ -209,12 +225,16 @@ static float get_resize_factor(const size_t nmemb,
 {
 	float factor = 0;
 
-	if (capacity) {
+	if (capacity)
+	{
 		float load_factor = (float)nmemb / (float)capacity;
 
-		if (load_factor >= LF_UPPER_THRESHOLD) {
+		if (load_factor >= LF_UPPER_THRESHOLD)
+		{
 			factor = GROW_FACTOR;
-		} else if (load_factor <= LF_LOWER_THRESHOLD && capacity_to_shrink) {
+		}
+		else if (load_factor <= LF_LOWER_THRESHOLD && capacity_to_shrink)
+		{
 			factor = SHRINK_FACTOR;
 		}
 	}
@@ -259,9 +279,12 @@ static void should_resize(struct Bucket **buckets,
 	                                        *capacity,
 	                                        *capacity > TABLE_MIN);
 
-	if (!*buckets) {
+	if (!*buckets)
+	{
 		initialise_buckets(buckets, capacity);
-	} else if (resize_factor) {
+	}
+	else if (resize_factor)
+	{
 		resize_buckets(buckets, k_comp, capacity, resize_factor);
 	}
 }
@@ -286,7 +309,8 @@ void hash_insert(struct Bucket   **buckets,
 	index        = probe(*buckets, k_comp, *capacity, key, index, false);
 	bool exists  = key_exists(*buckets, index);
 
-	if (!exists) {
+	if (!exists)
+	{
 		(*buckets)[index] = create_bucket(hash,
 		                                  alloc,
 		                                  key,
@@ -295,7 +319,9 @@ void hash_insert(struct Bucket   **buckets,
 		                                  v_size);
 
 		(*nmemb)++;
-	} else {
+	}
+	else
+	{
 		memcpy((*buckets)[index].pair.value, value, v_size);
 	}
 }
@@ -310,7 +336,8 @@ void hash_erase(struct Bucket **buckets,
 {
 	size_t index = find_bucket(*buckets, fnc, k_size, k_comp, *capacity, key);
 
-	if (index != NOT_FOUND) {
+	if (index != NOT_FOUND)
+	{
 		struct Bucket *bucket_erase = &(*buckets)[index];
 		bucket_erase->tombstone     = true;
 		(*nmemb)--;
@@ -323,7 +350,8 @@ void hash_clear(struct Bucket   **buckets,
                 size_t           *nmemb,
                 size_t           *capacity)
 {
-	if (*buckets) {
+	if (*buckets)
+	{
 		free(*buckets);
 		*buckets = NULL;
 	}
@@ -357,10 +385,12 @@ void *hash_find(struct Bucket *buckets,
 {
 	void *value = NULL;
 
-	if (nmemb) {
+	if (nmemb)
+	{
 		size_t index = find_bucket(buckets, fnc, k_size, k_comp, capacity, key);
 
-		if (index != NOT_FOUND) {
+		if (index != NOT_FOUND)
+		{
 			struct Bucket bucket = buckets[index];
 			value                = (bucket.pair.value) ? bucket.pair.value
 			                                           : (void *)bucket.pair.key;
@@ -403,11 +433,10 @@ Iter begin_hash(const IteratorType type,
                 const size_t       capacity)
 {
 	void *ptr  = front_hash(buckets);
-	Iter  iter = { .type = type,
-		           .ptr  = ptr,
-		           .size = sizeof(struct Bucket) };
+	Iter  iter = { .type = type, .ptr = ptr, .size = sizeof(struct Bucket) };
 
-	if (!valid_iterator(&iter)) {
+	if (!valid_iterator(&iter))
+	{
 		next_iter(&iter);
 	}
 
@@ -419,11 +448,10 @@ Iter end_hash(const IteratorType type,
               const size_t       capacity)
 {
 	void *ptr  = back_hash(buckets, capacity);
-	Iter  iter = { .type = type,
-		           .ptr  = ptr,
-		           .size = sizeof(struct Bucket) };
+	Iter  iter = { .type = type, .ptr = ptr, .size = sizeof(struct Bucket) };
 
-	if (!valid_iterator(&iter)) {
+	if (!valid_iterator(&iter))
+	{
 		prev_iter(&iter);
 	}
 
@@ -434,7 +462,8 @@ Iter *next_hash(Iter *iter)
 {
 	iter->ptr = iter->ptr + iter->size;
 
-	while (!valid_iterator(iter)) {
+	while (!valid_iterator(iter))
+	{
 		iter->ptr = iter->ptr + iter->size;
 	}
 
@@ -445,7 +474,8 @@ Iter *prev_hash(Iter *iter)
 {
 	iter->ptr = iter->ptr - iter->size;
 
-	while (!valid_iterator(iter)) {
+	while (!valid_iterator(iter))
+	{
 		iter->ptr = iter->ptr - iter->size;
 	}
 

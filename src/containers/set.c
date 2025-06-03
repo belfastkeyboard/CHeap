@@ -15,8 +15,10 @@ Set *create_set(const size_t size, const KComp compare)
 {
 	Set *set = memory_allocate_container(sizeof(Set));
 
-	set->alloc =
-	    create_node_allocator(sizeof(struct Node), NODE_COUNT_DEFAULT, size, 0);
+	set->alloc = create_node_allocator(sizeof(struct Node),
+	                                   NODE_COUNT_DEFAULT,
+	                                   size,
+	                                   0);
 
 	set->size   = size;
 	set->k_comp = compare;

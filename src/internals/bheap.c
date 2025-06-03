@@ -33,16 +33,20 @@ static void swap(void        *array,
 
 void bubble_up(void *array, size_t i, const size_t size, CompareFunc fnc)
 {
-	while (i > 0) {
+	while (i > 0)
+	{
 		size_t pi  = parent(i);
 		void  *v   = array + i * size;
 		void  *pv  = array + pi * size;
 		int    res = fnc(v, pv);
 
-		if (res < 0) {
+		if (res < 0)
+		{
 			swap(array, i, pi, v, pv, size);
 			i = pi;
-		} else {
+		}
+		else
+		{
 			break;
 		}
 	}
@@ -54,19 +58,25 @@ void bubble_down(void        *array,
                  CompareFunc  fnc,
                  size_t       i)
 {
-	while (i < nmemb) {
+	while (i < nmemb)
+	{
 		size_t li = left_child(i);
 		size_t ri = right_child(i);
 		size_t ci;
 		void  *cv;
 		int    res;
 
-		if (li >= nmemb) {
+		if (li >= nmemb)
+		{
 			break;
-		} else if (ri >= nmemb) {
+		}
+		else if (ri >= nmemb)
+		{
 			ci = li;
 			cv = array + li * size;
-		} else {
+		}
+		else
+		{
 			void *l = array + li * size;
 			void *r = array + ri * size;
 
@@ -79,10 +89,13 @@ void bubble_down(void        *array,
 
 		res = fnc(v, cv);
 
-		if (res > 0) {
+		if (res > 0)
+		{
 			swap(array, i, ci, v, cv, size);
 			i = ci;
-		} else {
+		}
+		else
+		{
 			break;
 		}
 	}
@@ -93,7 +106,8 @@ void make_heap(void             *array,
                const size_t      size,
                const CompareFunc fnc)
 {
-	for (size_t i = parent(nmemb - 1); i < nmemb; i--) {
+	for (size_t i = parent(nmemb - 1); i < nmemb; i--)
+	{
 		bubble_down(array, nmemb, size, fnc, i);
 	}
 }
