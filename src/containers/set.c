@@ -1,6 +1,7 @@
 #include "../../set.h"
 #include "../../internals/base.h"
 #include "../../internals/rbtree.h"
+#include "../../iter.h"
 
 typedef struct Set
 {
@@ -69,6 +70,26 @@ void erase_set(Set *set, const void *key)
 void clear_set(Set *set)
 {
 	clear_rbtree(&set->alloc, &set->head, &set->nmemb);
+}
+
+Iter begin_set(const Set *set)
+{
+	void        *ptr  = rbt_min(set->head);
+	const size_t size = set->size;
+
+	Iter iter = { .type = ITERATOR_SET, .ptr = ptr, .size = size };
+
+	return iter;
+}
+
+Iter end_set(const Set *set)
+{
+	void        *ptr  = rbt_max(set->head);
+	const size_t size = set->size;
+
+	Iter iter = { .type = ITERATOR_SET, .ptr = ptr, .size = size };
+
+	return iter;
 }
 
 bool empty_set(const Set *set)

@@ -128,6 +128,28 @@ void erase_set(Set *set, const void *key);
  */
 void clear_set(Set *set);
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+/**
+ * @brief Returns an iterator to the first element of the set
+ *
+ * @param set The Set object
+ * @return Iterator to the first element
+ *
+ * @warning Calling on an empty set is undefined behaviour
+ */
+Iter begin_set(const Set *set);
+
+/**
+ * @brief Returns an iterator to the last element of the set
+ *
+ * @param set The Set object
+ * @return Iterator to the last element
+ *
+ * @warning Calling on an empty set is undefined behaviour
+ */
+Iter end_set(const Set *set);
+#endif
+
 /**
  * @brief Checks if the set has no keys
  *
