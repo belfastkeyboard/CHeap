@@ -15,6 +15,11 @@ extern Iter *next_linked(Iter *iter);
 extern Iter *prev_linked(Iter *iter);
 extern void *get_linked(const Iter *iter);
 
+extern Iter *next_rbtree(Iter *iter);
+extern Iter *prev_rbtree(Iter *iter);
+extern void *get_rbtree_set(const Iter *iter);
+extern void *get_rbtree_table(const Iter *iter);
+
 Iter *next_iter(Iter *iter)
 {
 	switch (iter->type)
@@ -28,6 +33,9 @@ Iter *next_iter(Iter *iter)
 		case ITERATOR_LIST:
 		case ITERATOR_FORWARD_LIST:
 			return next_linked(iter);
+		case ITERATOR_SET:
+		case ITERATOR_TABLE:
+			return next_rbtree(iter);
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
 			exit(EXIT_FAILURE);
@@ -46,6 +54,9 @@ Iter *prev_iter(Iter *iter)
 			return prev_hash(iter);
 		case ITERATOR_LIST:
 			return prev_linked(iter);
+		case ITERATOR_SET:
+		case ITERATOR_TABLE:
+			return prev_rbtree(iter);
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
 			exit(EXIT_FAILURE);
@@ -66,6 +77,10 @@ void *get_iter(const Iter *iter)
 		case ITERATOR_LIST:
 		case ITERATOR_FORWARD_LIST:
 			return get_linked(iter);
+		case ITERATOR_SET:
+			return get_rbtree_set(iter);
+		case ITERATOR_TABLE:
+			return get_rbtree_table(iter);
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", iter->type);
 			exit(EXIT_FAILURE);
@@ -83,6 +98,8 @@ bool done_iter(const Iter *begin, const Iter *end)
 			return begin->ptr > end->ptr;
 		case ITERATOR_LIST:
 		case ITERATOR_FORWARD_LIST:
+		case ITERATOR_SET:
+		case ITERATOR_TABLE:
 			return !begin->ptr;
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
@@ -100,6 +117,8 @@ bool done_iter_r(const Iter *begin, const Iter *end)
 		case ITERATOR_HASH_TABLE:
 			return begin->ptr < end->ptr;
 		case ITERATOR_LIST:
+		case ITERATOR_SET:
+		case ITERATOR_TABLE:
 			return !begin->ptr;
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
