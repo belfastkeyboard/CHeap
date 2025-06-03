@@ -2,10 +2,13 @@
 // https://web.archive.org/web/20140328232325/http://en.literateprograms.org/Red-black_tree_(C)
 
 #include "../../internals/rbtree.h"
+#include "../../iter.h"
 #include <assert.h>
 #include <memory.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef int (*KComp)(const void *, const void *);
 
@@ -495,4 +498,85 @@ void *rbt_search_v(struct Node *head, const void *key, KComp compare)
 	}
 
 	return result;
+}
+
+void *rbt_min(struct Node *node)
+{
+	while (node->left)
+	{
+		node = node->left;
+	}
+
+	return node;
+}
+
+void *rbt_max(struct Node *head)
+{
+	struct Node *node = head;
+
+	while (node->right)
+	{
+		node = node->right;
+	}
+
+	return node;
+}
+
+void *get_rbtree_set(const Iter *iter)
+{
+	return ((struct Node *)iter->ptr)->key;
+}
+
+void *get_rbtree_table(const Iter *iter)
+{
+	return ((struct Node *)iter->ptr)->value;
+}
+
+Iter *next_rbtree(Iter *iter)
+{
+	struct Node *node = iter->ptr;
+
+	if (node->right)
+	{
+		iter->ptr = rbt_min(node->right);
+	}
+	else
+	{
+		struct Node *parent = node->parent;
+		while (parent && node == parent->right)
+		{
+			node   = parent;
+			parent = parent->parent;
+		}
+
+		iter->ptr = parent;
+	}
+
+	return iter;
+}
+
+Iter *prev_rbtree(Iter *iter)
+{
+	struct Node *node = iter->ptr;
+
+	if (node->left)
+	{
+		node      = node->left;
+		node      = rbt_max(node);
+		iter->ptr = node;
+	}
+	else
+	{
+		struct Node *parent = node->parent;
+
+		while (parent && node == parent->left)
+		{
+			node   = parent;
+			parent = parent->parent;
+		}
+
+		iter->ptr = parent;
+	}
+
+	return iter;
 }

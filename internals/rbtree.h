@@ -50,3 +50,7 @@ void clear_rbtree(struct NodeAlloc *alloc, struct Node **head, size_t *nmemb);
 void *rbt_search_k(struct Node *head, const void *key, Comp compare);
 
 void *rbt_search_v(struct Node *head, const void *key, Comp compare);
+
+void *rbt_min(struct Node *head);
+
+void *rbt_max(struct Node *head);
