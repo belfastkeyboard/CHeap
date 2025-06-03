@@ -59,10 +59,10 @@ ALLOC String arena_string_ndup(Arena *arena, ConstString src, uint32_t n);
 
 #ifdef CHEAP_VECTOR_AVAILABLE
 Vector *string_split(ConstString str, ConstString delim);
-String string_join(Vector *strings, ConstString delim);
+String  string_join(Vector *strings, ConstString delim);
 #endif
 
 #if defined(CHEAP_ARENA_AVAILABLE) && defined(CHEAP_VECTOR_AVAILABLE)
 Vector *arena_string_split(Arena *arena, ConstString str, ConstString delim);
-String arena_string_join(Arena *arena, Vector *strings, ConstString delim);
+String  arena_string_join(Arena *arena, Vector *strings, ConstString delim);
 #endif
