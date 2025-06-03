@@ -10,6 +10,7 @@ struct Node
 	void        *key;
 	void        *value;
 	int          colour;
+	struct Node *p;
 	struct Node *l;
 	struct Node *r;
 };
