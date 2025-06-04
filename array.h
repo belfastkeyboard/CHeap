@@ -19,6 +19,9 @@ void *back_array(const Array *array);
 #ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_array(const Array *array);
 Iter end_array(const Array *array);
+
+Iter rbegin_array(const Array *array);
+Iter rend_array(const Array *array);
 #endif
 
 bool   empty_array(const Array *array);

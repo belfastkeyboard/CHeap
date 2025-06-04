@@ -84,3 +84,29 @@ Iter end_array(const Array *array)
 
 	return iter;
 }
+
+Iter rbegin_array(const Array *array)
+{
+	const size_t size  = array->size;
+	void        *arr = back_array(array);
+
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = arr, .size = size }
+	};
+
+	return iter;
+}
+
+Iter rend_array(const Array *array)
+{
+	const size_t size  = array->size;
+	void        *arr = front_array(array) - size;
+
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = arr, .size = size }
+	};
+
+	return iter;
+}
