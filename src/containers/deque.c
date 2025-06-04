@@ -152,6 +152,26 @@ Iter end_deque(const Deque *deque)
 	return iter;
 }
 
+Iter rbegin_deque(const Deque *deque)
+{
+	Iter iter = {
+		.type       = ITERATOR_DEQUE,
+		.data.deque = { .deque = deque, .index = size_deque(deque) - 1 }
+	};
+
+	return iter;
+}
+
+Iter rend_deque(const Deque *deque)
+{
+	Iter iter = {
+		.type       = ITERATOR_DEQUE,
+		.data.deque = { .deque = deque, .index = -1 }
+	};
+
+	return iter;
+}
+
 bool empty_deque(const Deque *deque)
 {
 	return generic_empty(deque->nmemb);

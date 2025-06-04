@@ -35,14 +35,36 @@ void   clear_deque(Deque *deque);
 Iter begin_deque(const Deque *deque);
 
 /**
- * @brief Returns an iterator to the last element of the deque
+ * @brief Returns an iterator to the end of the deque
  *
  * @param deque The Deque object
- * @return Iterator to the last element
+ * @return Sentinel iterator representing the end of the deque
+ *
+ * @warning Calling on an empty deque is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter end_deque(const Deque *deque);
+
+/**
+ * @brief Returns a reverse iterator to the last element of the deque
+ *
+ * @param deque The Deque object
+ * @return Reverse iterator to the last element
  *
  * @warning Calling on an empty deque is undefined behaviour
  */
-Iter end_deque(const Deque *deque);
+Iter rbegin_deque(const Deque *deque);
+
+/**
+ * @brief Returns an iterator to the reverse end of the deque
+ *
+ * @param deque The Deque object
+ * @return Sentinel iterator representing the reverse end of the deque
+ *
+ * @warning Calling on an empty deque is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter rend_deque(const Deque *deque);
 #endif
 
 bool   empty_deque(const Deque *deque);
