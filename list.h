@@ -26,6 +26,9 @@ void   clear_list(List *list);
 #ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_list(const List *list);
 Iter end_list(const List *list);
+
+Iter rbegin_list(const List *list);
+Iter rend_list(const List *list);
 #endif
 
 bool   empty_list(const List *list);

@@ -109,19 +109,29 @@ void clear_list(List *list)
 
 Iter begin_list(const List *list)
 {
-	void *ptr = list->head;
-
-	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = ptr } };
-
+	struct LinkedNode *node = list->head;
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }
 
-Iter end_list(const List *list)
+Iter end_list(const List *)
 {
-	void *ptr = list->tail;
+	struct LinkedNode *node = NULL;
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
+	return iter;
+}
 
-	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = ptr } };
+Iter rbegin_list(const List *list)
+{
+	struct LinkedNode *node = list->tail;
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
+	return iter;
+}
 
+Iter rend_list(const List *)
+{
+	struct LinkedNode *node = NULL;
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }
 
