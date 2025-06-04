@@ -21,11 +21,11 @@ Library for simplifying memory management in C.
 - [Strings Library](#strings-library)
 - [Iterator Library](#iterator-library)
 - [Ranges Library](#ranges-library)
-- [To Do](#todo)
+- [To Do](#to-do)
 - [Consider](#consider)
 - [Influences](#influences)
 
-## ALLOCATOR LIBRARY
+## Allocator Library
 
 Allocators provide an interface for safe memory management and lifetime control.
 
@@ -33,7 +33,7 @@ Allocators provide an interface for safe memory management and lifetime control.
 - Bump allocator: fixed-size variable-width allocator
 - Pool allocator: fixed-size fixed-width allocator
 
-## CONTAINER LIBRARY
+## Container Library
 
 ### Sequence containers
 
@@ -71,7 +71,7 @@ Container adaptors provide a different interface for sequential containers.
 - Queue: adapts a container to provide queue (FIFO data structure)
 - Stack: adapts a container to provide stack (LIFO data structure)
 
-## STRINGS LIBRARY
+## Strings Library
 
 Provides a String object and associated interface for working with strings. 
 
@@ -81,7 +81,7 @@ allocators for simplifying memory management.
 Supports operations such as string concatenation, duplication, pattern 
 substitution, case transformation, slicing, stripping, splitting and joining.
 
-## ITERATOR LIBRARY
+## Iterator Library
 Provides a generic interface for iterating and reverse iterating containers.
 Associative containers (Table, Hash Table) return a ``PairKV`` object, all 
 other containers return their stored element directly.
@@ -97,11 +97,11 @@ Supported containers:
 - Forward List
 - Deque 
 
-## RANGES LIBRARY
+## Ranges Library
 
 Very WIP.
 
-## TODO:
+## To do:
 
 - [x] finish iterators
 - [ ] finish ranges
@@ -131,7 +131,7 @@ Very WIP.
 - [ ] reduce malloc calls in src/internals/deq.c
 - [ ] provide better implementation of push_range for deque type
 
-## CONSIDER:
+## Consider:
 
 - attempt to re-write create macro to accept hash table without having to
   write 'sizeof'
@@ -140,7 +140,7 @@ Very WIP.
 - all the sequential containers have code duplication in the struct that could
   be reduced to the base.h file
 
-## INFLUENCES
+## Influences
 
 [Untangling Lifetimes: The Arena Allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
 by Ryan Fleury.
