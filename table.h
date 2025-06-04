@@ -19,6 +19,15 @@
 
 #define ALLOC __attribute__((warn_unused_result))
 
+#ifndef CHEAP_KEY_VALUE_PAIR_DEFINED
+typedef struct PairKV
+{
+	const void *key;
+	void       *value;
+} PairKV;
+#define CHEAP_KEY_VALUE_PAIR_DEFINED
+#endif
+
 /**
  * @brief A sorted associative container that stores key-value pairs with unique
  * keys
@@ -133,6 +142,28 @@ void erase_table(Table *table, const void *key);
  * @return Nothing
  */
 void clear_table(Table *table);
+
+#ifdef CHEAP_ITERATOR_AVAILABLE
+/**
+ * @brief Returns an iterator to the first element of the table
+ *
+ * @param table The Table object
+ * @return Iterator to the first element
+ *
+ * @warning Calling on an empty table is undefined behaviour
+ */
+Iter begin_table(const Table *table);
+
+/**
+ * @brief Returns an iterator to the last element of the table
+ *
+ * @param table The Table object
+ * @return Iterator to the last element
+ *
+ * @warning Calling on an empty table is undefined behaviour
+ */
+Iter end_table(const Table *table);
+#endif
 
 /**
  * @brief Checks if the table has no pairs

@@ -1,4 +1,5 @@
 #include "../../table.h"
+#include "../../iter.h"
 #include "../../internals/base.h"
 #include "../../internals/rbtree.h"
 
@@ -77,6 +78,26 @@ void erase_table(Table *table, const void *key)
 void clear_table(Table *table)
 {
 	clear_rbtree(&table->alloc, &table->head, &table->nmemb);
+}
+
+Iter begin_table(const Table *table)
+{
+	void        *ptr  = rbt_min(table->head);
+	const size_t size = table->k_size;
+
+	Iter iter = { .type = ITERATOR_TABLE, .ptr = ptr, .size = size };
+
+	return iter;
+}
+
+Iter end_table(const Table *table)
+{
+	void        *ptr  = rbt_max(table->head);
+	const size_t size = table->k_size;
+
+	Iter iter = { .type = ITERATOR_TABLE, .ptr = ptr, .size = size };
+
+	return iter;
 }
 
 bool empty_table(const Table *table)
