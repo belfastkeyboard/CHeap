@@ -49,16 +49,6 @@ void *back_array(const Array *array)
 	return generic_mempool_access_back(array->array, array->nmemb, array->size);
 }
 
-bool empty_array(const Array *array)
-{
-	return generic_empty(array->nmemb);
-}
-
-size_t size_array(const Array *array)
-{
-	return generic_size(array->nmemb);
-}
-
 Iter begin_array(const Array *array)
 {
 	void        *ptr  = front_array(array);
@@ -110,3 +100,15 @@ Iter rend_array(const Array *array)
 
 	return iter;
 }
+
+bool empty_array(const Array *array)
+{
+	return generic_empty(array->nmemb);
+}
+
+size_t size_array(const Array *array)
+{
+	return generic_size(array->nmemb);
+}
+
+
