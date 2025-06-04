@@ -1,4 +1,6 @@
 #include "../../internals/deq.h"
+#include "../../deque.h"
+#include "../../iter.h"
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
@@ -730,6 +732,37 @@ static void erase_multiple(struct ControlArray *control,
 	}
 }
 
+static void *deque_random_access_one_block(const struct ControlArray *control,
+                                           const size_t               front,
+                                           const size_t               size,
+                                           size_t                     index)
+{
+	const struct Block block = control->blocks[0];
+	return block.array + (front + index) * size;
+}
+
+static void *deque_random_access_multi_block(const struct ControlArray *control,
+                                             const size_t               front,
+                                             const size_t               arr_cap,
+                                             const size_t               size,
+                                             size_t                     index)
+{
+	const size_t b_index = locate_block(&index,
+	                                    control->blocks,
+	                                    front,
+	                                    control->capacity);
+
+	if (is_front(b_index, front))
+	{
+		const struct Block block = control->blocks[b_index];
+		return block.array + (arr_cap - block.nmemb + index) * size;
+	}
+	else
+	{
+		return control->blocks[b_index].array + index * size;
+	}
+}
+
 size_t minimum_array_size(const size_t size)
 {
 	return (MIN_BLOCK_SIZE > size * MIN_ELEM_COUNT) ? MIN_BLOCK_SIZE
@@ -865,27 +898,15 @@ void *deque_at(const struct ControlArray *control,
 
 	if (control->block_count == 1)
 	{
-		const struct Block block = control->blocks[0];
-
-		result = block.array + (front + index) * size;
+		result = deque_random_access_one_block(control, front, size, index);
 	}
 	else
 	{
-		const size_t b_index = locate_block(&index,
-		                                    control->blocks,
-		                                    front,
-		                                    control->capacity);
-
-		if (is_front(b_index, front))
-		{
-			const struct Block block = control->blocks[b_index];
-
-			result = block.array + (arr_cap - block.nmemb + index) * size;
-		}
-		else
-		{
-			result = control->blocks[b_index].array + index * size;
-		}
+		result = deque_random_access_multi_block(control,
+		                                         front,
+		                                         arr_cap,
+		                                         size,
+		                                         index);
 	}
 
 	return result;
@@ -1094,4 +1115,24 @@ void deque_clear(struct ControlArray *control,
 	control->blocks[0].nmemb = 0;
 	control->block_count     = 1;
 	*nmemb                   = 0;
+}
+
+Iter *next_deque(Iter *iter)
+{
+	iter->data.deque.index++;
+	return iter;
+}
+
+Iter *prev_deque(Iter *iter)
+{
+	iter->data.deque.index--;
+	return iter;
+}
+
+void *get_deque(const Iter *iter)
+{
+	const Deque *deque = iter->data.deque.deque;
+	const size_t index = iter->data.deque.index;
+
+	return at_deque(deque, index);
 }
