@@ -424,16 +424,16 @@ static struct Bucket *back_hash(struct Bucket *buckets, const size_t capacity)
 
 static bool valid_iterator(const Iter *iter)
 {
-	struct Bucket *bucket = (struct Bucket *)iter->ptr;
+	struct Bucket *bucket = iter->data.hashed.bucket;
 	return !bucket->tombstone && bucket->pair.key != (void *)UNSET;
 }
 
 Iter begin_hash(const IteratorType type,
-                struct Bucket     *buckets,
-                const size_t       capacity)
+                struct Bucket     *buckets)
 {
-	void *ptr  = front_hash(buckets);
-	Iter  iter = { .type = type, .ptr = ptr, .size = sizeof(struct Bucket) };
+	struct Bucket *bucket = front_hash(buckets);
+
+	Iter iter = { .type = type, .data.hashed.bucket = bucket };
 
 	if (!valid_iterator(&iter))
 	{
@@ -447,8 +447,9 @@ Iter end_hash(const IteratorType type,
               struct Bucket     *buckets,
               const size_t       capacity)
 {
-	void *ptr  = back_hash(buckets, capacity);
-	Iter  iter = { .type = type, .ptr = ptr, .size = sizeof(struct Bucket) };
+	struct Bucket *bucket = back_hash(buckets, capacity);
+
+	Iter iter = { .type = type, .data.hashed.bucket = bucket };
 
 	if (!valid_iterator(&iter))
 	{
@@ -460,11 +461,11 @@ Iter end_hash(const IteratorType type,
 
 Iter *next_hash(Iter *iter)
 {
-	iter->ptr = iter->ptr + iter->size;
+	iter->data.hashed.bucket++;
 
 	while (!valid_iterator(iter))
 	{
-		iter->ptr = iter->ptr + iter->size;
+		iter->data.hashed.bucket++;
 	}
 
 	return iter;
@@ -472,11 +473,11 @@ Iter *next_hash(Iter *iter)
 
 Iter *prev_hash(Iter *iter)
 {
-	iter->ptr = iter->ptr - iter->size;
+	iter->data.hashed.bucket--;
 
 	while (!valid_iterator(iter))
 	{
-		iter->ptr = iter->ptr - iter->size;
+		iter->data.hashed.bucket--;
 	}
 
 	return iter;
@@ -484,12 +485,10 @@ Iter *prev_hash(Iter *iter)
 
 void *get_hash_table(const Iter *iter)
 {
-	struct Bucket *bucket = iter->ptr;
-	return &bucket->pair;
+	return &iter->data.hashed.bucket->pair;
 }
 
 void *get_hash_set(const Iter *iter)
 {
-	struct Bucket *bucket = iter->ptr;
-	return (void *)bucket->pair.key;
+	return (void*)iter->data.hashed.bucket->pair.key;
 }
