@@ -422,20 +422,44 @@ static struct Bucket *back_hash(struct Bucket *buckets, const size_t capacity)
 	return buckets + capacity - 1;
 }
 
-static bool valid_iterator(const Iter *iter)
+static bool in_bounds_iterator(const Iter *iter)
 {
 	struct Bucket *bucket = iter->data.hashed.bucket;
-	return !bucket->tombstone && bucket->pair.key != (void *)UNSET;
+	struct Bucket *end    = iter->data.hashed.end;
+
+	return bucket < end;
+}
+
+static bool in_bounds_iterator_r(const Iter *iter)
+{
+	struct Bucket *bucket = iter->data.hashed.bucket;
+	struct Bucket *end    = iter->data.hashed.end;
+
+	return bucket > end;
+}
+
+static bool valid_iterator(const Iter *iter)
+{
+	struct Bucket *bucket    = iter->data.hashed.bucket;
+	const void    *key       = bucket->pair.key;
+	bool           tombstone = bucket->tombstone;
+	bool           unset     = (key == (void *)UNSET);
+
+	return !tombstone && !unset;
 }
 
 Iter begin_hash(const IteratorType type,
-                struct Bucket     *buckets)
+                struct Bucket     *buckets,
+                const size_t       capacity)
 {
 	struct Bucket *bucket = front_hash(buckets);
+	struct Bucket *end    = back_hash(buckets, capacity) + 1;
 
-	Iter iter = { .type = type, .data.hashed.bucket = bucket };
+	Iter iter = { .type               = type,
+		          .data.hashed.bucket = bucket,
+		          .data.hashed.end    = end };
 
-	if (!valid_iterator(&iter))
+	if (in_bounds_iterator(&iter) && !valid_iterator(&iter))
 	{
 		next_iter(&iter);
 	}
@@ -447,14 +471,41 @@ Iter end_hash(const IteratorType type,
               struct Bucket     *buckets,
               const size_t       capacity)
 {
+	struct Bucket *end = back_hash(buckets, capacity) + 1;
+
+	Iter iter = {
+		.type        = type,
+		.data.hashed = { .bucket = end, .end = end }
+	};
+
+	return iter;
+}
+
+Iter rbegin_hash(IteratorType type, struct Bucket *buckets, size_t capacity)
+{
 	struct Bucket *bucket = back_hash(buckets, capacity);
+	struct Bucket *end    = front_hash(buckets) - 1;
 
-	Iter iter = { .type = type, .data.hashed.bucket = bucket };
+	Iter iter = { .type               = type,
+		          .data.hashed.bucket = bucket,
+		          .data.hashed.end    = end };
 
-	if (!valid_iterator(&iter))
+	if (in_bounds_iterator_r(&iter) && !valid_iterator(&iter))
 	{
 		prev_iter(&iter);
 	}
+
+	return iter;
+}
+
+Iter rend_hash(IteratorType type, struct Bucket *buckets)
+{
+	struct Bucket *end = front_hash(buckets) - 1;
+
+	Iter iter = {
+		.type        = type,
+		.data.hashed = { .bucket = end, .end = end }
+	};
 
 	return iter;
 }
@@ -463,7 +514,7 @@ Iter *next_hash(Iter *iter)
 {
 	iter->data.hashed.bucket++;
 
-	while (!valid_iterator(iter))
+	while (in_bounds_iterator(iter) && !valid_iterator(iter))
 	{
 		iter->data.hashed.bucket++;
 	}
@@ -475,7 +526,7 @@ Iter *prev_hash(Iter *iter)
 {
 	iter->data.hashed.bucket--;
 
-	while (!valid_iterator(iter))
+	while (in_bounds_iterator_r(iter) && !valid_iterator(iter))
 	{
 		iter->data.hashed.bucket--;
 	}
@@ -490,5 +541,5 @@ void *get_hash_table(const Iter *iter)
 
 void *get_hash_set(const Iter *iter)
 {
-	return (void*)iter->data.hashed.bucket->pair.key;
+	return (void *)iter->data.hashed.bucket->pair.key;
 }

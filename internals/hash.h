@@ -60,6 +60,10 @@ bool hash_contains(struct Bucket *buckets,
                    size_t         capacity,
                    const void    *key);
 
-Iter begin_hash(IteratorType type, struct Bucket *buckets);
+Iter begin_hash(IteratorType type, struct Bucket *buckets, size_t capacity);
 
 Iter end_hash(IteratorType type, struct Bucket *buckets, size_t capacity);
+
+Iter rbegin_hash(IteratorType type, struct Bucket *buckets, size_t capacity);
+
+Iter rend_hash(IteratorType type, struct Bucket *buckets);
