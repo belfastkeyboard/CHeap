@@ -114,6 +114,16 @@ Iter end_hash_table(const HashTable *table)
 	return end_hash(ITERATOR_HASH_TABLE, table->buckets, table->capacity);
 }
 
+Iter rbegin_hash_table(const HashTable *table)
+{
+	return rbegin_hash(ITERATOR_HASH_TABLE, table->buckets, table->capacity);
+}
+
+Iter rend_hash_table(const HashTable *table)
+{
+	return rend_hash(ITERATOR_HASH_TABLE, table->buckets);
+}
+
 bool empty_hash_table(const HashTable *table)
 {
 	return generic_empty(table->nmemb);

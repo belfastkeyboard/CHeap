@@ -48,6 +48,9 @@ void clear_hash_table(HashTable *table);
 #ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_hash_table(const HashTable *table);
 Iter end_hash_table(const HashTable *table);
+
+Iter rbegin_hash_table(const HashTable *table);
+Iter rend_hash_table(const HashTable *table);
 #endif
 
 bool   empty_hash_table(const HashTable *table);
