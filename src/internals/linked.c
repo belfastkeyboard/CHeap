@@ -2,13 +2,13 @@
 #include "../../iter.h"
 #include <memory.h>
 
-static struct Node *create_node(struct NodeAlloc *alloc,
+static struct LinkedNode *create_node(struct NodeAlloc *alloc,
                                 const size_t      size,
                                 const void       *value)
 {
 	void        *memory = alloc_node(alloc);
-	struct Node *node   = memory;
-	node->value         = memory + sizeof(struct Node);
+	struct LinkedNode *node   = memory;
+	node->value         = memory + sizeof(struct LinkedNode);
 
 	memcpy(node->value, value, size);
 
@@ -19,11 +19,11 @@ static void create_node_singly_linked(struct NodeAlloc *alloc,
                                       const size_t      nmemb,
                                       const size_t      size,
                                       const void       *value,
-                                      struct Node      *position,
-                                      struct Node     **head,
+                                      struct LinkedNode      *position,
+                                      struct LinkedNode     **head,
                                       const int         prior)
 {
-	struct Node *node = create_node(alloc, size, value);
+	struct LinkedNode *node = create_node(alloc, size, value);
 
 	if (prior || !nmemb)
 	{
@@ -38,8 +38,8 @@ static void create_node_singly_linked(struct NodeAlloc *alloc,
 }
 
 static void erase_node_singly_linked(struct NodeAlloc *alloc,
-                                     struct Node      *position,
-                                     struct Node     **head,
+                                     struct LinkedNode      *position,
+                                     struct LinkedNode     **head,
                                      const int         prior)
 {
 	if (prior)
@@ -58,11 +58,11 @@ static void create_node_doubly_linked(struct NodeAlloc *alloc,
                                       const size_t      nmemb,
                                       const size_t      size,
                                       const void       *value,
-                                      struct Node      *position,
-                                      struct Node     **head,
-                                      struct Node     **tail)
+                                      struct LinkedNode      *position,
+                                      struct LinkedNode     **head,
+                                      struct LinkedNode     **tail)
 {
-	struct Node *node = create_node(alloc, size, value);
+	struct LinkedNode *node = create_node(alloc, size, value);
 
 	if (!nmemb)
 	{
@@ -93,9 +93,9 @@ static void create_node_doubly_linked(struct NodeAlloc *alloc,
 }
 
 static void erase_node_doubly_linked(struct NodeAlloc *alloc,
-                                     struct Node      *position,
-                                     struct Node     **head,
-                                     struct Node     **tail)
+                                     struct LinkedNode      *position,
+                                     struct LinkedNode     **head,
+                                     struct LinkedNode     **tail)
 {
 	if (position->prev)
 	{
@@ -118,12 +118,12 @@ static void erase_node_doubly_linked(struct NodeAlloc *alloc,
 	free_node(alloc, position);
 }
 
-static struct Node *seek_node(const size_t nmemb,
+static struct LinkedNode *seek_node(const size_t nmemb,
                               const size_t index,
-                              struct Node *head,
-                              struct Node *tail)
+                              struct LinkedNode *head,
+                              struct LinkedNode *tail)
 {
-	struct Node *seek = NULL;
+	struct LinkedNode *seek = NULL;
 
 	if (index < nmemb)
 	{
@@ -153,7 +153,7 @@ static struct Node *seek_node(const size_t nmemb,
 void generic_push_front_singly_linked(struct NodeAlloc *alloc,
                                       size_t           *nmemb,
                                       const size_t      size,
-                                      struct Node     **head,
+                                      struct LinkedNode     **head,
                                       const void       *value)
 {
 	generic_insert_singly_linked(alloc, nmemb, size, head, value, 0, 1);
@@ -162,12 +162,12 @@ void generic_push_front_singly_linked(struct NodeAlloc *alloc,
 size_t generic_insert_singly_linked(struct NodeAlloc *alloc,
                                     size_t           *nmemb,
                                     const size_t      size,
-                                    struct Node     **head,
+                                    struct LinkedNode     **head,
                                     const void       *value,
                                     const size_t      index,
                                     const int         prior)
 {
-	struct Node *seek = seek_node(*nmemb, index, *head, NULL);
+	struct LinkedNode *seek = seek_node(*nmemb, index, *head, NULL);
 
 	create_node_singly_linked(alloc, *nmemb, size, value, seek, head, prior);
 
@@ -179,8 +179,8 @@ size_t generic_insert_singly_linked(struct NodeAlloc *alloc,
 void generic_push_front_doubly_linked(struct NodeAlloc *alloc,
                                       size_t           *nmemb,
                                       const size_t      size,
-                                      struct Node     **head,
-                                      struct Node     **tail,
+                                      struct LinkedNode     **head,
+                                      struct LinkedNode     **tail,
                                       const void       *value)
 {
 	generic_insert_doubly_linked(alloc, nmemb, size, head, tail, value, 0);
@@ -189,8 +189,8 @@ void generic_push_front_doubly_linked(struct NodeAlloc *alloc,
 void generic_push_back_doubly_linked(struct NodeAlloc *alloc,
                                      size_t           *nmemb,
                                      const size_t      size,
-                                     struct Node     **head,
-                                     struct Node     **tail,
+                                     struct LinkedNode     **head,
+                                     struct LinkedNode     **tail,
                                      const void       *value)
 {
 	generic_insert_doubly_linked(alloc, nmemb, size, head, tail, value, *nmemb);
@@ -199,12 +199,12 @@ void generic_push_back_doubly_linked(struct NodeAlloc *alloc,
 size_t generic_insert_doubly_linked(struct NodeAlloc *alloc,
                                     size_t           *nmemb,
                                     const size_t      size,
-                                    struct Node     **head,
-                                    struct Node     **tail,
+                                    struct LinkedNode     **head,
+                                    struct LinkedNode     **tail,
                                     const void       *value,
                                     const size_t      index)
 {
-	struct Node *seek = seek_node(*nmemb, index, *head, *tail);
+	struct LinkedNode *seek = seek_node(*nmemb, index, *head, *tail);
 
 	create_node_doubly_linked(alloc, *nmemb, size, value, seek, head, tail);
 
@@ -215,7 +215,7 @@ size_t generic_insert_doubly_linked(struct NodeAlloc *alloc,
 
 void generic_pop_front_singly_linked(struct NodeAlloc *alloc,
                                      size_t           *nmemb,
-                                     struct Node     **head)
+                                     struct LinkedNode     **head)
 {
 	generic_erase_singly_linked(alloc, nmemb, 0, head, 1);
 }
@@ -223,10 +223,10 @@ void generic_pop_front_singly_linked(struct NodeAlloc *alloc,
 size_t generic_erase_singly_linked(struct NodeAlloc *alloc,
                                    size_t           *nmemb,
                                    const size_t      index,
-                                   struct Node     **head,
+                                   struct LinkedNode     **head,
                                    const int         prior)
 {
-	struct Node *seek = seek_node(*nmemb, index, *head, NULL);
+	struct LinkedNode *seek = seek_node(*nmemb, index, *head, NULL);
 
 	erase_node_singly_linked(alloc, seek, head, prior);
 
@@ -237,16 +237,16 @@ size_t generic_erase_singly_linked(struct NodeAlloc *alloc,
 
 void generic_pop_front_doubly_linked(struct NodeAlloc *alloc,
                                      size_t           *nmemb,
-                                     struct Node     **head,
-                                     struct Node     **tail)
+                                     struct LinkedNode     **head,
+                                     struct LinkedNode     **tail)
 {
 	generic_erase_doubly_linked(alloc, nmemb, 0, head, tail);
 }
 
 void generic_pop_back_doubly_linked(struct NodeAlloc *alloc,
                                     size_t           *nmemb,
-                                    struct Node     **head,
-                                    struct Node     **tail)
+                                    struct LinkedNode     **head,
+                                    struct LinkedNode     **tail)
 {
 	generic_erase_doubly_linked(alloc, nmemb, *nmemb - 1, head, tail);
 }
@@ -254,10 +254,10 @@ void generic_pop_back_doubly_linked(struct NodeAlloc *alloc,
 size_t generic_erase_doubly_linked(struct NodeAlloc *alloc,
                                    size_t           *nmemb,
                                    const size_t      index,
-                                   struct Node     **head,
-                                   struct Node     **tail)
+                                   struct LinkedNode     **head,
+                                   struct LinkedNode     **tail)
 {
-	struct Node *seek = seek_node(*nmemb, index, *head, *tail);
+	struct LinkedNode *seek = seek_node(*nmemb, index, *head, *tail);
 
 	erase_node_doubly_linked(alloc, seek, head, tail);
 
@@ -267,8 +267,8 @@ size_t generic_erase_doubly_linked(struct NodeAlloc *alloc,
 }
 
 void generic_clear_linked(struct NodeAlloc *alloc,
-                          struct Node     **head,
-                          struct Node     **tail,
+                          struct LinkedNode     **head,
+                          struct LinkedNode     **tail,
                           size_t           *nmemb)
 {
 	clear_nodes(alloc);
@@ -283,14 +283,14 @@ void generic_clear_linked(struct NodeAlloc *alloc,
 	*nmemb = 0;
 }
 
-void *generic_access_linked(struct Node *node)
+void *generic_access_linked(struct LinkedNode *node)
 {
 	return node->value;
 }
 
 Iter *next_linked(Iter *iter)
 {
-	struct Node *node = iter->ptr;
+	struct LinkedNode *node = iter->ptr;
 
 	iter->ptr = node->next;
 
@@ -299,7 +299,7 @@ Iter *next_linked(Iter *iter)
 
 Iter *prev_linked(Iter *iter)
 {
-	struct Node *node = iter->ptr;
+	struct LinkedNode *node = iter->ptr;
 
 	iter->ptr = node->prev;
 
@@ -308,6 +308,6 @@ Iter *prev_linked(Iter *iter)
 
 void *get_linked(const Iter *iter)
 {
-	struct Node *node = iter->ptr;
+	struct LinkedNode *node = iter->ptr;
 	return node->value;
 }
