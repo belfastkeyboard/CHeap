@@ -1,6 +1,7 @@
 #include "../../internals/mpool.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
+#include "../../iter.h"
 #include <memory.h>
 
 ALLOC static void *mempool_alloc(const size_t nmemb, const size_t size)
@@ -277,22 +278,19 @@ void generic_mempool_shrink_to_fit(void       **array,
 	}
 }
 
-/* ITERATOR HELPER FUNCTIONS */
-#include "../../iter.h"
-
 Iter *next_mempool(Iter *iter)
 {
-	iter->ptr = iter->ptr + iter->size;
+	iter->data.contiguous.array += iter->data.contiguous.size;
 	return iter;
 }
 
 Iter *prev_mempool(Iter *iter)
 {
-	iter->ptr = iter->ptr - iter->size;
+	iter->data.contiguous.array -= iter->data.contiguous.size;
 	return iter;
 }
 
 void *get_mempool(const Iter *iter)
 {
-	return iter->ptr;
+	return iter->data.contiguous.array;
 }
