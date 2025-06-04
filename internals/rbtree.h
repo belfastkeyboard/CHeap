@@ -2,6 +2,7 @@
 
 #include "../range.h"
 #include "nalloc.h"
+#include "pair.h"
 
 typedef int (*Comp)(const void *a, const void *b);
 
@@ -13,8 +14,7 @@ enum Colour
 
 struct Node
 {
-	void        *key;
-	void        *value;
+	PairKV pair;
 	enum Colour  colour;
 	struct Node *parent;
 	struct Node *left;
