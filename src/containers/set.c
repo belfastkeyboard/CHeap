@@ -83,21 +83,19 @@ void clear_set(Set *set)
 
 Iter begin_set(const Set *set)
 {
-	void *ptr = rbt_min(set->head);
-
-	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = ptr } };
-
+	struct TreeNode *node = rbt_min(set->head);
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = node } };
 	return iter;
 }
 
-Iter end_set(const Set *set)
+Iter end_set(const Set *)
 {
-	void *ptr = rbt_max(set->head);
-
-	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = ptr } };
-
+	struct TreeNode *node = NULL;
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = node } };
 	return iter;
 }
+
+//	void *ptr = rbt_max(set->head);
 
 bool empty_set(const Set *set)
 {

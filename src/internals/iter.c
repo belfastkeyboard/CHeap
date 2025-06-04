@@ -112,7 +112,7 @@ bool done_iter(const Iter *begin, const Iter *end)
 			return !begin->data.linked.node;
 		case ITERATOR_SET:
 		case ITERATOR_TABLE:
-			return !begin->data.balanced.node;
+			return begin->data.balanced.node == end->data.balanced.node;
 		case ITERATOR_DEQUE:
 			return begin->data.deque.index >= end->data.deque.index;
 		default:
