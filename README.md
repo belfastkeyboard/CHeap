@@ -75,20 +75,15 @@ substitution, case transformation, slicing, stripping, splitting and joining.
 
 WIP.
 
-Iterators done:
-
-- array
-- vector
-- hash set
-- hash table
-- list
-- forward list
-- set
-- table
-
-Iterators to do:
-
-- deque
+- [x] array
+- [x] vector
+- [x] hash set
+- [x] hash table
+- [x] list
+- [x] forward list
+- [x] set
+- [x] table
+- [ ] deque
 
 ## RANGES LIBRARY
 
@@ -96,7 +91,7 @@ Very WIP.
 
 ## TODO:
 
-- storing pointers
+- [ ] storing pointers
     - storing items as pointers is not intuitive
     - passing ```Item *item``` to ```push_vector(vector, item)``` will
       write ```*item``` into the vector
@@ -113,13 +108,13 @@ Very WIP.
     - it is also possible to retrieve a pointer to a pointer such
       as ```Item **item2 = at_vector(vector, 0)```
     - this is very annoying, and it is easy to make mistakes like this
-- update generic macros
-- range functions in cheap.h generics
-- iterators
-- stress test all types
-- resize for deque/queue
-- reduce malloc calls in src/internals/deq.c
-- provide better implementation of push_range for deque type
+- [ ] update generic macros
+- [ ] range functions in cheap.h generics
+- [ ] iterators
+- [ ] stress test all types
+- [ ] resize for deque/queue
+- [ ] reduce malloc calls in src/internals/deq.c
+- [ ] provide better implementation of push_range for deque type
 
 ## CONSIDER:
 
