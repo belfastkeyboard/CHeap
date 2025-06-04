@@ -106,7 +106,7 @@ bool done_iter(const Iter *begin, const Iter *end)
 			return begin->data.contiguous.array >= end->data.contiguous.array;
 		case ITERATOR_HASH_SET:
 		case ITERATOR_HASH_TABLE:
-			return begin->data.hashed.bucket > end->data.hashed.bucket;
+			return begin->data.hashed.bucket >= end->data.hashed.end;
 		case ITERATOR_LIST:
 		case ITERATOR_FORWARD_LIST:
 			return !begin->data.linked.node;
@@ -130,7 +130,7 @@ bool done_iter_r(const Iter *begin, const Iter *end)
 			return begin->data.contiguous.array <= end->data.contiguous.array;
 		case ITERATOR_HASH_SET:
 		case ITERATOR_HASH_TABLE:
-			return begin->data.hashed.bucket < end->data.hashed.bucket;
+			return begin->data.hashed.bucket <= end->data.hashed.end;
 		case ITERATOR_LIST:
 			return !begin->data.linked.node;
 		case ITERATOR_SET:

@@ -46,12 +46,13 @@ struct IteratorBalancedTree
 struct IteratorHashBuckets
 {
 	struct Bucket *bucket;
+	struct Bucket *end;
 };
 // deque
 struct IteratorDeque
 {
 	const Deque *deque;
-	size_t index;
+	size_t       index;
 };
 
 union IteratorData
@@ -68,7 +69,7 @@ union IteratorData
 typedef struct Iter
 {
 	const IteratorType type;
-	union IteratorData      data;
+	union IteratorData data;
 } Iter, Iterator;
 
 Iter *next_iter(Iter *iter);
