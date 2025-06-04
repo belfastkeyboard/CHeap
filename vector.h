@@ -213,7 +213,7 @@ Iter end_vector(const Vector *vector);
  * @brief Returns a reverse iterator to the last element of the vector
  *
  * @param vector The Vector object
- * @return Iterator to the last element
+ * @return Reverse iterator to the last element
  *
  * @warning Calling on an empty vector is undefined behaviour
  */
