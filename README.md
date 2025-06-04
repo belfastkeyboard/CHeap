@@ -15,6 +15,16 @@ Library for simplifying memory management in C.
       caching (one of the frequent criticisms of the linked list) but results in
       increased memory overhead.
 
+## Table of Contents
+- [Allocator Library](#allocator-library)
+- [Container Library](#container-library)
+- [Strings Library](#strings-library)
+- [Iterator Library](#iterator-library)
+- [Ranges Library](#ranges-library)
+- [To Do](#todo)
+- [Consider](#consider)
+- [Influences](#influences)
+
 ## ALLOCATOR LIBRARY
 
 Allocators provide an interface for safe memory management and lifetime control.
