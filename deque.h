@@ -23,5 +23,27 @@ void   pop_back_deque(Deque *deque);
 size_t erase_deque(Deque *deque, size_t index);
 void   clear_deque(Deque *deque);
 
+#ifdef CHEAP_ITERATOR_AVAILABLE
+/**
+ * @brief Returns an iterator to the first element of the deque
+ *
+ * @param deque The Deque object
+ * @return Iterator to the first element
+ *
+ * @warning Calling on an empty deque is undefined behaviour
+ */
+Iter begin_deque(const Deque *deque);
+
+/**
+ * @brief Returns an iterator to the last element of the deque
+ *
+ * @param deque The Deque object
+ * @return Iterator to the last element
+ *
+ * @warning Calling on an empty deque is undefined behaviour
+ */
+Iter end_deque(const Deque *deque);
+#endif
+
 bool   empty_deque(const Deque *deque);
 size_t size_deque(const Deque *deque);
