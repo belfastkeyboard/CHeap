@@ -64,7 +64,10 @@ Iter begin_array(const Array *array)
 	void        *ptr  = front_array(array);
 	const size_t size = array->size;
 
-	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
+	Iter iter = {
+		.type            = ITERATOR_ARRAY,
+		.data.contiguous = { .array = ptr, .size = size }
+	};
 
 	return iter;
 }
@@ -74,7 +77,10 @@ Iter end_array(const Array *array)
 	void        *ptr  = back_array(array);
 	const size_t size = array->size;
 
-	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
+	Iter iter = {
+		.type = ITERATOR_ARRAY,
+		.data.contiguous = { .array = ptr, .size = size }
+	};
 
 	return iter;
 }

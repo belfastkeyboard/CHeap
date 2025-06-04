@@ -9,14 +9,14 @@ typedef struct Set
 	size_t           size;
 	KComp            k_comp;
 	size_t           nmemb;
-	struct Node     *head;
+	struct TreeNode *head;
 } Set;
 
 Set *create_set(const size_t size, const KComp compare)
 {
 	Set *set = memory_allocate_container(sizeof(Set));
 
-	set->alloc = create_node_allocator(sizeof(struct Node),
+	set->alloc = create_node_allocator(sizeof(struct TreeNode),
 	                                   NODE_COUNT_DEFAULT,
 	                                   size,
 	                                   0);
@@ -83,20 +83,18 @@ void clear_set(Set *set)
 
 Iter begin_set(const Set *set)
 {
-	void        *ptr  = rbt_min(set->head);
-	const size_t size = set->size;
+	void *ptr = rbt_min(set->head);
 
-	Iter iter = { .type = ITERATOR_SET, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = ptr } };
 
 	return iter;
 }
 
 Iter end_set(const Set *set)
 {
-	void        *ptr  = rbt_max(set->head);
-	const size_t size = set->size;
+	void *ptr = rbt_max(set->head);
 
-	Iter iter = { .type = ITERATOR_SET, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = ptr } };
 
 	return iter;
 }

@@ -5,11 +5,11 @@
 
 typedef struct List
 {
-	struct NodeAlloc alloc;
-	size_t           nmemb;
-	size_t           size;
-	struct Node     *head;
-	struct Node     *tail;
+	struct NodeAlloc   alloc;
+	size_t             nmemb;
+	size_t             size;
+	struct LinkedNode *head;
+	struct LinkedNode *tail;
 } List;
 
 List *create_list(const size_t size)
@@ -21,7 +21,10 @@ List *create_list_capacity(size_t size, size_t init)
 {
 	List *list = memory_allocate_container(sizeof(List));
 
-	list->alloc = create_node_allocator(sizeof(struct Node), init, size, 0);
+	list->alloc = create_node_allocator(sizeof(struct LinkedNode),
+	                                    init,
+	                                    size,
+	                                    0);
 	list->size  = size;
 
 	return list;
@@ -106,20 +109,18 @@ void clear_list(List *list)
 
 Iter begin_list(const List *list)
 {
-	void        *ptr  = list->head;
-	const size_t size = list->size;
+	void *ptr = list->head;
 
-	Iter iter = { .type = ITERATOR_LIST, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = ptr } };
 
 	return iter;
 }
 
 Iter end_list(const List *list)
 {
-	void        *ptr  = list->tail;
-	const size_t size = list->size;
+	void *ptr = list->tail;
 
-	Iter iter = { .type = ITERATOR_LIST, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = ptr } };
 
 	return iter;
 }

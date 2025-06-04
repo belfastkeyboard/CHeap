@@ -99,7 +99,7 @@ void clear_hash_set(HashSet *set)
 
 Iter begin_hash_set(const HashSet *set)
 {
-	return begin_hash(ITERATOR_HASH_SET, set->buckets, set->capacity);
+	return begin_hash(ITERATOR_HASH_SET, set->buckets);
 }
 
 Iter end_hash_set(const HashSet *set)

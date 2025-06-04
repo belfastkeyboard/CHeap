@@ -1,7 +1,7 @@
 #include "../../table.h"
-#include "../../iter.h"
 #include "../../internals/base.h"
 #include "../../internals/rbtree.h"
+#include "../../iter.h"
 
 typedef struct Table
 {
@@ -10,7 +10,7 @@ typedef struct Table
 	size_t           v_size;
 	KComp            k_comp;
 	size_t           nmemb;
-	struct Node     *head;
+	struct TreeNode *head;
 } Table;
 
 Table *create_table(const size_t k_size,
@@ -19,7 +19,7 @@ Table *create_table(const size_t k_size,
 {
 	Table *table = memory_allocate_container(sizeof(Table));
 
-	table->alloc = create_node_allocator(sizeof(struct Node),
+	table->alloc = create_node_allocator(sizeof(struct TreeNode),
 	                                     NODE_COUNT_DEFAULT,
 	                                     k_size,
 	                                     v_size);
@@ -82,20 +82,18 @@ void clear_table(Table *table)
 
 Iter begin_table(const Table *table)
 {
-	void        *ptr  = rbt_min(table->head);
-	const size_t size = table->k_size;
+	void *ptr = rbt_min(table->head);
 
-	Iter iter = { .type = ITERATOR_TABLE, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = ptr } };
 
 	return iter;
 }
 
 Iter end_table(const Table *table)
 {
-	void        *ptr  = rbt_max(table->head);
-	const size_t size = table->k_size;
+	void *ptr = rbt_max(table->head);
 
-	Iter iter = { .type = ITERATOR_TABLE, .ptr = ptr, .size = size };
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = ptr } };
 
 	return iter;
 }

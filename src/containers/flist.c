@@ -5,10 +5,10 @@
 
 typedef struct ForwardList
 {
-	struct NodeAlloc alloc;
-	size_t           nmemb;
-	size_t           size;
-	struct Node     *head;
+	struct NodeAlloc   alloc;
+	size_t             nmemb;
+	size_t             size;
+	struct LinkedNode *head;
 } ForwardList, FList;
 
 FList *create_forward_list(const size_t size)
@@ -20,7 +20,10 @@ FList *create_forward_list_capacity(size_t size, size_t init)
 {
 	FList *flist = memory_allocate_container(sizeof(FList));
 
-	flist->alloc = create_node_allocator(sizeof(struct Node), init, size, 0);
+	flist->alloc = create_node_allocator(sizeof(struct LinkedNode),
+	                                     init,
+	                                     size,
+	                                     0);
 	flist->size  = size;
 
 	return flist;
@@ -79,20 +82,20 @@ void clear_forward_list(FList *flist)
 
 Iter begin_forward_list(const FList *flist)
 {
-	void        *ptr  = flist->head;
-	const size_t size = flist->size;
+	void *ptr = flist->head;
 
-	Iter iter = { .type = ITERATOR_FORWARD_LIST, .ptr = ptr, .size = size };
+	Iter iter = { .type        = ITERATOR_FORWARD_LIST,
+		          .data.linked = { .node = ptr } };
 
 	return iter;
 }
 
-Iter end_forward_list(const FList *flist)
+Iter end_forward_list(const FList *)
 {
-	void        *ptr  = NULL;
-	const size_t size = flist->size;
+	void *ptr = NULL;
 
-	Iter iter = { .type = ITERATOR_FORWARD_LIST, .ptr = ptr, .size = size };
+	Iter iter = { .type        = ITERATOR_FORWARD_LIST,
+		          .data.linked = { .node = ptr } };
 
 	return iter;
 }
