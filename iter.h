@@ -16,14 +16,59 @@ typedef enum IteratorType
 	ITERATOR_SET,
 	ITERATOR_TABLE,
 	ITERATOR_HASH_SET,
-	ITERATOR_HASH_TABLE
+	ITERATOR_HASH_TABLE,
+	ITERATOR_DEQUE
 } IteratorType;
+
+struct LinkedNode;
+struct TreeNode;
+struct Bucket;
+struct ControlArray;
+typedef struct DoubleEndedQueue DoubleEndedQueue, Deque;
+
+// array, vector
+struct IteratorContiguousArray
+{
+	void        *array;
+	const size_t size;
+};
+// list, forward list
+struct IteratorLinkedList
+{
+	struct LinkedNode *node;
+};
+// set, table
+struct IteratorBalancedTree
+{
+	struct TreeNode *node;
+};
+// hash set, hash table
+struct IteratorHashBuckets
+{
+	struct Bucket *bucket;
+};
+// deque
+struct IteratorDeque
+{
+	const Deque *deque;
+	size_t index;
+};
+
+union IteratorData
+{
+	struct IteratorContiguousArray contiguous;
+	struct IteratorLinkedList      linked;
+	struct IteratorBalancedTree    balanced;
+	struct IteratorHashBuckets     hashed;
+	struct IteratorDeque           deque;
+};
+
+// TODO: implement unions
 
 typedef struct Iter
 {
 	const IteratorType type;
-	void              *ptr;
-	const size_t       size;
+	union IteratorData      data;
 } Iter, Iterator;
 
 Iter *next_iter(Iter *iter);
