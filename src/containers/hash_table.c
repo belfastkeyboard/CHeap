@@ -106,7 +106,7 @@ void clear_hash_table(HashTable *table)
 
 Iter begin_hash_table(const HashTable *table)
 {
-	return begin_hash(ITERATOR_HASH_TABLE, table->buckets);
+	return begin_hash(ITERATOR_HASH_TABLE, table->buckets, table->capacity);
 }
 
 Iter end_hash_table(const HashTable *table)
