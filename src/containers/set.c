@@ -95,7 +95,19 @@ Iter end_set(const Set *)
 	return iter;
 }
 
-//	void *ptr = rbt_max(set->head);
+Iter rbegin_set(const Set *set)
+{
+	struct TreeNode *node = rbt_max(set->head);
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = node } };
+	return iter;
+}
+
+Iter rend_set(const Set *)
+{
+	struct TreeNode *node = NULL;
+	Iter iter = { .type = ITERATOR_SET, .data.balanced = { .node = node } };
+	return iter;
+}
 
 bool empty_set(const Set *set)
 {

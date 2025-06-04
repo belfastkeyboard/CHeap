@@ -144,21 +144,43 @@ void clear_set(Set *set);
  * @brief Returns an iterator to the first element of the set
  *
  * @param set The Set object
- * @return Iterator to the first element
+ * @return Sentinel iterator representing the end of the set
  *
  * @warning Calling on an empty set is undefined behaviour
  */
 Iter begin_set(const Set *set);
 
 /**
- * @brief Returns an iterator to the last element of the set
+ * @brief Returns an iterator to the end of the set
  *
  * @param set The Set object
- * @return Iterator to the last element
+ * @return Sentinel iterator representing the end of the set
+ *
+ * @warning Calling on an empty set is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter end_set(const Set *set);
+
+/**
+ * @brief Returns a reverse iterator to the last element of the set
+ *
+ * @param set The Set object
+ * @return Reverse iterator to the last element
  *
  * @warning Calling on an empty set is undefined behaviour
  */
-Iter end_set(const Set *set);
+Iter rbegin_set(const Set *set);
+
+/**
+ * @brief Returns a reverse iterator to the reverse end of the set
+ *
+ * @param set The Set object
+ * @return Sentinel iterator representing the reverse end of the set
+ *
+ * @warning Calling on an empty set is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter rend_set(const Set *set);
 #endif
 
 /**

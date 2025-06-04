@@ -82,19 +82,29 @@ void clear_table(Table *table)
 
 Iter begin_table(const Table *table)
 {
-	void *ptr = rbt_min(table->head);
-
-	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = ptr } };
-
+	struct TreeNode *node = rbt_min(table->head);
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = node } };
 	return iter;
 }
 
-Iter end_table(const Table *table)
+Iter end_table(const Table *)
 {
-	void *ptr = rbt_max(table->head);
+	struct TreeNode *node = NULL;
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = node } };
+	return iter;
+}
 
-	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = ptr } };
+Iter rbegin_table(const Table *table)
+{
+	struct TreeNode *node = rbt_max(table->head);
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = node } };
+	return iter;
+}
 
+Iter rend_table(const Table *)
+{
+	struct TreeNode *node = NULL;
+	Iter iter = { .type = ITERATOR_TABLE, .data.balanced = { .node = node } };
 	return iter;
 }
 

@@ -155,14 +155,36 @@ void clear_table(Table *table);
 Iter begin_table(const Table *table);
 
 /**
- * @brief Returns an iterator to the last element of the table
+ * @brief Returns an iterator to the end of the table
  *
  * @param table The Table object
- * @return Iterator to the last element
+ * @return Sentinel iterator representing the end of the table
+ *
+ * @warning Calling on an empty table is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter end_table(const Table *table);
+
+/**
+ * @brief Returns a reverse iterator to the last element of the table
+ *
+ * @param table The Table object
+ * @return Reverse iterator to the last element
  *
  * @warning Calling on an empty table is undefined behaviour
  */
-Iter end_table(const Table *table);
+Iter rbegin_table(const Table *table);
+
+/**
+ * @brief Returns an iterator to the reverse end of the table
+ *
+ * @param table The Table object
+ * @return Sentinel iterator representing the reverse end of the table
+ *
+ * @warning Calling on an empty table is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter rend_table(const Table *table);
 #endif
 
 /**
