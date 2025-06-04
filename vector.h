@@ -199,14 +199,36 @@ void *back_vector(const Vector *vector);
 Iter begin_vector(const Vector *vector);
 
 /**
- * @brief Returns an iterator to the last element of the vector
+ * @brief Returns an iterator to the end of the vector
+ *
+ * @param vector The Vector object
+ * @return Sentinel iterator representing the end of the vector
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter end_vector(const Vector *vector);
+
+/**
+ * @brief Returns a reverse iterator to the last element of the vector
  *
  * @param vector The Vector object
  * @return Iterator to the last element
  *
  * @warning Calling on an empty vector is undefined behaviour
  */
-Iter end_vector(const Vector *vector);
+Iter rbegin_vector(const Vector *vector);
+
+/**
+ * @brief Returns an iterator to the reverse end of the vector
+ *
+ * @param vector The Vector object
+ * @return Sentinel iterator representing the reverse end of the vector
+ *
+ * @warning Calling on an empty vector is undefined behaviour
+ * @note End is a sentinel value and should not be dereferenced
+ */
+Iter rend_vector(const Vector *vector);
 #endif
 
 /**

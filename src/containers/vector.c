@@ -112,20 +112,52 @@ void *back_vector(const Vector *vector)
 
 Iter begin_vector(const Vector *vector)
 {
-	void        *ptr  = front_vector(vector);
-	const size_t size = vector->size;
+	const size_t size  = vector->size;
+	void        *array = front_vector(vector);
 
-	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = array, .size = size }
+	};
 
 	return iter;
 }
 
 Iter end_vector(const Vector *vector)
 {
-	void        *ptr  = back_vector(vector);
-	const size_t size = vector->size;
+	const size_t size  = vector->size;
+	void        *array = back_vector(vector) + size;
 
-	Iter iter = { .type = ITERATOR_VECTOR, .ptr = ptr, .size = size };
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = array, .size = size }
+	};
+
+	return iter;
+}
+
+Iter rbegin_vector(const Vector *vector)
+{
+	const size_t size  = vector->size;
+	void        *array = back_vector(vector);
+
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = array, .size = size }
+	};
+
+	return iter;
+}
+
+Iter rend_vector(const Vector *vector)
+{
+	const size_t size  = vector->size;
+	void        *array = front_vector(vector) - size;
+
+	Iter iter = {
+		.type            = ITERATOR_VECTOR,
+		.data.contiguous = { .array = array, .size = size }
+	};
 
 	return iter;
 }
