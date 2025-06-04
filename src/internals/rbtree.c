@@ -525,21 +525,21 @@ void *rbt_max(struct TreeNode *head)
 
 void *get_rbtree_set(const Iter *iter)
 {
-	return (void *)((struct TreeNode *)iter->ptr)->pair.key;
+	return (void *)iter->data.balanced.node->pair.key;
 }
 
 void *get_rbtree_table(const Iter *iter)
 {
-	return &((struct TreeNode *)iter->ptr)->pair;
+	return &iter->data.balanced.node->pair;
 }
 
 Iter *next_rbtree(Iter *iter)
 {
-	struct TreeNode *node = iter->ptr;
+	struct TreeNode *node = iter->data.balanced.node;
 
 	if (node->right)
 	{
-		iter->ptr = rbt_min(node->right);
+		iter->data.balanced.node = rbt_min(node->right);
 	}
 	else
 	{
@@ -550,7 +550,7 @@ Iter *next_rbtree(Iter *iter)
 			parent = parent->parent;
 		}
 
-		iter->ptr = parent;
+		iter->data.balanced.node = parent;
 	}
 
 	return iter;
@@ -558,13 +558,13 @@ Iter *next_rbtree(Iter *iter)
 
 Iter *prev_rbtree(Iter *iter)
 {
-	struct TreeNode *node = iter->ptr;
+	struct TreeNode *node = iter->data.balanced.node;
 
 	if (node->left)
 	{
-		node      = node->left;
-		node      = rbt_max(node);
-		iter->ptr = node;
+		node                     = node->left;
+		node                     = rbt_max(node);
+		iter->data.balanced.node = node;
 	}
 	else
 	{
@@ -576,7 +576,7 @@ Iter *prev_rbtree(Iter *iter)
 			parent = parent->parent;
 		}
 
-		iter->ptr = parent;
+		iter->data.balanced.node = parent;
 	}
 
 	return iter;
