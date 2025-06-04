@@ -72,18 +72,20 @@ Supports operations such as string concatenation, duplication, pattern
 substitution, case transformation, slicing, stripping, splitting and joining.
 
 ## ITERATOR LIBRARY
+Provides a generic interface for iterating and reverse iterating containers.
+Associative containers (Table, Hash Table) return a ``PairKV`` object, all 
+other containers return their stored element directly.
 
-WIP.
-
-- [x] array
-- [x] vector
-- [x] hash set
-- [x] hash table
-- [x] list
-- [x] forward list
-- [x] set
-- [x] table
-- [ ] deque
+Supported containers:
+- Array
+- Vector
+- Set
+- Table
+- Hash Set
+- Hash Table
+- List 
+- Forward List
+- Deque 
 
 ## RANGES LIBRARY
 
@@ -91,6 +93,9 @@ Very WIP.
 
 ## TODO:
 
+- [x] finish iterators
+- [ ] finish ranges
+- [ ] transform and filter functions
 - [ ] storing pointers
     - storing items as pointers is not intuitive
     - passing ```Item *item``` to ```push_vector(vector, item)``` will
