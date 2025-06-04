@@ -103,18 +103,18 @@ bool done_iter(const Iter *begin, const Iter *end)
 	{
 		case ITERATOR_ARRAY:
 		case ITERATOR_VECTOR:
-			return begin->data.contiguous.array >= end->data.contiguous.array;
+			return begin->data.contiguous.array == end->data.contiguous.array;
 		case ITERATOR_HASH_SET:
 		case ITERATOR_HASH_TABLE:
-			return begin->data.hashed.bucket >= end->data.hashed.end;
+			return begin->data.hashed.bucket == end->data.hashed.end;
 		case ITERATOR_LIST:
 		case ITERATOR_FORWARD_LIST:
-			return !begin->data.linked.node;
+			return begin->data.linked.node == end->data.linked.node;
 		case ITERATOR_SET:
 		case ITERATOR_TABLE:
 			return begin->data.balanced.node == end->data.balanced.node;
 		case ITERATOR_DEQUE:
-			return begin->data.deque.index >= end->data.deque.index;
+			return begin->data.deque.index == end->data.deque.index;
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
 			exit(EXIT_FAILURE);
@@ -127,17 +127,17 @@ bool done_iter_r(const Iter *begin, const Iter *end)
 	{
 		case ITERATOR_ARRAY:
 		case ITERATOR_VECTOR:
-			return begin->data.contiguous.array <= end->data.contiguous.array;
+			return begin->data.contiguous.array == end->data.contiguous.array;
 		case ITERATOR_HASH_SET:
 		case ITERATOR_HASH_TABLE:
-			return begin->data.hashed.bucket <= end->data.hashed.end;
+			return begin->data.hashed.bucket == end->data.hashed.end;
 		case ITERATOR_LIST:
-			return !begin->data.linked.node;
+			return begin->data.linked.node == end->data.linked.node;
 		case ITERATOR_SET:
 		case ITERATOR_TABLE:
-			return !begin->data.balanced.node;
+			return begin->data.balanced.node == end->data.balanced.node;
 		case ITERATOR_DEQUE:
-			return begin->data.deque.index < end->data.deque.index;
+			return begin->data.deque.index == end->data.deque.index;
 		default:
 			fprintf(stderr, "Unknown iterator type: %d.\n", begin->type);
 			exit(EXIT_FAILURE);
