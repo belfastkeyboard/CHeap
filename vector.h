@@ -9,7 +9,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-21
- * @version 0.8
+ * @version 0.9
  */
 
 #pragma once
