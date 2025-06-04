@@ -12,17 +12,17 @@ enum Colour
 	BLACK
 };
 
-struct Node
+struct TreeNode
 {
-	PairKV pair;
-	enum Colour  colour;
-	struct Node *parent;
-	struct Node *left;
-	struct Node *right;
+	PairKV           pair;
+	enum Colour      colour;
+	struct TreeNode *parent;
+	struct TreeNode *left;
+	struct TreeNode *right;
 };
 
 void insert_rbtree(struct NodeAlloc *alloc,
-                   struct Node     **head,
+                   struct TreeNode **head,
                    const void       *key,
                    const void       *value,
                    Comp              compare,
@@ -32,7 +32,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 
 /*
 void insert_range_rbtree(struct NodeAlloc *alloc,
-                         struct Node     **head,
+                         struct TreeNode **head,
                          const Range      *range,
                          Comp              compare,
                          size_t            size,
@@ -40,17 +40,19 @@ void insert_range_rbtree(struct NodeAlloc *alloc,
 */
 
 void delete_rbtree(struct NodeAlloc *alloc,
-                   struct Node     **head,
+                   struct TreeNode **head,
                    const void       *key,
                    Comp              compare,
                    size_t           *nmemb);
 
-void clear_rbtree(struct NodeAlloc *alloc, struct Node **head, size_t *nmemb);
+void clear_rbtree(struct NodeAlloc *alloc,
+                  struct TreeNode **head,
+                  size_t           *nmemb);
 
-void *rbt_search_k(struct Node *head, const void *key, Comp compare);
+void *rbt_search_k(struct TreeNode *head, const void *key, Comp compare);
 
-void *rbt_search_v(struct Node *head, const void *key, Comp compare);
+void *rbt_search_v(struct TreeNode *head, const void *key, Comp compare);
 
-void *rbt_min(struct Node *head);
+void *rbt_min(struct TreeNode *head);
 
-void *rbt_max(struct Node *head);
+void *rbt_max(struct TreeNode *head);

@@ -10,33 +10,33 @@
 
 typedef int (*KComp)(const void *, const void *);
 
-static enum Colour node_colour(const struct Node *node)
+static enum Colour node_colour(const struct TreeNode *node)
 {
 	return (!node) ? BLACK : node->colour;
 }
 
-static bool is_red(const struct Node *node)
+static bool is_red(const struct TreeNode *node)
 {
 	return node_colour(node) == RED;
 }
 
-static bool is_black(const struct Node *node)
+static bool is_black(const struct TreeNode *node)
 {
 	return node_colour(node) == BLACK;
 }
 
-static struct Node *create_node(struct NodeAlloc *alloc,
-                                struct Node      *parent,
-                                const void       *key,
-                                const void       *value,
-                                const size_t      k_size,
-                                const size_t      v_size)
+static struct TreeNode *create_node(struct NodeAlloc *alloc,
+                                    struct TreeNode  *parent,
+                                    const void       *key,
+                                    const void       *value,
+                                    const size_t      k_size,
+                                    const size_t      v_size)
 {
-	void        *memory = alloc_node(alloc);
-	struct Node *node   = memory;
+	void            *memory = alloc_node(alloc);
+	struct TreeNode *node   = memory;
 
-	node->pair.key   = memory + sizeof(struct Node);
-	node->pair.value = memory + sizeof(struct Node) + k_size;
+	node->pair.key   = memory + sizeof(struct TreeNode);
+	node->pair.value = memory + sizeof(struct TreeNode) + k_size;
 	node->colour     = RED;
 	node->parent     = parent;
 	node->left       = NULL;
@@ -48,7 +48,7 @@ static struct Node *create_node(struct NodeAlloc *alloc,
 	return node;
 }
 
-static struct Node *grandparent(struct Node *node)
+static struct TreeNode *grandparent(struct TreeNode *node)
 {
 	assert(node);
 	assert(node->parent);
@@ -57,7 +57,7 @@ static struct Node *grandparent(struct Node *node)
 	return node->parent->parent;
 }
 
-static struct Node *sibling(struct Node *node)
+static struct TreeNode *sibling(struct TreeNode *node)
 {
 	assert(node);
 	assert(node->parent);
@@ -66,7 +66,7 @@ static struct Node *sibling(struct Node *node)
 	                                    : node->parent->left;
 }
 
-static struct Node *uncle(struct Node *n)
+static struct TreeNode *uncle(struct TreeNode *n)
 {
 	assert(n);
 	assert(n->parent);
@@ -75,13 +75,13 @@ static struct Node *uncle(struct Node *n)
 	return sibling(n->parent);
 }
 
-static struct Node *lookup_node(struct Node *head,
-                                const void  *key,
-                                KComp        compare)
+static struct TreeNode *lookup_node(struct TreeNode *head,
+                                    const void      *key,
+                                    KComp            compare)
 {
 	assert(!head || !head->parent);
 
-	struct Node *node = head;
+	struct TreeNode *node = head;
 
 	while (node)
 	{
@@ -104,7 +104,9 @@ static struct Node *lookup_node(struct Node *head,
 	return node;
 }
 
-static void replace_node(struct Node **head, struct Node *old, struct Node *new)
+static void replace_node(struct TreeNode **head,
+                         struct TreeNode  *old,
+                         struct TreeNode *new)
 {
 	if (!old->parent)
 	{
@@ -128,9 +130,9 @@ static void replace_node(struct Node **head, struct Node *old, struct Node *new)
 	}
 }
 
-static void rotate_left(struct Node **head, struct Node *node)
+static void rotate_left(struct TreeNode **head, struct TreeNode *node)
 {
-	struct Node *right = node->right;
+	struct TreeNode *right = node->right;
 
 	replace_node(head, node, right);
 
@@ -145,9 +147,9 @@ static void rotate_left(struct Node **head, struct Node *node)
 	node->parent = right;
 }
 
-static void rotate_right(struct Node **head, struct Node *node)
+static void rotate_right(struct TreeNode **head, struct TreeNode *node)
 {
-	struct Node *left = node->left;
+	struct TreeNode *left = node->left;
 
 	replace_node(head, node, left);
 
@@ -162,7 +164,7 @@ static void rotate_right(struct Node **head, struct Node *node)
 	node->parent = left;
 }
 
-static void insert_fixup(struct Node **head, struct Node *node)
+static void insert_fixup(struct TreeNode **head, struct TreeNode *node)
 {
 	if (!node->parent)
 	{
@@ -212,13 +214,13 @@ static void insert_fixup(struct Node **head, struct Node *node)
 	}
 }
 
-static struct Node *insert_node(struct NodeAlloc *alloc,
-                                struct Node     **sentinel,
-                                struct Node      *parent,
-                                const void       *key,
-                                const void       *value,
-                                const size_t      k_size,
-                                const size_t      v_size)
+static struct TreeNode *insert_node(struct NodeAlloc *alloc,
+                                    struct TreeNode **sentinel,
+                                    struct TreeNode  *parent,
+                                    const void       *key,
+                                    const void       *value,
+                                    const size_t      k_size,
+                                    const size_t      v_size)
 {
 	*sentinel = create_node(alloc, parent, key, value, k_size, v_size);
 
@@ -226,14 +228,14 @@ static struct Node *insert_node(struct NodeAlloc *alloc,
 }
 
 static void rbt_insert(struct NodeAlloc *alloc,
-                       struct Node     **head,
+                       struct TreeNode **head,
                        const void       *key,
                        const void       *value,
                        KComp             compare,
                        const size_t      k_size,
                        const size_t      v_size)
 {
-	struct Node *inserted_node = NULL;
+	struct TreeNode *inserted_node = NULL;
 
 	if (!(*head))
 	{
@@ -247,7 +249,7 @@ static void rbt_insert(struct NodeAlloc *alloc,
 	}
 	else
 	{
-		struct Node *node = *head;
+		struct TreeNode *node = *head;
 
 		while (true)
 		{
@@ -303,7 +305,7 @@ static void rbt_insert(struct NodeAlloc *alloc,
 	}
 }
 
-static struct Node *maximum_node(struct Node *node)
+static struct TreeNode *maximum_node(struct TreeNode *node)
 {
 	assert(node);
 
@@ -315,7 +317,7 @@ static struct Node *maximum_node(struct Node *node)
 	return node;
 }
 
-static void remove_fixup(struct Node **head, struct Node *node)
+static void remove_fixup(struct TreeNode **head, struct TreeNode *node)
 {
 	if (!node->parent)
 	{
@@ -386,13 +388,13 @@ static void remove_fixup(struct Node **head, struct Node *node)
 }
 
 static void rbt_delete(struct NodeAlloc *alloc,
-                       struct Node     **head,
+                       struct TreeNode **head,
                        const void       *key,
                        KComp             compare,
                        size_t           *nmemb)
 {
-	struct Node *child;
-	struct Node *node = lookup_node(*head, key, compare);
+	struct TreeNode *child;
+	struct TreeNode *node = lookup_node(*head, key, compare);
 
 	if (!node)
 	{
@@ -401,9 +403,9 @@ static void rbt_delete(struct NodeAlloc *alloc,
 
 	if (node->left && node->right)
 	{
-		struct Node *pred = maximum_node(node->left);
-		node->pair        = pred->pair;
-		node              = pred;
+		struct TreeNode *pred = maximum_node(node->left);
+		node->pair            = pred->pair;
+		node                  = pred;
 	}
 
 	assert(!node->left || !node->right);
@@ -428,7 +430,7 @@ static void rbt_delete(struct NodeAlloc *alloc,
 }
 
 void insert_rbtree(struct NodeAlloc *alloc,
-                   struct Node     **head,
+                   struct TreeNode **head,
                    const void       *key,
                    const void       *value,
                    const KComp       compare,
@@ -446,7 +448,7 @@ void insert_rbtree(struct NodeAlloc *alloc,
 }
 
 void delete_rbtree(struct NodeAlloc *alloc,
-                   struct Node     **head,
+                   struct TreeNode **head,
                    const void       *key,
                    const KComp       compare,
                    size_t           *nmemb)
@@ -461,7 +463,9 @@ void delete_rbtree(struct NodeAlloc *alloc,
 	assert(!(*head) || (!(*head)->parent));
 }
 
-void clear_rbtree(struct NodeAlloc *alloc, struct Node **head, size_t *nmemb)
+void clear_rbtree(struct NodeAlloc *alloc,
+                  struct TreeNode **head,
+                  size_t           *nmemb)
 {
 	clear_nodes(alloc);
 
@@ -469,11 +473,11 @@ void clear_rbtree(struct NodeAlloc *alloc, struct Node **head, size_t *nmemb)
 	*nmemb = 0;
 }
 
-void *rbt_search_k(struct Node *head, const void *key, KComp compare)
+void *rbt_search_k(struct TreeNode *head, const void *key, KComp compare)
 {
 	void *result = NULL;
 
-	struct Node *node = lookup_node(head, key, compare);
+	struct TreeNode *node = lookup_node(head, key, compare);
 
 	if (node)
 	{
@@ -483,11 +487,11 @@ void *rbt_search_k(struct Node *head, const void *key, KComp compare)
 	return result;
 }
 
-void *rbt_search_v(struct Node *head, const void *key, KComp compare)
+void *rbt_search_v(struct TreeNode *head, const void *key, KComp compare)
 {
 	void *result = NULL;
 
-	struct Node *node = lookup_node(head, key, compare);
+	struct TreeNode *node = lookup_node(head, key, compare);
 
 	if (node)
 	{
@@ -497,7 +501,7 @@ void *rbt_search_v(struct Node *head, const void *key, KComp compare)
 	return result;
 }
 
-void *rbt_min(struct Node *node)
+void *rbt_min(struct TreeNode *node)
 {
 	while (node->left)
 	{
@@ -507,9 +511,9 @@ void *rbt_min(struct Node *node)
 	return node;
 }
 
-void *rbt_max(struct Node *head)
+void *rbt_max(struct TreeNode *head)
 {
-	struct Node *node = head;
+	struct TreeNode *node = head;
 
 	while (node->right)
 	{
@@ -521,17 +525,17 @@ void *rbt_max(struct Node *head)
 
 void *get_rbtree_set(const Iter *iter)
 {
-	return (void*)((struct Node *)iter->ptr)->pair.key;
+	return (void *)((struct TreeNode *)iter->ptr)->pair.key;
 }
 
 void *get_rbtree_table(const Iter *iter)
 {
-	return &((struct Node *)iter->ptr)->pair;
+	return &((struct TreeNode *)iter->ptr)->pair;
 }
 
 Iter *next_rbtree(Iter *iter)
 {
-	struct Node *node = iter->ptr;
+	struct TreeNode *node = iter->ptr;
 
 	if (node->right)
 	{
@@ -539,7 +543,7 @@ Iter *next_rbtree(Iter *iter)
 	}
 	else
 	{
-		struct Node *parent = node->parent;
+		struct TreeNode *parent = node->parent;
 		while (parent && node == parent->right)
 		{
 			node   = parent;
@@ -554,7 +558,7 @@ Iter *next_rbtree(Iter *iter)
 
 Iter *prev_rbtree(Iter *iter)
 {
-	struct Node *node = iter->ptr;
+	struct TreeNode *node = iter->ptr;
 
 	if (node->left)
 	{
@@ -564,7 +568,7 @@ Iter *prev_rbtree(Iter *iter)
 	}
 	else
 	{
-		struct Node *parent = node->parent;
+		struct TreeNode *parent = node->parent;
 
 		while (parent && node == parent->left)
 		{
