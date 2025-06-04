@@ -7,8 +7,6 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 typedef int (*KComp)(const void *, const void *);
 
@@ -37,15 +35,15 @@ static struct Node *create_node(struct NodeAlloc *alloc,
 	void        *memory = alloc_node(alloc);
 	struct Node *node   = memory;
 
-	node->key    = memory + sizeof(struct Node);
-	node->value  = memory + sizeof(struct Node) + k_size;
-	node->colour = RED;
-	node->parent = parent;
-	node->left   = NULL;
-	node->right  = NULL;
+	node->pair.key   = memory + sizeof(struct Node);
+	node->pair.value = memory + sizeof(struct Node) + k_size;
+	node->colour     = RED;
+	node->parent     = parent;
+	node->left       = NULL;
+	node->right      = NULL;
 
-	memcpy(node->key, key, k_size);
-	memcpy(node->value, value, v_size);
+	memcpy((void *)node->pair.key, key, k_size);
+	memcpy(node->pair.value, value, v_size);
 
 	return node;
 }
@@ -87,7 +85,7 @@ static struct Node *lookup_node(struct Node *head,
 
 	while (node)
 	{
-		int result = compare(key, node->key);
+		int result = compare(key, node->pair.key);
 
 		if (result == 0)
 		{
@@ -253,11 +251,11 @@ static void rbt_insert(struct NodeAlloc *alloc,
 
 		while (true)
 		{
-			int result = compare(key, node->key);
+			int result = compare(key, node->pair.key);
 
 			if (result == 0)
 			{
-				memcpy(node->value, value, v_size);
+				memcpy(node->pair.value, value, v_size);
 				break;
 			}
 			else if (result < 0)
@@ -404,8 +402,7 @@ static void rbt_delete(struct NodeAlloc *alloc,
 	if (node->left && node->right)
 	{
 		struct Node *pred = maximum_node(node->left);
-		node->key         = pred->key;
-		node->value       = pred->value;
+		node->pair        = pred->pair;
 		node              = pred;
 	}
 
@@ -480,7 +477,7 @@ void *rbt_search_k(struct Node *head, const void *key, KComp compare)
 
 	if (node)
 	{
-		result = node->key;
+		result = (void *)node->pair.key;
 	}
 
 	return result;
@@ -494,7 +491,7 @@ void *rbt_search_v(struct Node *head, const void *key, KComp compare)
 
 	if (node)
 	{
-		result = node->value;
+		result = node->pair.value;
 	}
 
 	return result;
@@ -524,12 +521,12 @@ void *rbt_max(struct Node *head)
 
 void *get_rbtree_set(const Iter *iter)
 {
-	return ((struct Node *)iter->ptr)->key;
+	return (void*)((struct Node *)iter->ptr)->pair.key;
 }
 
 void *get_rbtree_table(const Iter *iter)
 {
-	return ((struct Node *)iter->ptr)->value;
+	return &((struct Node *)iter->ptr)->pair;
 }
 
 Iter *next_rbtree(Iter *iter)
