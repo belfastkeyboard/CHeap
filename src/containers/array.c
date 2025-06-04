@@ -74,12 +74,12 @@ Iter begin_array(const Array *array)
 
 Iter end_array(const Array *array)
 {
-	void        *ptr  = back_array(array);
 	const size_t size = array->size;
+	void        *arr  = back_array(array) + size;
 
 	Iter iter = {
-		.type = ITERATOR_ARRAY,
-		.data.contiguous = { .array = ptr, .size = size }
+		.type            = ITERATOR_ARRAY,
+		.data.contiguous = { .array = arr, .size = size }
 	};
 
 	return iter;
