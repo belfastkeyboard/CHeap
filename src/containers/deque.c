@@ -1,6 +1,7 @@
 #include "../../deque.h"
 #include "../../internals/base.h"
 #include "../../internals/deq.h"
+#include "../../iter.h"
 #include <stdbool.h>
 
 typedef struct DoubleEndedQueue
@@ -129,6 +130,26 @@ void clear_deque(Deque *deque)
 	            &deque->back,
 	            &deque->nmemb,
 	            deque->arr_cap);
+}
+
+Iter begin_deque(const Deque *deque)
+{
+	Iter iter = {
+		.type       = ITERATOR_DEQUE,
+		.data.deque = { .deque = deque, .index = 0 }
+	};
+
+	return iter;
+}
+
+Iter end_deque(const Deque *deque)
+{
+	Iter iter = {
+		.type       = ITERATOR_DEQUE,
+		.data.deque = { .deque = deque, .index = size_deque(deque) }
+	};
+
+	return iter;
 }
 
 bool empty_deque(const Deque *deque)
