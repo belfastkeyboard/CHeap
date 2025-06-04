@@ -30,6 +30,9 @@ void clear_hash_set(HashSet *set);
 #ifdef CHEAP_ITERATOR_AVAILABLE
 Iter begin_hash_set(const HashSet *set);
 Iter end_hash_set(const HashSet *set);
+
+Iter rbegin_hash_set(const HashSet *set);
+Iter rend_hash_set(const HashSet *set);
 #endif
 
 bool   empty_hash_set(const HashSet *set);

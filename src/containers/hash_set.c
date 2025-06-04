@@ -107,6 +107,16 @@ Iter end_hash_set(const HashSet *set)
 	return end_hash(ITERATOR_HASH_SET, set->buckets, set->capacity);
 }
 
+Iter rbegin_hash_set(const HashSet *set)
+{
+	return rbegin_hash(ITERATOR_HASH_SET, set->buckets, set->capacity);
+}
+
+Iter rend_hash_set(const HashSet *set)
+{
+	return rend_hash(ITERATOR_HASH_SET, set->buckets);
+}
+
 bool empty_hash_set(const HashSet *set)
 {
 	return generic_empty(set->nmemb);
