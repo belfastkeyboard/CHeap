@@ -83,8 +83,8 @@ substitution, case transformation, slicing, stripping, splitting and joining.
 
 ## Iterator Library
 Provides a generic interface for iterating and reverse iterating containers.
-Associative containers (Table, Hash Table) return a ``PairKV`` object, all 
-other containers return their stored element directly.
+``Table`` and ``Hash Table`` return a ``PairKV`` object, all other 
+containers return their stored element directly.
 
 Supported containers:
 - Array
@@ -103,8 +103,10 @@ Very WIP.
 
 ## To do:
 
-- [x] finish iterators
-- [ ] finish ranges
+- [x] implement iterators
+- [x] implement ranges
+- [ ] implement spans
+- [ ] implement iterator based list and forward lists
 - [ ] transform and filter functions
 - [ ] storing pointers
     - storing items as pointers is not intuitive
