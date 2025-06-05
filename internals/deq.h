@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../range.h"
 #include <stddef.h>
 
 struct Block
@@ -45,6 +46,31 @@ void deque_insert(struct ControlArray *control,
                   size_t               size,
                   size_t              *nmemb,
                   size_t               index);
+
+void deque_push_back_range(struct ControlArray *control,
+                           size_t              *front,
+                           size_t              *back,
+                           size_t               arr_cap,
+                           Range                range,
+                           size_t               size,
+                           size_t              *nmemb);
+
+void deque_push_front_range(struct ControlArray *control,
+                            size_t              *front,
+                            size_t              *back,
+                            size_t               arr_cap,
+                            Range                range,
+                            size_t               size,
+                            size_t              *nmemb);
+
+void deque_insert_range(struct ControlArray *control,
+                        size_t              *front,
+                        size_t              *back,
+                        Range                range,
+                        size_t               arr_cap,
+                        size_t               size,
+                        size_t              *nmemb,
+                        size_t               index);
 
 void *deque_at(const struct ControlArray *control,
                size_t                     front,

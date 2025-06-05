@@ -30,14 +30,20 @@ void insert_rbtree(struct NodeAlloc *alloc,
                    size_t            v_size,
                    size_t           *nmemb);
 
-/*
-void insert_range_rbtree(struct NodeAlloc *alloc,
-                         struct TreeNode **head,
-                         const Range      *range,
-                         Comp              compare,
-                         size_t            size,
-                         size_t           *nmemb);
-*/
+void insert_range_rbtree_set(struct NodeAlloc *alloc,
+                             struct TreeNode **head,
+                             Range             range,
+                             Comp              compare,
+                             size_t            size,
+                             size_t           *nmemb);
+
+void insert_range_rbtree_table(struct NodeAlloc *alloc,
+                               struct TreeNode **head,
+                               Range             range,
+                               Comp              compare,
+                               size_t            k_size,
+                               size_t            v_size,
+                               size_t           *nmemb);
 
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct TreeNode **head,
@@ -50,9 +56,7 @@ void clear_rbtree(struct NodeAlloc *alloc,
                   size_t           *nmemb);
 
 void *rbt_search_k(struct TreeNode *head, const void *key, Comp compare);
-
 void *rbt_search_v(struct TreeNode *head, const void *key, Comp compare);
 
-void *rbt_min(struct TreeNode *head);
-
-void *rbt_max(struct TreeNode *head);
+struct TreeNode *rbt_min(struct TreeNode *head);
+struct TreeNode *rbt_max(struct TreeNode *head);

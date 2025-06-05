@@ -1,7 +1,6 @@
 #include "../../set.h"
 #include "../../internals/base.h"
 #include "../../internals/rbtree.h"
-#include "../../iter.h"
 
 typedef struct Set
 {
@@ -47,13 +46,14 @@ void insert_set(Set *set, const void *key)
 	              &set->nmemb);
 }
 
-void insert_range_set(Set *set, const Range *range)
+void insert_range_set(Set *set, Range range)
 {
-	for (int i = 0; i < range->nmemb; ++i)
-	{
-		const void *key = range->array + i * range->size;
-		insert_set(set, key);
-	}
+	insert_range_rbtree_set(&set->alloc,
+	                        &set->head,
+	                        range,
+	                        set->k_comp,
+	                        set->size,
+	                        &set->nmemb);
 }
 
 size_t count_set(const Set *set, const void *key)

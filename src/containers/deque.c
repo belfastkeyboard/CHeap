@@ -71,6 +71,40 @@ void insert_deque(Deque *deque, const void *value, size_t index)
 	             index);
 }
 
+void push_back_range_deque(Deque *deque, Range range)
+{
+	deque_push_back_range(&deque->control,
+	                      &deque->front,
+	                      &deque->back,
+	                      deque->arr_cap,
+	                      range,
+	                      deque->size,
+	                      &deque->nmemb);
+}
+
+void push_front_range_deque(Deque *deque, Range range)
+{
+	deque_push_front_range(&deque->control,
+	                       &deque->front,
+	                       &deque->back,
+	                       deque->arr_cap,
+	                       range,
+	                       deque->size,
+	                       &deque->nmemb);
+}
+
+void insert_range_deque(Deque *deque, Range range, size_t index)
+{
+	deque_insert_range(&deque->control,
+	                   &deque->front,
+	                   &deque->back,
+	                   range,
+	                   deque->arr_cap,
+	                   deque->size,
+	                   &deque->nmemb,
+	                   index);
+}
+
 void *at_deque(const Deque *deque, size_t index)
 {
 	return deque_at(&deque->control,

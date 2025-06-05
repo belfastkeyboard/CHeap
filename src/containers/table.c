@@ -51,6 +51,17 @@ void insert_table(Table *table, const void *key, const void *value)
 	              &table->nmemb);
 }
 
+void insert_range_table(Table *table, Range range)
+{
+	insert_range_rbtree_table(&table->alloc,
+	                          &table->head,
+	                          range,
+	                          table->k_comp,
+	                          table->k_size,
+	                          table->v_size,
+	                          &table->nmemb);
+}
+
 size_t count_table(const Table *table, const void *key)
 {
 	return (rbt_search_v(table->head, key, table->k_comp)) ? 1 : 0;

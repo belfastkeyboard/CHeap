@@ -448,7 +448,7 @@ static void insert_single(struct ControlArray *control,
 
 		memmove(block.array + (index + 1) * size,
 		        block.array + index * size,
-		        (b - index) * size);
+		        (b - index + 1) * size);
 
 		memcpy(block.array + index * size, value, size);
 
@@ -885,6 +885,83 @@ void deque_insert(struct ControlArray *control,
 	}
 }
 
+void deque_push_back_range(struct ControlArray *control,
+                           size_t              *front,
+                           size_t              *back,
+                           size_t               arr_cap,
+                           Range                range,
+                           size_t               size,
+                           size_t              *nmemb)
+{
+	bool forward            = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range)     = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter *) = (forward) ? next_iter : prev_iter;
+
+	for (; !done(range); iterate(&range.begin))
+	{
+		void *value = get_range(range);
+
+		generic_deque_push(control,
+		                   front,
+		                   back,
+		                   arr_cap,
+		                   value,
+		                   size,
+		                   nmemb,
+		                   push_back_single,
+		                   push_back_multiple);
+	}
+}
+
+void deque_push_front_range(struct ControlArray *control,
+                            size_t              *front,
+                            size_t              *back,
+                            size_t               arr_cap,
+                            Range                range,
+                            size_t               size,
+                            size_t              *nmemb)
+{
+	bool forward            = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range)     = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter *) = (forward) ? next_iter : prev_iter;
+
+	for (; !done(range); iterate(&range.begin))
+	{
+		void *value = get_range(range);
+
+		generic_deque_push(control,
+		                   front,
+		                   back,
+		                   arr_cap,
+		                   value,
+		                   size,
+		                   nmemb,
+		                   push_front_single,
+		                   push_front_multiple);
+	}
+}
+
+void deque_insert_range(struct ControlArray *control,
+                        size_t              *front,
+                        size_t              *back,
+                        Range                range,
+                        size_t               arr_cap,
+                        size_t               size,
+                        size_t              *nmemb,
+                        size_t               index)
+{
+	bool forward            = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range)     = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter *) = (forward) ? next_iter : prev_iter;
+
+	for (; !done(range); iterate(&range.begin))
+	{
+		void *value = get_range(range);
+		deque_insert(control, front, back, value, arr_cap, size, nmemb, index);
+		index++;
+	}
+}
+
 void *deque_at(const struct ControlArray *control,
                const size_t               front,
                const size_t               arr_cap,
@@ -1117,22 +1194,20 @@ void deque_clear(struct ControlArray *control,
 	*nmemb                   = 0;
 }
 
-Iter *next_deque(Iter *iter)
+void next_deque(Iter *iter)
 {
 	iter->data.deque.index++;
-	return iter;
 }
 
-Iter *prev_deque(Iter *iter)
+void prev_deque(Iter *iter)
 {
 	iter->data.deque.index--;
-	return iter;
 }
 
-void *get_deque(const Iter *iter)
+void *get_deque(const Iter iter)
 {
-	const Deque *deque = iter->data.deque.deque;
-	const size_t index = iter->data.deque.index;
+	const Deque *deque = iter.data.deque.deque;
+	const size_t index = iter.data.deque.index;
 
 	return at_deque(deque, index);
 }

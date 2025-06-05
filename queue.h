@@ -9,7 +9,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-24
- * @version 0.8
+ * @version 0.9.0
  */
 
 #pragma once
@@ -77,7 +77,7 @@ void push_queue(Queue *queue, const void *value);
  * @param range The range to push
  * @return Nothing
  */
-void push_range_queue(Queue *queue, const Range *range);
+void push_range_queue(Queue *queue, Range range);
 #endif
 
 /**

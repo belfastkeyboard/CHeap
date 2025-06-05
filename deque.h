@@ -14,6 +14,12 @@ void push_front_deque(Deque *deque, const void *value);
 void push_back_deque(Deque *deque, const void *value);
 void insert_deque(Deque *deque, const void *value, size_t index);
 
+#ifdef CHEAP_RANGE_AVAILABLE
+void push_back_range_deque(Deque *deque, Range range);
+void push_front_range_deque(Deque *deque, Range range);
+void insert_range_deque(Deque *deque, Range range, size_t index);
+#endif
+
 void *at_deque(const Deque *deque, size_t index);
 void *front_deque(const Deque *deque);
 void *back_deque(const Deque *deque);

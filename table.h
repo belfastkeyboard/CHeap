@@ -9,7 +9,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-22
- * @version 0.8
+ * @version 0.9.0
  */
 
 #pragma once
@@ -91,6 +91,19 @@ void destroy_table(Table **table);
  * value
  */
 void insert_table(Table *table, const void *key, const void *value);
+
+#ifdef CHEAP_RANGE_AVAILABLE
+/**
+ * @brief Inserts unique copies of @p range kay-value pairs into the table
+ *
+ * @param table The Table object
+ * @param range The range to insert
+ * @return Nothing
+ *
+ * @warning The range must iterate over @p PairKV types
+ */
+void insert_range_table(Table *table, Range range);
+#endif
 
 /**
  * @brief Count the number of @p key @c value pairs in the table with an

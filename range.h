@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stddef.h>
+#include "iter.h"
+#include <stdbool.h>
 
 #ifndef CHEAP_RANGE_AVAILABLE
 #define CHEAP_RANGE_AVAILABLE
@@ -8,9 +9,15 @@
 
 typedef struct Range
 {
-	const void  *array;
-	const size_t nmemb;
-	const size_t size;
+	Iter begin;
+	Iter end;
 } Range;
 
-Range create_range(const void *array, size_t nmemb, size_t size);
+Range create_range(Iter begin, Iter end);
+void *get_range(Range range);
+
+bool done_range(Range range);
+bool done_range_r(Range range);
+
+#define for_each(range)   for (; !done_range(range); next_iter(&range.begin))
+#define for_each_r(range) for (; !done_range_r(range); prev_iter(&range.begin))

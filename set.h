@@ -9,7 +9,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-23
- * @version 0.8
+ * @version 0.9.0
  */
 
 #pragma once
@@ -86,7 +86,7 @@ void insert_set(Set *set, const void *key);
  * @param range The range to insert
  * @return Nothing
  */
-void insert_range_set(Set *set, const Range *range);
+void insert_range_set(Set *set, Range range);
 #endif
 
 /**

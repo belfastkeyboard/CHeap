@@ -9,15 +9,37 @@
 
 typedef enum IteratorType
 {
+	// forward iterators
+	ITERATOR_FORWARD,
+	// contiguous
 	ITERATOR_ARRAY,
 	ITERATOR_VECTOR,
+	// linked
 	ITERATOR_LIST,
 	ITERATOR_FORWARD_LIST,
+	// balanced
 	ITERATOR_SET,
 	ITERATOR_TABLE,
+	// hashed
 	ITERATOR_HASH_SET,
 	ITERATOR_HASH_TABLE,
-	ITERATOR_DEQUE
+	// deque
+	ITERATOR_DEQUE,
+	// reverse iterators
+	ITERATOR_REVERSE,
+	// contiguous
+	ITERATOR_ARRAY_REVERSE,
+	ITERATOR_VECTOR_REVERSE,
+	// linked
+	ITERATOR_LIST_REVERSE,
+	// balanced
+	ITERATOR_SET_REVERSE,
+	ITERATOR_TABLE_REVERSE,
+	// hashed
+	ITERATOR_HASH_SET_REVERSE,
+	ITERATOR_HASH_TABLE_REVERSE,
+	// deque
+	ITERATOR_DEQUE_REVERSE
 } IteratorType;
 
 struct LinkedNode;
@@ -72,20 +94,10 @@ typedef struct Iter
 	union IteratorData data;
 } Iter, Iterator;
 
-Iter *next_iter(Iter *iter);
-Iter *prev_iter(Iter *iter);
+void next_iter(Iter *iter);
+void prev_iter(Iter *iter);
 
-void *get_iter(const Iter *iter);
+void *get_iter(Iter iter);
 
-bool done_iter(const Iter *begin, const Iter *end);
-bool done_iter_r(const Iter *begin, const Iter *end);
-
-#define range(begin, end)                                                      \
-	;                                                                          \
-	!done_iter(&begin, &end);                                                  \
-	next_iter(&begin)
-
-#define range_r(begin, end)                                                    \
-	;                                                                          \
-	!done_iter_r(&begin, &end);                                                \
-	prev_iter(&begin)
+bool done_iter(Iter begin, Iter end);
+bool done_iter_r(Iter begin, Iter end);

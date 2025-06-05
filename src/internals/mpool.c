@@ -48,21 +48,18 @@ static void mempool_insert(void        *array,
                            const size_t index,
                            const void  *value,
                            const size_t nmemb,
-                           const size_t size,
-                           const size_t shift)
+                           const size_t size)
 {
 	CHEAP_ASSERT(index < nmemb + 1, "Index out of bounds.");
 
-	CHEAP_ASSERT(shift > 0, "Attempting to shift elements by 0 bytes.");
-
 	if (index < nmemb)
 	{
-		memmove(array + (index + shift) * size,
+		memmove(array + (index + 1) * size,
 		        array + index * size,
 		        (nmemb - index) * size);
 	}
 
-	memcpy(array + index * size, value, shift * size);
+	memcpy(array + index * size, value, size);
 }
 
 static void mempool_set(void        *array,
@@ -137,7 +134,7 @@ void generic_mempool_insert(void       **array,
 		*array = mempool_resize(*array, capacity, size);
 	}
 
-	mempool_insert(*array, index, value, *nmemb, size, 1);
+	mempool_insert(*array, index, value, *nmemb, size);
 
 	(*nmemb)++;
 }
@@ -154,47 +151,22 @@ void generic_mempool_set(void        *array,
 }
 
 void generic_mempool_range_insert(void       **array,
-                                  const size_t index,
+                                  size_t index,
                                   size_t      *capacity,
                                   size_t      *nmemb,
                                   const size_t size,
-                                  const Range *range)
+                                  Range       range)
 {
-	CHEAP_ASSERT(size == range->size, "Type size mismatch.");
+	bool forward = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range) = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter*) = (forward) ? next_iter : prev_iter;
 
-	if (*nmemb + range->nmemb >= *capacity)
+	for (; !done(range); iterate(&range.begin))
 	{
-		*array = mempool_range_resize(*array, capacity, size, range->nmemb);
+		void *value = get_range(range);
+		generic_mempool_insert(array, value, index, capacity, nmemb, size);
+		index++;
 	}
-
-	CHEAP_ASSERT(range->array, "Range array cannot be NULL.");
-
-	mempool_insert(*array,
-	               index,
-	               range->array,
-	               *nmemb,
-	               range->size,
-	               range->nmemb);
-
-	*nmemb += range->nmemb;
-}
-
-Range generic_mempool_get_range(const void  *array,
-                                const size_t capacity,
-                                const size_t size,
-                                const size_t start,
-                                const size_t end)
-{
-	CHEAP_ASSERT(array, "Array cannot be NULL.");
-
-	CHEAP_ASSERT(start < capacity && end <= capacity,
-	             "Requested indices out of bounds.");
-
-	Range range = { .array = array + start * size,
-		            .nmemb = end - start,
-		            .size  = size };
-
-	return range;
 }
 
 void generic_mempool_pop_back(size_t *nmemb)
@@ -259,8 +231,7 @@ void generic_mempool_reserve(void       **array,
 {
 	if (new_cap > *capacity)
 	{
-		*array = mempool_realloc(*array, new_cap * size);
-
+		*array    = mempool_realloc(*array, new_cap * size);
 		*capacity = new_cap;
 	}
 }
@@ -273,24 +244,21 @@ void generic_mempool_shrink_to_fit(void       **array,
 	if (nmemb < *capacity)
 	{
 		*capacity = nmemb;
-
-		*array = mempool_realloc(*array, *capacity * size);
+		*array    = mempool_realloc(*array, *capacity * size);
 	}
 }
 
-Iter *next_mempool(Iter *iter)
+void next_mempool(Iter *iter)
 {
 	iter->data.contiguous.array += iter->data.contiguous.size;
-	return iter;
 }
 
-Iter *prev_mempool(Iter *iter)
+void prev_mempool(Iter *iter)
 {
 	iter->data.contiguous.array -= iter->data.contiguous.size;
-	return iter;
 }
 
-void *get_mempool(const Iter *iter)
+void *get_mempool(const Iter iter)
 {
-	return iter->data.contiguous.array;
+	return iter.data.contiguous.array;
 }

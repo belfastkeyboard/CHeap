@@ -32,18 +32,12 @@ void generic_mempool_set(void       *array,
                          size_t      nmemb,
                          size_t      size);
 
-void generic_mempool_range_insert(void       **array,
-                                  size_t       index,
-                                  size_t      *capacity,
-                                  size_t      *nmemb,
-                                  size_t       size,
-                                  const Range *range);
-
-Range generic_mempool_get_range(const void *array,
-                                size_t      capacity,
-                                size_t      size,
-                                size_t      start,
-                                size_t      end);
+void generic_mempool_range_insert(void  **array,
+                                  size_t  index,
+                                  size_t *capacity,
+                                  size_t *nmemb,
+                                  size_t  size,
+                                  Range   range);
 
 void generic_mempool_pop_back(size_t *nmemb);
 

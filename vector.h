@@ -9,7 +9,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-21
- * @version 0.9
+ * @version 0.9.5
  */
 
 #pragma once
@@ -97,7 +97,7 @@ void insert_vector(Vector *vector, const void *value, size_t index);
  * @param range The range to insert
  * @return Nothing
  */
-void push_back_range_vector(Vector *vector, const Range *range);
+void push_back_range_vector(Vector *vector, Range range);
 
 /**
  * @brief Appends a copy of @p range at the specified index
@@ -106,19 +106,7 @@ void push_back_range_vector(Vector *vector, const Range *range);
  * @param range The range to append
  * @return Nothing
  */
-void insert_range_vector(Vector *vector, size_t index, const Range *range);
-
-/**
- * @brief Get a slice of the Vector as a Range object
- *
- * @param vector The Vector object
- * @param begin The index at which to begin, inclusive
- * @param range The index at which to end, exclusive
- * @return A Range object
- *
- * @note Range objects are intended to be read-only
- */
-Range get_range_vector(const Vector *vector, size_t begin, size_t end);
+void insert_range_vector(Vector *vector, size_t index, Range range);
 #endif
 
 /**

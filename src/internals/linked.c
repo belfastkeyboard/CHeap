@@ -288,19 +288,17 @@ void *generic_access_linked(struct LinkedNode *node)
 	return node->value;
 }
 
-Iter *next_linked(Iter *iter)
+void next_linked(Iter *iter)
 {
 	iter->data.linked.node = iter->data.linked.node->next;
-	return iter;
 }
 
-Iter *prev_linked(Iter *iter)
+void prev_linked(Iter *iter)
 {
 	iter->data.linked.node = iter->data.linked.node->prev;
-	return iter;
 }
 
-void *get_linked(const Iter *iter)
+void *get_linked(const Iter iter)
 {
-	return iter->data.linked.node->value;
+	return iter.data.linked.node->value;
 }

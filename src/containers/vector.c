@@ -1,7 +1,6 @@
 #include "../../vector.h"
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
-#include "../../iter.h"
 
 typedef struct Vector
 {
@@ -44,7 +43,7 @@ void insert_vector(Vector *vector, const void *value, const size_t index)
 	                       vector->size);
 }
 
-void push_back_range_vector(Vector *vector, const Range *range)
+void push_back_range_vector(Vector *vector, const Range range)
 {
 	generic_mempool_range_insert(&vector->array,
 	                             vector->nmemb,
@@ -54,7 +53,7 @@ void push_back_range_vector(Vector *vector, const Range *range)
 	                             range);
 }
 
-void insert_range_vector(Vector *vector, const size_t index, const Range *range)
+void insert_range_vector(Vector *vector, const size_t index, const Range range)
 {
 	generic_mempool_range_insert(&vector->array,
 	                             index,
@@ -62,17 +61,6 @@ void insert_range_vector(Vector *vector, const size_t index, const Range *range)
 	                             &vector->nmemb,
 	                             vector->size,
 	                             range);
-}
-
-Range get_range_vector(const Vector *vector,
-                       const size_t  begin,
-                       const size_t  end)
-{
-	return generic_mempool_get_range(vector->array,
-	                                 vector->capacity,
-	                                 vector->size,
-	                                 begin,
-	                                 end);
 }
 
 void pop_back_vector(Vector *vector)
@@ -142,7 +130,7 @@ Iter rbegin_vector(const Vector *vector)
 	void        *array = back_vector(vector);
 
 	Iter iter = {
-		.type            = ITERATOR_VECTOR,
+		.type            = ITERATOR_VECTOR_REVERSE,
 		.data.contiguous = { .array = array, .size = size }
 	};
 
@@ -155,7 +143,7 @@ Iter rend_vector(const Vector *vector)
 	void        *array = front_vector(vector) - size;
 
 	Iter iter = {
-		.type            = ITERATOR_VECTOR,
+		.type            = ITERATOR_VECTOR_REVERSE,
 		.data.contiguous = { .array = array, .size = size }
 	};
 

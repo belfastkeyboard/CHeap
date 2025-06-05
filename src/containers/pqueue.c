@@ -38,7 +38,7 @@ void push_pqueue(PriorityQueue *pqueue, const void *value)
 	bubble_up(pqueue->array, pqueue->nmemb - 1, pqueue->size, pqueue->fnc);
 }
 
-void push_range_pqueue(PQueue *pqueue, const Range *range)
+void push_range_pqueue(PQueue *pqueue, Range range)
 {
 	generic_mempool_range_insert(&pqueue->array,
 	                             pqueue->nmemb,

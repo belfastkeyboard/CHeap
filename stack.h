@@ -10,7 +10,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-23
- * @version 0.8.1
+ * @version 0.9.0
  */
 
 #pragma once
@@ -78,7 +78,7 @@ void push_stack(Stack *stack, const void *value);
  * @param range The range to push
  * @return Nothing
  */
-void push_range_stack(Stack *stack, const Range *range);
+void push_range_stack(Stack *stack, Range range);
 #endif
 
 /**

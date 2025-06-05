@@ -47,18 +47,15 @@ void push_queue(Queue *queue, const void *value)
 	                &queue->nmemb);
 }
 
-void push_range_queue(Queue *queue, const Range *range)
+void push_range_queue(Queue *queue, Range range)
 {
-	for (int i = 0; i < range->nmemb; i++)
-	{
-		deque_push_back(&queue->control,
-		                &queue->front,
-		                &queue->back,
-		                queue->arr_cap,
-		                range->array + i * range->size,
-		                queue->size,
-		                &queue->nmemb);
-	}
+	push_back_range_deque(&queue->control,
+	                      &queue->front,
+	                      &queue->back,
+	                      queue->arr_cap,
+	                      range,
+	                      queue->size,
+	                      &queue->nmemb);
 }
 
 void *front_queue(const Queue *queue)

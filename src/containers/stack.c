@@ -33,7 +33,7 @@ void push_stack(Stack *stack, const void *value)
 	                          stack->size);
 }
 
-void push_range_stack(Stack *stack, const Range *range)
+void push_range_stack(Stack *stack, Range range)
 {
 	generic_mempool_range_insert(&stack->array,
 	                             stack->nmemb,

@@ -2,7 +2,7 @@
 // https://web.archive.org/web/20140328232325/http://en.literateprograms.org/Red-black_tree_(C)
 
 #include "../../internals/rbtree.h"
-#include "../../iter.h"
+#include "../../internals/cassert.h"
 #include <assert.h>
 #include <memory.h>
 #include <stdbool.h>
@@ -447,6 +447,59 @@ void insert_rbtree(struct NodeAlloc *alloc,
 	(*nmemb)++;
 }
 
+void insert_range_rbtree_set(struct NodeAlloc *alloc,
+                             struct TreeNode **head,
+                             Range             range,
+                             Comp              compare,
+                             size_t            size,
+                             size_t           *nmemb)
+{
+	bool forward            = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range)     = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter *) = (forward) ? next_iter : prev_iter;
+
+	for (; !done(range); iterate(&range.begin))
+	{
+		void *key = get_range(range);
+
+		insert_rbtree(alloc,
+					  head,
+					  key,
+					  NULL,
+					  compare,
+					  size,
+		              0,
+					  nmemb);
+	}
+}
+
+void insert_range_rbtree_table(struct NodeAlloc *alloc,
+                               struct TreeNode **head,
+                               Range             range,
+                               Comp              compare,
+                               size_t            k_size,
+                               size_t            v_size,
+                               size_t           *nmemb)
+{
+	bool forward            = range.begin.type < ITERATOR_REVERSE;
+	bool (*done)(Range)     = (forward) ? done_range : done_range_r;
+	void (*iterate)(Iter *) = (forward) ? next_iter : prev_iter;
+
+	for (; !done(range); iterate(&range.begin))
+	{
+		PairKV *pair = get_range(range);
+
+		insert_rbtree(alloc,
+		              head,
+		              pair->key,
+		              pair->value,
+		              compare,
+		              k_size,
+		              v_size,
+		              nmemb);
+	}
+}
+
 void delete_rbtree(struct NodeAlloc *alloc,
                    struct TreeNode **head,
                    const void       *key,
@@ -501,7 +554,7 @@ void *rbt_search_v(struct TreeNode *head, const void *key, KComp compare)
 	return result;
 }
 
-void *rbt_min(struct TreeNode *node)
+struct TreeNode *rbt_min(struct TreeNode *node)
 {
 	while (node->left)
 	{
@@ -511,7 +564,7 @@ void *rbt_min(struct TreeNode *node)
 	return node;
 }
 
-void *rbt_max(struct TreeNode *head)
+struct TreeNode *rbt_max(struct TreeNode *head)
 {
 	struct TreeNode *node = head;
 
@@ -523,17 +576,17 @@ void *rbt_max(struct TreeNode *head)
 	return node;
 }
 
-void *get_rbtree_set(const Iter *iter)
+void *get_rbtree_set(const Iter iter)
 {
-	return (void *)iter->data.balanced.node->pair.key;
+	return (void*)iter.data.balanced.node->pair.key;
 }
 
-void *get_rbtree_table(const Iter *iter)
+void *get_rbtree_table(const Iter iter)
 {
-	return &iter->data.balanced.node->pair;
+	return &iter.data.balanced.node->pair;
 }
 
-Iter *next_rbtree(Iter *iter)
+void next_rbtree(Iter *iter)
 {
 	struct TreeNode *node = iter->data.balanced.node;
 
@@ -552,11 +605,9 @@ Iter *next_rbtree(Iter *iter)
 
 		iter->data.balanced.node = parent;
 	}
-
-	return iter;
 }
 
-Iter *prev_rbtree(Iter *iter)
+void prev_rbtree(Iter *iter)
 {
 	struct TreeNode *node = iter->data.balanced.node;
 
@@ -578,6 +629,4 @@ Iter *prev_rbtree(Iter *iter)
 
 		iter->data.balanced.node = parent;
 	}
-
-	return iter;
 }
