@@ -263,3 +263,25 @@ void reserve_vector(Vector *vector, size_t amount);
  * @return Nothing
  */
 void shrink_to_fit_vector(Vector *vector);
+
+#ifdef CHEAP_SPAN_AVAILABLE
+/**
+ * @brief Derive a @p Span object giving an abstract view onto a contiguous
+ * array
+ *
+ * @param vector The Vector object
+ * @return @p Span object representing the full length of the vector
+ */
+Span span_from_vector(Vector *vector);
+
+/**
+ * @brief Derive a @p Span object giving an abstract view onto a contiguous
+ * array
+ *
+ * @param vector The Vector object
+ * @param start The index of the start of the slice
+ * @param size_t The index of the end of the slice
+ * @return @p Span object representing a slice of the vector
+ */
+Span span_from_vector_slice(Vector *vector, size_t start, size_t end);
+#endif

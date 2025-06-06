@@ -26,3 +26,25 @@ Iter rend_array(const Array *array);
 
 bool   empty_array(const Array *array);
 size_t size_array(const Array *array);
+
+#ifdef CHEAP_SPAN_AVAILABLE
+/**
+ * @brief Derive a @p Span object giving an abstract view onto a contiguous
+ * array
+ *
+ * @param array The Array object
+ * @return @p Span object representing the full length of the array
+ */
+Span span_from_array(Array *array);
+
+/**
+ * @brief Derive a @p Span object giving an abstract view onto a contiguous
+ * array
+ *
+ * @param array The Array object
+ * @param start The index of the start of the slice
+ * @param size_t The index of the end of the slice
+ * @return @p Span object representing a slice of the array
+ */
+Span span_from_array_slice(Array *array, size_t start, size_t end);
+#endif

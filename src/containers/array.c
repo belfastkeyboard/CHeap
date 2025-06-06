@@ -1,3 +1,4 @@
+#include "../../span.h"
 #include "../../array.h"
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
@@ -111,4 +112,20 @@ size_t size_array(const Array *array)
 	return generic_size(array->nmemb);
 }
 
+Span span_from_array(Array *array)
+{
+	void *data = array->array;
+	const size_t size = array->size;
+	const size_t nmemb = array->nmemb;
 
+	return make_span(data, size, nmemb);
+}
+
+Span span_from_array_slice(Array *array, size_t start, size_t end)
+{
+	const size_t size = array->size;
+	void *data = array->array + start * size;
+	const size_t nmemb = end - start;
+
+	return make_span(data, size, nmemb);
+}

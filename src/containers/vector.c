@@ -1,6 +1,7 @@
 #include "../../vector.h"
 #include "../../internals/base.h"
 #include "../../internals/mpool.h"
+#include "../../span.h"
 
 typedef struct Vector
 {
@@ -179,4 +180,22 @@ void shrink_to_fit_vector(Vector *vector)
 	                              &vector->capacity,
 	                              vector->nmemb,
 	                              vector->size);
+}
+
+Span span_from_vector(Vector *vector)
+{
+	void *data = vector->array;
+	const size_t size = vector->size;
+	const size_t nmemb = vector->nmemb;
+
+	return make_span(data, size, nmemb);
+}
+
+Span span_from_vector_slice(Vector *vector, size_t start, size_t end)
+{
+	const size_t size = vector->size;
+	void *data = vector->array + start * size;
+	const size_t nmemb = end - start;
+
+	return make_span(data, size, nmemb);
 }
