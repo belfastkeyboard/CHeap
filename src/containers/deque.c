@@ -166,7 +166,7 @@ void clear_deque(Deque *deque)
 	            deque->arr_cap);
 }
 
-Iter begin_deque(const Deque *deque)
+Iter begin_deque(Deque *deque)
 {
 	Iter iter = {
 		.type       = ITERATOR_DEQUE,
@@ -176,7 +176,7 @@ Iter begin_deque(const Deque *deque)
 	return iter;
 }
 
-Iter end_deque(const Deque *deque)
+Iter end_deque(Deque *deque)
 {
 	Iter iter = {
 		.type       = ITERATOR_DEQUE,
@@ -186,7 +186,7 @@ Iter end_deque(const Deque *deque)
 	return iter;
 }
 
-Iter rbegin_deque(const Deque *deque)
+Iter rbegin_deque(Deque *deque)
 {
 	Iter iter = {
 		.type       = ITERATOR_DEQUE,
@@ -196,7 +196,7 @@ Iter rbegin_deque(const Deque *deque)
 	return iter;
 }
 
-Iter rend_deque(const Deque *deque)
+Iter rend_deque(Deque *deque)
 {
 	Iter iter = {
 		.type       = ITERATOR_DEQUE,
