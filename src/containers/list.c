@@ -1,7 +1,6 @@
 #include "../../list.h"
 #include "../../internals/base.h"
 #include "../../internals/linked.h"
-#include "../../iter.h"
 
 typedef struct List
 {
@@ -26,6 +25,8 @@ List *create_list_capacity(size_t size, size_t init)
 	                                    size,
 	                                    0);
 	list->size  = size;
+	list->head = NULL;
+	list->tail = NULL;
 
 	return list;
 }
@@ -56,17 +57,6 @@ void push_front_list(List *list, const void *value)
 	                                 value);
 }
 
-size_t insert_list(List *list, const void *value, const size_t index)
-{
-	return generic_insert_doubly_linked(&list->alloc,
-	                                    &list->nmemb,
-	                                    list->size,
-	                                    &list->head,
-	                                    &list->tail,
-	                                    value,
-	                                    index);
-}
-
 void *front_list(const List *list)
 {
 	return generic_access_linked(list->head);
@@ -79,32 +69,37 @@ void *back_list(const List *list)
 
 void pop_front_list(List *list)
 {
-	generic_pop_front_doubly_linked(&list->alloc,
-	                                &list->nmemb,
-	                                &list->head,
-	                                &list->tail);
+	generic_pop_front_doubly_linked(&list->alloc, &list->head, &list->tail);
 }
 
 void pop_back_list(List *list)
 {
-	generic_pop_back_doubly_linked(&list->alloc,
-	                               &list->nmemb,
-	                               &list->head,
-	                               &list->tail);
+	generic_pop_back_doubly_linked(&list->alloc, &list->head, &list->tail);
 }
 
-size_t erase_list(List *list, const size_t index)
+void clear_list(List *list)
+{
+	generic_clear_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
+}
+
+Iter insert_list(List *list, const void *value, Iter pos)
+{
+	return generic_insert_doubly_linked(&list->alloc,
+	                                    &list->nmemb,
+	                                    list->size,
+	                                    &list->head,
+	                                    &list->tail,
+	                                    value,
+	                                    pos);
+}
+
+Iter erase_list(List *list, Iter index)
 {
 	return generic_erase_doubly_linked(&list->alloc,
 	                                   &list->nmemb,
 	                                   index,
 	                                   &list->head,
 	                                   &list->tail);
-}
-
-void clear_list(List *list)
-{
-	generic_clear_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
 }
 
 Iter begin_list(const List *list)

@@ -45,17 +45,6 @@ void push_front_forward_list(FList *flist, const void *value)
 	                                 value);
 }
 
-size_t insert_after_forward_list(FList *flist, const void *value, size_t index)
-{
-	return generic_insert_singly_linked(&flist->alloc,
-	                                    &flist->nmemb,
-	                                    flist->size,
-	                                    &flist->head,
-	                                    value,
-	                                    index,
-	                                    0);
-}
-
 void *front_forward_list(const FList *flist)
 {
 	return generic_access_linked(flist->head);
@@ -66,18 +55,26 @@ void pop_front_forward_list(FList *flist)
 	generic_pop_front_singly_linked(&flist->alloc, &flist->nmemb, &flist->head);
 }
 
-size_t erase_after_forward_list(FList *flist, const size_t index)
-{
-	return generic_erase_singly_linked(&flist->alloc,
-	                                   &flist->nmemb,
-	                                   index,
-	                                   &flist->head,
-	                                   0);
-}
-
 void clear_forward_list(FList *flist)
 {
 	generic_clear_linked(&flist->alloc, &flist->head, NULL, &flist->nmemb);
+}
+
+Iter insert_after_forward_list(FList *flist, const void *value, Iter pos)
+{
+	return generic_insert_singly_linked(&flist->alloc,
+	                                    &flist->nmemb,
+	                                    flist->size,
+	                                    &flist->head,
+	                                    value,
+	                                    pos);
+}
+
+Iter erase_after_forward_list(FList *flist, Iter pos)
+{
+	return generic_erase_singly_linked(&flist->alloc,
+	                                   &flist->nmemb,
+	                                   pos);
 }
 
 Iter begin_forward_list(const FList *flist)

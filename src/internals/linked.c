@@ -1,5 +1,5 @@
 #include "../../internals/linked.h"
-#include "../../iter.h"
+#include "../../internals/cassert.h"
 #include <memory.h>
 
 static struct LinkedNode *create_node(struct NodeAlloc *alloc,
@@ -15,17 +15,26 @@ static struct LinkedNode *create_node(struct NodeAlloc *alloc,
 	return node;
 }
 
-static void create_node_singly_linked(struct NodeAlloc   *alloc,
-                                      const size_t        nmemb,
-                                      const size_t        size,
-                                      const void         *value,
-                                      struct LinkedNode  *position,
-                                      struct LinkedNode **head,
-                                      const int           prior)
+static void push_front_singly_linked_node(struct NodeAlloc   *alloc,
+                                          const size_t        size,
+                                          const void         *value,
+                                          struct LinkedNode **head)
 {
 	struct LinkedNode *node = create_node(alloc, size, value);
 
-	if (prior || !nmemb)
+	node->next = *head;
+	*head      = node;
+}
+
+static struct LinkedNode *insert_singly_linked_node(struct NodeAlloc  *alloc,
+                                                    const size_t       size,
+                                                    const void        *value,
+                                                    struct LinkedNode *position,
+                                                    struct LinkedNode **head)
+{
+	struct LinkedNode *node = create_node(alloc, size, value);
+
+	if (!position)
 	{
 		*head      = node;
 		node->next = position;
@@ -35,45 +44,75 @@ static void create_node_singly_linked(struct NodeAlloc   *alloc,
 		node->next     = position->next;
 		position->next = node;
 	}
+
+	return node;
 }
 
-static void erase_node_singly_linked(struct NodeAlloc   *alloc,
-                                     struct LinkedNode  *position,
-                                     struct LinkedNode **head,
-                                     const int           prior)
+static void erase_node_singly_linked(struct NodeAlloc  *alloc,
+                                     struct LinkedNode *position)
 {
-	if (prior)
-	{
-		*head = position->next;
-	}
-	else
-	{
-		position->next = position->next->next;
-	}
+	struct LinkedNode *to_erase = position->next;
 
-	free_node(alloc, position);
+	position->next = to_erase->next;
+
+	free_node(alloc, to_erase);
 }
 
-static void create_node_doubly_linked(struct NodeAlloc   *alloc,
-                                      const size_t        nmemb,
-                                      const size_t        size,
-                                      const void         *value,
-                                      struct LinkedNode  *position,
-                                      struct LinkedNode **head,
-                                      struct LinkedNode **tail)
+static void push_front_doubly_linked_node(struct NodeAlloc   *alloc,
+                                          const size_t        size,
+                                          const void         *value,
+                                          struct LinkedNode **head,
+                                          struct LinkedNode **tail)
 {
 	struct LinkedNode *node = create_node(alloc, size, value);
 
-	if (!nmemb)
+	if (!(*head) && !(*tail))
 	{
 		*head = node;
 		*tail = node;
 	}
-	else if (!position)
+	else
+	{
+		(*head)->prev = node;
+		node->next    = *head;
+		*head         = node;
+	}
+}
+
+static void push_back_doubly_linked_node(struct NodeAlloc   *alloc,
+                                         const size_t        size,
+                                         const void         *value,
+                                         struct LinkedNode **head,
+                                         struct LinkedNode **tail)
+{
+	struct LinkedNode *node = create_node(alloc, size, value);
+
+	if (!(*head) && !(*tail))
+	{
+		*head = node;
+		*tail = node;
+	}
+	else
 	{
 		(*tail)->next = node;
 		node->prev    = *tail;
 		*tail         = node;
+	}
+}
+
+static struct LinkedNode *insert_doubly_linked_node(struct NodeAlloc  *alloc,
+                                                    const size_t       size,
+                                                    const void        *value,
+                                                    struct LinkedNode *position,
+                                                    struct LinkedNode **head,
+                                                    struct LinkedNode **tail)
+{
+	struct LinkedNode *node = create_node(alloc, size, value);
+
+	if (!position)
+	{
+		*head = node;
+		*tail = node;
 	}
 	else
 	{
@@ -90,12 +129,14 @@ static void create_node_doubly_linked(struct NodeAlloc   *alloc,
 		position->prev = node;
 		node->next     = position;
 	}
+
+	return node;
 }
 
-static void erase_node_doubly_linked(struct NodeAlloc   *alloc,
-                                     struct LinkedNode  *position,
-                                     struct LinkedNode **head,
-                                     struct LinkedNode **tail)
+static struct LinkedNode *erase_node_doubly_linked(struct NodeAlloc   *alloc,
+                                                   struct LinkedNode  *position,
+                                                   struct LinkedNode **head,
+                                                   struct LinkedNode **tail)
 {
 	if (position->prev)
 	{
@@ -115,39 +156,11 @@ static void erase_node_doubly_linked(struct NodeAlloc   *alloc,
 		*tail = position->prev;
 	}
 
+	struct LinkedNode *pos = position->next;
+
 	free_node(alloc, position);
-}
 
-static struct LinkedNode *seek_node(const size_t       nmemb,
-                                    const size_t       index,
-                                    struct LinkedNode *head,
-                                    struct LinkedNode *tail)
-{
-	struct LinkedNode *seek = NULL;
-
-	if (index < nmemb)
-	{
-		if (tail && index > nmemb / 2)
-		{
-			seek = tail;
-
-			for (size_t i = nmemb - 1; i > index; i--)
-			{
-				seek = seek->prev;
-			}
-		}
-		else
-		{
-			seek = head;
-
-			for (size_t i = 0; i < index; i++)
-			{
-				seek = seek->next;
-			}
-		}
-	}
-
-	return seek;
+	return pos;
 }
 
 void generic_push_front_singly_linked(struct NodeAlloc   *alloc,
@@ -156,24 +169,28 @@ void generic_push_front_singly_linked(struct NodeAlloc   *alloc,
                                       struct LinkedNode **head,
                                       const void         *value)
 {
-	generic_insert_singly_linked(alloc, nmemb, size, head, value, 0, 1);
+	push_front_singly_linked_node(alloc, size, value, head);
+	(*nmemb)++;
 }
 
-size_t generic_insert_singly_linked(struct NodeAlloc   *alloc,
-                                    size_t             *nmemb,
-                                    const size_t        size,
-                                    struct LinkedNode **head,
-                                    const void         *value,
-                                    const size_t        index,
-                                    const int           prior)
+Iter generic_insert_singly_linked(struct NodeAlloc   *alloc,
+                                  size_t             *nmemb,
+                                  const size_t        size,
+                                  struct LinkedNode **head,
+                                  const void         *value,
+                                  Iter                pos)
 {
-	struct LinkedNode *seek = seek_node(*nmemb, index, *head, NULL);
+	struct LinkedNode *node = pos.data.linked.node;
 
-	create_node_singly_linked(alloc, *nmemb, size, value, seek, head, prior);
+	pos.data.linked.node = insert_singly_linked_node(alloc,
+	                                                 size,
+	                                                 value,
+	                                                 node,
+	                                                 head);
 
 	(*nmemb)++;
 
-	return index;
+	return pos;
 }
 
 void generic_push_front_doubly_linked(struct NodeAlloc   *alloc,
@@ -183,7 +200,8 @@ void generic_push_front_doubly_linked(struct NodeAlloc   *alloc,
                                       struct LinkedNode **tail,
                                       const void         *value)
 {
-	generic_insert_doubly_linked(alloc, nmemb, size, head, tail, value, 0);
+	push_front_doubly_linked_node(alloc, size, value, head, tail);
+	(*nmemb)++;
 }
 
 void generic_push_back_doubly_linked(struct NodeAlloc   *alloc,
@@ -193,77 +211,85 @@ void generic_push_back_doubly_linked(struct NodeAlloc   *alloc,
                                      struct LinkedNode **tail,
                                      const void         *value)
 {
-	generic_insert_doubly_linked(alloc, nmemb, size, head, tail, value, *nmemb);
+	push_back_doubly_linked_node(alloc, size, value, head, tail);
+	(*nmemb)++;
 }
 
-size_t generic_insert_doubly_linked(struct NodeAlloc   *alloc,
-                                    size_t             *nmemb,
-                                    const size_t        size,
-                                    struct LinkedNode **head,
-                                    struct LinkedNode **tail,
-                                    const void         *value,
-                                    const size_t        index)
+Iter generic_insert_doubly_linked(struct NodeAlloc   *alloc,
+                                  size_t             *nmemb,
+                                  const size_t        size,
+                                  struct LinkedNode **head,
+                                  struct LinkedNode **tail,
+                                  const void         *value,
+                                  Iter                pos)
 {
-	struct LinkedNode *seek = seek_node(*nmemb, index, *head, *tail);
+	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
+	             "Iterator must be of list type");
 
-	create_node_doubly_linked(alloc, *nmemb, size, value, seek, head, tail);
+	struct LinkedNode *node = pos.data.linked.node;
+
+	pos.data.linked
+	    .node = insert_doubly_linked_node(alloc, size, value, node, head, tail);
 
 	(*nmemb)++;
 
-	return index;
+	return pos;
 }
 
 void generic_pop_front_singly_linked(struct NodeAlloc   *alloc,
                                      size_t             *nmemb,
                                      struct LinkedNode **head)
 {
-	generic_erase_singly_linked(alloc, nmemb, 0, head, 1);
+	CHEAP_ASSERT(*nmemb, "Cannot pop an empty list");
+
+	struct LinkedNode *front = *head;
+	*head                    = front->next;
+	free_node(alloc, front);
+	(*nmemb)--;
 }
 
-size_t generic_erase_singly_linked(struct NodeAlloc   *alloc,
-                                   size_t             *nmemb,
-                                   const size_t        index,
-                                   struct LinkedNode **head,
-                                   const int           prior)
+Iter generic_erase_singly_linked(struct NodeAlloc *alloc,
+                                 size_t           *nmemb,
+                                 Iter              pos)
 {
-	struct LinkedNode *seek = seek_node(*nmemb, index, *head, NULL);
+	struct LinkedNode *node = pos.data.linked.node;
 
-	erase_node_singly_linked(alloc, seek, head, prior);
+	erase_node_singly_linked(alloc, node);
 
 	(*nmemb)--;
 
-	return index;
+	return pos;
 }
 
 void generic_pop_front_doubly_linked(struct NodeAlloc   *alloc,
-                                     size_t             *nmemb,
                                      struct LinkedNode **head,
                                      struct LinkedNode **tail)
 {
-	generic_erase_doubly_linked(alloc, nmemb, 0, head, tail);
+	erase_node_doubly_linked(alloc, *head, head, tail);
 }
 
 void generic_pop_back_doubly_linked(struct NodeAlloc   *alloc,
-                                    size_t             *nmemb,
                                     struct LinkedNode **head,
                                     struct LinkedNode **tail)
 {
-	generic_erase_doubly_linked(alloc, nmemb, *nmemb - 1, head, tail);
+	erase_node_doubly_linked(alloc, *tail, head, tail);
 }
 
-size_t generic_erase_doubly_linked(struct NodeAlloc   *alloc,
-                                   size_t             *nmemb,
-                                   const size_t        index,
-                                   struct LinkedNode **head,
-                                   struct LinkedNode **tail)
+Iter generic_erase_doubly_linked(struct NodeAlloc   *alloc,
+                                 size_t             *nmemb,
+                                 Iter                pos,
+                                 struct LinkedNode **head,
+                                 struct LinkedNode **tail)
 {
-	struct LinkedNode *seek = seek_node(*nmemb, index, *head, *tail);
+	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
+	             "Iterator must be of list type");
 
-	erase_node_doubly_linked(alloc, seek, head, tail);
+	struct LinkedNode *node = pos.data.linked.node;
+	pos.data.linked.node    = erase_node_doubly_linked(alloc, node, head, tail);
 
-	(*nmemb)--;
+	(*nmemb)++;
 
-	return index;
+	return pos;
 }
 
 void generic_clear_linked(struct NodeAlloc   *alloc,
