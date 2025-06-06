@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stddef.h>
+#include <unistd.h>
 
 #ifndef CHEAP_ITERATOR_AVAILABLE
 #define CHEAP_ITERATOR_AVAILABLE
@@ -86,8 +86,6 @@ union IteratorData
 	struct IteratorDeque           deque;
 };
 
-// TODO: implement unions
-
 typedef struct Iter
 {
 	const IteratorType type;
@@ -96,6 +94,7 @@ typedef struct Iter
 
 void next_iter(Iter *iter);
 void prev_iter(Iter *iter);
+void step_iter(Iter *iter, ssize_t s);
 
 void *get_iter(Iter iter);
 

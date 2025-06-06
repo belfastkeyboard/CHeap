@@ -94,6 +94,18 @@ void prev_iter(Iter *iter)
 	}
 }
 
+void step_iter(Iter *iter, ssize_t s)
+{
+	bool is_negative = s < 0;
+	void (*iterate)(Iter*) = (is_negative) ? prev_iter : next_iter;
+	if (is_negative) { s *= -1;}
+
+	for (ssize_t i = 0; i < s; ++i)
+	{
+		iterate(iter);
+	}
+}
+
 void *get_iter(const Iter iter)
 {
 	switch (iter.type)
