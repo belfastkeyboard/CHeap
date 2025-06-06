@@ -21,6 +21,7 @@ Library for simplifying memory management in C.
 - [Strings Library](#strings-library)
 - [Iterator Library](#iterator-library)
 - [Ranges Library](#ranges-library)
+- [Spans Library](#spans-library)
 - [To Do](#to-do)
 - [Consider](#consider)
 - [Influences](#influences)
@@ -102,15 +103,22 @@ Ranges provide a lightweight abstraction for working with sequences.
 A range is a begin-end pair of iterators.
 Ranges allow algorithms to operate on data without needing access to the container.
 
+## Spans Library
+Spans provide a lightweight abstraction for working with contiguous sequences.
+A slice represents an array or vector in an abstract format, allowing 
+functions to handle the data in a container agnostic manner. 
+
 ## To do:
 - [x] implement iterators
 - [x] implement ranges
 - [x] implement iterator based list and forward lists
-- [ ] implement spans
+- [x] implement spans
+- [x] get span from array, vector functions
 - [ ] separate list and forward list implementations, forward list is meant 
   to be more memory efficient, it currently is not 
 - [ ] add before_begin iterator for forward list
-- [ ] transform and filter functions
+- [ ] span functions
+- [ ] transform and filter functions for ranges
 - [ ] storing pointers
     - storing items as pointers is not intuitive
     - passing ```Item *item``` to ```push_vector(vector, item)``` will
