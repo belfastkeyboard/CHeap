@@ -49,7 +49,7 @@ void push_queue(Queue *queue, const void *value)
 
 void push_range_queue(Queue *queue, Range range)
 {
-	push_back_range_deque(&queue->control,
+	deque_push_back_range(&queue->control,
 	                      &queue->front,
 	                      &queue->back,
 	                      queue->arr_cap,
