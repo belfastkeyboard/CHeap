@@ -105,8 +105,11 @@ Very WIP.
 
 - [x] implement iterators
 - [x] implement ranges
+- [x] implement iterator based list and forward lists
 - [ ] implement spans
-- [ ] implement iterator based list and forward lists
+- [ ] separate list and forward list implementations, forward list is meant 
+  to be more memory efficient, it currently is not 
+- [ ] before_begin iterator for forward list
 - [ ] transform and filter functions
 - [ ] storing pointers
     - storing items as pointers is not intuitive
@@ -127,7 +130,6 @@ Very WIP.
     - this is very annoying, and it is easy to make mistakes like this
 - [ ] update generic macros
 - [ ] range functions in cheap.h generics
-- [ ] iterators
 - [ ] stress test all types
 - [ ] resize for deque/queue
 - [ ] reduce malloc calls in src/internals/deq.c
