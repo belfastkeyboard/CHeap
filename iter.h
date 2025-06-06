@@ -51,8 +51,8 @@ typedef struct DoubleEndedQueue DoubleEndedQueue, Deque;
 // array, vector
 struct IteratorContiguousArray
 {
-	void        *array;
-	const size_t size;
+	void  *array;
+	size_t size;
 };
 // list, forward list
 struct IteratorLinkedList
@@ -73,8 +73,8 @@ struct IteratorHashBuckets
 // deque
 struct IteratorDeque
 {
-	const Deque *deque;
-	size_t       index;
+	Deque *deque;
+	size_t index;
 };
 
 union IteratorData
@@ -88,7 +88,7 @@ union IteratorData
 
 typedef struct Iter
 {
-	const IteratorType type;
+	IteratorType       type;
 	union IteratorData data;
 } Iter, Iterator;
 
