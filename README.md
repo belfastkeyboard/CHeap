@@ -98,18 +98,18 @@ Supported containers:
 - Deque 
 
 ## Ranges Library
-
-Very WIP.
+Ranges provide a lightweight abstraction for working with sequences.
+A range is a begin-end pair of iterators.
+Ranges allow algorithms to operate on data without needing access to the container.
 
 ## To do:
-
 - [x] implement iterators
 - [x] implement ranges
 - [x] implement iterator based list and forward lists
 - [ ] implement spans
 - [ ] separate list and forward list implementations, forward list is meant 
   to be more memory efficient, it currently is not 
-- [ ] before_begin iterator for forward list
+- [ ] add before_begin iterator for forward list
 - [ ] transform and filter functions
 - [ ] storing pointers
     - storing items as pointers is not intuitive
