@@ -7,8 +7,8 @@ typedef struct List
 	struct NodeAlloc   alloc;
 	size_t             nmemb;
 	size_t             size;
-	struct LinkedNode *head;
-	struct LinkedNode *tail;
+	struct DoubleLinkedNode *head;
+	struct DoubleLinkedNode *tail;
 } List;
 
 List *create_list(const size_t size)
@@ -20,7 +20,7 @@ List *create_list_capacity(size_t size, size_t init)
 {
 	List *list = memory_allocate_container(sizeof(List));
 
-	list->alloc = create_node_allocator(sizeof(struct LinkedNode),
+	list->alloc = create_node_allocator(sizeof(struct DoubleLinkedNode),
 	                                    init,
 	                                    size,
 	                                    0);
@@ -104,28 +104,28 @@ Iter erase_list(List *list, Iter index)
 
 Iter begin_list(const List *list)
 {
-	struct LinkedNode *node = list->head;
+	struct DoubleLinkedNode *node = list->head;
 	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }
 
 Iter end_list(const List *)
 {
-	struct LinkedNode *node = NULL;
+	struct DoubleLinkedNode *node = NULL;
 	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }
 
 Iter rbegin_list(const List *list)
 {
-	struct LinkedNode *node = list->tail;
+	struct DoubleLinkedNode *node = list->tail;
 	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }
 
 Iter rend_list(const List *)
 {
-	struct LinkedNode *node = NULL;
+	struct DoubleLinkedNode *node = NULL;
 	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
 	return iter;
 }

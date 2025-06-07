@@ -8,7 +8,7 @@ typedef struct ForwardList
 	struct NodeAlloc   alloc;
 	size_t             nmemb;
 	size_t             size;
-	struct LinkedNode *head;
+	struct DoubleLinkedNode *head;
 } ForwardList, FList;
 
 FList *create_forward_list(const size_t size)
@@ -20,7 +20,7 @@ FList *create_forward_list_capacity(size_t size, size_t init)
 {
 	FList *flist = memory_allocate_container(sizeof(FList));
 
-	flist->alloc = create_node_allocator(sizeof(struct LinkedNode),
+	flist->alloc = create_node_allocator(sizeof(struct DoubleLinkedNode),
 	                                     init,
 	                                     size,
 	                                     0);

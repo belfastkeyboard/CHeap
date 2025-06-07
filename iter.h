@@ -42,7 +42,8 @@ typedef enum IteratorType
 	ITERATOR_DEQUE_REVERSE
 } IteratorType;
 
-struct LinkedNode;
+struct DoubleLinkedNode;
+struct SingleLinkedNode;
 struct TreeNode;
 struct Bucket;
 struct ControlArray;
@@ -54,10 +55,15 @@ struct IteratorContiguousArray
 	void  *array;
 	size_t size;
 };
-// list, forward list
+// list
 struct IteratorLinkedList
 {
-	struct LinkedNode *node;
+	struct DoubleLinkedNode *node;
+};
+// forward list
+struct IteratorForwardList
+{
+	struct SingleLinkedNode *node;
 };
 // set, table
 struct IteratorBalancedTree
@@ -81,6 +87,7 @@ union IteratorData
 {
 	struct IteratorContiguousArray contiguous;
 	struct IteratorLinkedList      linked;
+	struct IteratorForwardList     flinked;
 	struct IteratorBalancedTree    balanced;
 	struct IteratorHashBuckets     hashed;
 	struct IteratorDeque           deque;
