@@ -22,6 +22,7 @@ void   clear_forward_list(FList *flist);
 Iter insert_after_forward_list(FList *flist, const void *value, Iter pos);
 Iter erase_after_forward_list(FList *flist, Iter pos);
 
+Iter before_begin_forward_list(const FList *flist);
 Iter begin_forward_list(const FList *flist);
 Iter end_forward_list(const FList *flist);
 #endif

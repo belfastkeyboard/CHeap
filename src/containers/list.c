@@ -4,9 +4,9 @@
 
 typedef struct List
 {
-	struct NodeAlloc   alloc;
-	size_t             nmemb;
-	size_t             size;
+	struct NodeAlloc         alloc;
+	size_t                   nmemb;
+	size_t                   size;
 	struct DoubleLinkedNode *head;
 	struct DoubleLinkedNode *tail;
 } List;
@@ -25,8 +25,8 @@ List *create_list_capacity(size_t size, size_t init)
 	                                    size,
 	                                    0);
 	list->size  = size;
-	list->head = NULL;
-	list->tail = NULL;
+	list->head  = NULL;
+	list->tail  = NULL;
 
 	return list;
 }
@@ -39,67 +39,67 @@ void destroy_list(List **list)
 
 void push_back_list(List *list, const void *value)
 {
-	generic_push_back_doubly_linked(&list->alloc,
-	                                &list->nmemb,
-	                                list->size,
-	                                &list->head,
-	                                &list->tail,
-	                                value);
+	push_back_doubly_linked(&list->alloc,
+	                        &list->nmemb,
+	                        list->size,
+	                        &list->head,
+	                        &list->tail,
+	                        value);
 }
 
 void push_front_list(List *list, const void *value)
 {
-	generic_push_front_doubly_linked(&list->alloc,
-	                                 &list->nmemb,
-	                                 list->size,
-	                                 &list->head,
-	                                 &list->tail,
-	                                 value);
+	push_front_doubly_linked(&list->alloc,
+	                         &list->nmemb,
+	                         list->size,
+	                         &list->head,
+	                         &list->tail,
+	                         value);
 }
 
 void *front_list(const List *list)
 {
-	return generic_access_linked(list->head);
+	return access_doubly_linked(list->head);
 }
 
 void *back_list(const List *list)
 {
-	return generic_access_linked(list->tail);
+	return access_doubly_linked(list->tail);
 }
 
 void pop_front_list(List *list)
 {
-	generic_pop_front_doubly_linked(&list->alloc, &list->head, &list->tail);
+	pop_front_doubly_linked(&list->alloc, &list->head, &list->tail);
 }
 
 void pop_back_list(List *list)
 {
-	generic_pop_back_doubly_linked(&list->alloc, &list->head, &list->tail);
+	pop_back_doubly_linked(&list->alloc, &list->head, &list->tail);
 }
 
 void clear_list(List *list)
 {
-	generic_clear_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
+	clear_doubly_linked(&list->alloc, &list->head, &list->tail, &list->nmemb);
 }
 
 Iter insert_list(List *list, const void *value, Iter pos)
 {
-	return generic_insert_doubly_linked(&list->alloc,
-	                                    &list->nmemb,
-	                                    list->size,
-	                                    &list->head,
-	                                    &list->tail,
-	                                    value,
-	                                    pos);
+	return insert_doubly_linked(&list->alloc,
+	                            &list->nmemb,
+	                            list->size,
+	                            &list->head,
+	                            &list->tail,
+	                            value,
+	                            pos);
 }
 
 Iter erase_list(List *list, Iter index)
 {
-	return generic_erase_doubly_linked(&list->alloc,
-	                                   &list->nmemb,
-	                                   index,
-	                                   &list->head,
-	                                   &list->tail);
+	return erase_doubly_linked(&list->alloc,
+	                           &list->nmemb,
+	                           index,
+	                           &list->head,
+	                           &list->tail);
 }
 
 Iter begin_list(const List *list)
@@ -119,14 +119,16 @@ Iter end_list(const List *)
 Iter rbegin_list(const List *list)
 {
 	struct DoubleLinkedNode *node = list->tail;
-	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
+	Iter                     iter = { .type        = ITERATOR_LIST_REVERSE,
+		                              .data.linked = { .node = node } };
 	return iter;
 }
 
 Iter rend_list(const List *)
 {
 	struct DoubleLinkedNode *node = NULL;
-	Iter iter = { .type = ITERATOR_LIST, .data.linked = { .node = node } };
+	Iter                     iter = { .type        = ITERATOR_LIST_REVERSE,
+		                              .data.linked = { .node = node } };
 	return iter;
 }
 

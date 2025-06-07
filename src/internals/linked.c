@@ -3,23 +3,23 @@
 #include <memory.h>
 
 static struct DoubleLinkedNode *create_node(struct NodeAlloc *alloc,
-                                      const size_t      size,
-                                      const void       *value)
+                                            const size_t      size,
+                                            const void       *value)
 {
-	void              *memory = alloc_node(alloc);
+	void                    *memory = alloc_node(alloc);
 	struct DoubleLinkedNode *node   = memory;
-	node->value               = memory + sizeof(struct DoubleLinkedNode);
+	node->value                     = memory + sizeof(struct DoubleLinkedNode);
 
 	memcpy(node->value, value, size);
 
 	return node;
 }
 
-static void push_front_doubly_linked_node(struct NodeAlloc   *alloc,
-                                          const size_t        size,
-                                          const void         *value,
-                                          struct DoubleLinkedNode **head,
-                                          struct DoubleLinkedNode **tail)
+static void push_front(struct NodeAlloc         *alloc,
+                       const size_t              size,
+                       const void               *value,
+                       struct DoubleLinkedNode **head,
+                       struct DoubleLinkedNode **tail)
 {
 	struct DoubleLinkedNode *node = create_node(alloc, size, value);
 
@@ -36,11 +36,11 @@ static void push_front_doubly_linked_node(struct NodeAlloc   *alloc,
 	}
 }
 
-static void push_back_doubly_linked_node(struct NodeAlloc   *alloc,
-                                         const size_t        size,
-                                         const void         *value,
-                                         struct DoubleLinkedNode **head,
-                                         struct DoubleLinkedNode **tail)
+static void push_back(struct NodeAlloc         *alloc,
+                      const size_t              size,
+                      const void               *value,
+                      struct DoubleLinkedNode **head,
+                      struct DoubleLinkedNode **tail)
 {
 	struct DoubleLinkedNode *node = create_node(alloc, size, value);
 
@@ -57,12 +57,12 @@ static void push_back_doubly_linked_node(struct NodeAlloc   *alloc,
 	}
 }
 
-static struct DoubleLinkedNode *insert_doubly_linked_node(struct NodeAlloc  *alloc,
-                                                    const size_t       size,
-                                                    const void        *value,
-                                                    struct DoubleLinkedNode  *position,
-                                                    struct DoubleLinkedNode **head,
-                                                    struct DoubleLinkedNode **tail)
+static struct DoubleLinkedNode *insert(struct NodeAlloc         *alloc,
+                                       const size_t              size,
+                                       const void               *value,
+                                       struct DoubleLinkedNode  *position,
+                                       struct DoubleLinkedNode **head,
+                                       struct DoubleLinkedNode **tail)
 {
 	struct DoubleLinkedNode *node = create_node(alloc, size, value);
 
@@ -90,10 +90,10 @@ static struct DoubleLinkedNode *insert_doubly_linked_node(struct NodeAlloc  *all
 	return node;
 }
 
-static struct DoubleLinkedNode *erase_node_doubly_linked(struct NodeAlloc   *alloc,
-                                                   struct DoubleLinkedNode  *position,
-                                                   struct DoubleLinkedNode **head,
-                                                   struct DoubleLinkedNode **tail)
+static struct DoubleLinkedNode *erase(struct NodeAlloc         *alloc,
+                                      struct DoubleLinkedNode  *position,
+                                      struct DoubleLinkedNode **head,
+                                      struct DoubleLinkedNode **tail)
 {
 	if (position->prev)
 	{
@@ -120,98 +120,92 @@ static struct DoubleLinkedNode *erase_node_doubly_linked(struct NodeAlloc   *all
 	return pos;
 }
 
-void generic_push_front_doubly_linked(struct NodeAlloc   *alloc,
-                                      size_t             *nmemb,
-                                      const size_t        size,
-                                      struct DoubleLinkedNode **head,
-                                      struct DoubleLinkedNode **tail,
-                                      const void         *value)
+void push_front_doubly_linked(struct NodeAlloc         *alloc,
+                              size_t                   *nmemb,
+                              const size_t              size,
+                              struct DoubleLinkedNode **head,
+                              struct DoubleLinkedNode **tail,
+                              const void               *value)
 {
-	push_front_doubly_linked_node(alloc, size, value, head, tail);
+	push_front(alloc, size, value, head, tail);
 	(*nmemb)++;
 }
 
-void generic_push_back_doubly_linked(struct NodeAlloc   *alloc,
-                                     size_t             *nmemb,
-                                     const size_t        size,
-                                     struct DoubleLinkedNode **head,
-                                     struct DoubleLinkedNode **tail,
-                                     const void         *value)
+void push_back_doubly_linked(struct NodeAlloc         *alloc,
+                             size_t                   *nmemb,
+                             const size_t              size,
+                             struct DoubleLinkedNode **head,
+                             struct DoubleLinkedNode **tail,
+                             const void               *value)
 {
-	push_back_doubly_linked_node(alloc, size, value, head, tail);
+	push_back(alloc, size, value, head, tail);
 	(*nmemb)++;
 }
 
-Iter generic_insert_doubly_linked(struct NodeAlloc   *alloc,
-                                  size_t             *nmemb,
-                                  const size_t        size,
-                                  struct DoubleLinkedNode **head,
-                                  struct DoubleLinkedNode **tail,
-                                  const void         *value,
-                                  Iter                pos)
-{
-	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
-	             "Iterator must be of list type");
-
-	struct DoubleLinkedNode *node = pos.data.linked.node;
-
-	pos.data.linked
-	    .node = insert_doubly_linked_node(alloc, size, value, node, head, tail);
-
-	(*nmemb)++;
-
-	return pos;
-}
-
-void generic_pop_front_doubly_linked(struct NodeAlloc   *alloc,
-                                     struct DoubleLinkedNode **head,
-                                     struct DoubleLinkedNode **tail)
-{
-	erase_node_doubly_linked(alloc, *head, head, tail);
-}
-
-void generic_pop_back_doubly_linked(struct NodeAlloc   *alloc,
-                                    struct DoubleLinkedNode **head,
-                                    struct DoubleLinkedNode **tail)
-{
-	erase_node_doubly_linked(alloc, *tail, head, tail);
-}
-
-Iter generic_erase_doubly_linked(struct NodeAlloc   *alloc,
-                                 size_t             *nmemb,
-                                 Iter                pos,
-                                 struct DoubleLinkedNode **head,
-                                 struct DoubleLinkedNode **tail)
-{
-	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
-	             "Iterator must be of list type");
-
-	struct DoubleLinkedNode *node = pos.data.linked.node;
-	pos.data.linked.node    = erase_node_doubly_linked(alloc, node, head, tail);
-
-	(*nmemb)++;
-
-	return pos;
-}
-
-void generic_clear_linked(struct NodeAlloc   *alloc,
+Iter insert_doubly_linked(struct NodeAlloc         *alloc,
+                          size_t                   *nmemb,
+                          const size_t              size,
                           struct DoubleLinkedNode **head,
                           struct DoubleLinkedNode **tail,
-                          size_t             *nmemb)
+                          const void               *value,
+                          Iter                      pos)
+{
+	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
+	             "Iterator must be of list type");
+
+	struct DoubleLinkedNode *node = pos.data.linked.node;
+
+	pos.data.linked.node = insert(alloc, size, value, node, head, tail);
+
+	(*nmemb)++;
+
+	return pos;
+}
+
+void pop_front_doubly_linked(struct NodeAlloc         *alloc,
+                             struct DoubleLinkedNode **head,
+                             struct DoubleLinkedNode **tail)
+{
+	erase(alloc, *head, head, tail);
+}
+
+void pop_back_doubly_linked(struct NodeAlloc         *alloc,
+                            struct DoubleLinkedNode **head,
+                            struct DoubleLinkedNode **tail)
+{
+	erase(alloc, *tail, head, tail);
+}
+
+Iter erase_doubly_linked(struct NodeAlloc         *alloc,
+                         size_t                   *nmemb,
+                         Iter                      pos,
+                         struct DoubleLinkedNode **head,
+                         struct DoubleLinkedNode **tail)
+{
+	CHEAP_ASSERT(pos.type == ITERATOR_LIST || pos.type == ITERATOR_LIST_REVERSE,
+	             "Iterator must be of list type");
+
+	struct DoubleLinkedNode *node = pos.data.linked.node;
+	pos.data.linked.node          = erase(alloc, node, head, tail);
+
+	(*nmemb)++;
+
+	return pos;
+}
+
+void clear_doubly_linked(struct NodeAlloc         *alloc,
+                         struct DoubleLinkedNode **head,
+                         struct DoubleLinkedNode **tail,
+                         size_t                   *nmemb)
 {
 	clear_nodes(alloc);
 
 	*head = NULL;
-
-	if (tail)
-	{
-		*tail = NULL;
-	}
-
+	*tail = NULL;
 	*nmemb = 0;
 }
 
-void *generic_access_linked(struct DoubleLinkedNode *node)
+void *access_doubly_linked(struct DoubleLinkedNode *node)
 {
 	return node->value;
 }

@@ -5,35 +5,41 @@
 
 struct SingleLinkedNode
 {
-	void              *value;
+	void                    *value;
 	struct SingleLinkedNode *next;
-	struct SingleLinkedNode *prev;
 };
 
-void generic_push_front_singly_linked(struct NodeAlloc   *alloc,
-                                      size_t             *nmemb,
-                                      size_t              size,
-                                      struct SingleLinkedNode **head,
-                                      const void         *value);
+struct SingleLinkedNode *create_sentinel_node(struct NodeAlloc *alloc);
 
-Iter generic_insert_singly_linked(struct NodeAlloc   *alloc,
-                                  size_t             *nmemb,
-                                  size_t              size,
-                                  struct SingleLinkedNode **head,
-                                  const void         *value,
-                                  Iter                pos);
+void push_front_singly_linked(struct NodeAlloc         *alloc,
+                              size_t                   *nmemb,
+                              size_t                    size,
+                              struct SingleLinkedNode **head,
+                              struct SingleLinkedNode  *sentinel,
+                              const void               *value);
 
-void generic_pop_front_singly_linked(struct NodeAlloc   *alloc,
-                                     size_t             *nmemb,
-                                     struct SingleLinkedNode **head);
-
-Iter generic_erase_singly_linked(struct NodeAlloc *alloc,
-                                 size_t           *nmemb,
-                                 Iter              pos);
-
-void generic_clear_linked(struct NodeAlloc   *alloc,
+Iter insert_singly_linked(struct NodeAlloc         *alloc,
+                          size_t                   *nmemb,
+                          size_t                    size,
                           struct SingleLinkedNode **head,
-                          struct SingleLinkedNode **tail,
-                          size_t             *nmemb);
+                          struct SingleLinkedNode  *sentinel,
+                          const void               *value,
+                          Iter                      pos);
 
-void *generic_access_linked(struct SingleLinkedNode *node);
+void pop_front_singly_linked(struct NodeAlloc         *alloc,
+                             size_t                   *nmemb,
+                             struct SingleLinkedNode **head,
+                             struct SingleLinkedNode  *sentinel);
+
+Iter erase_singly_linked(struct NodeAlloc         *alloc,
+                         size_t                   *nmemb,
+                         struct SingleLinkedNode **head,
+                         struct SingleLinkedNode  *sentinel,
+                         Iter                      pos);
+
+void clear_singly_linked(struct NodeAlloc         *alloc,
+                         struct SingleLinkedNode **head,
+                         struct SingleLinkedNode **sentinel,
+                         size_t                   *nmemb);
+
+void *access_singly_linked(struct SingleLinkedNode *node);

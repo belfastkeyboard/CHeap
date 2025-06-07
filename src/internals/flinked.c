@@ -3,22 +3,22 @@
 #include <memory.h>
 
 static struct SingleLinkedNode *create_node(struct NodeAlloc *alloc,
-                                      const size_t      size,
-                                      const void       *value)
+                                            const size_t      size,
+                                            const void       *value)
 {
-	void              *memory = alloc_node(alloc);
+	void                    *memory = alloc_node(alloc);
 	struct SingleLinkedNode *node   = memory;
-	node->value               = memory + sizeof(struct SingleLinkedNode);
+	node->value                     = memory + sizeof(struct SingleLinkedNode);
 
 	memcpy(node->value, value, size);
 
 	return node;
 }
 
-static void push_front_singly_linked_node(struct NodeAlloc   *alloc,
-                                          const size_t        size,
-                                          const void         *value,
-                                          struct SingleLinkedNode **head)
+static void push_front(struct NodeAlloc         *alloc,
+                       const size_t              size,
+                       const void               *value,
+                       struct SingleLinkedNode **head)
 {
 	struct SingleLinkedNode *node = create_node(alloc, size, value);
 
@@ -26,129 +26,143 @@ static void push_front_singly_linked_node(struct NodeAlloc   *alloc,
 	*head      = node;
 }
 
-static struct SingleLinkedNode *insert_singly_linked_node(struct NodeAlloc
-                                                                    *alloc,
-                                                    const size_t       size,
-                                                    const void        *value,
-                                                    struct SingleLinkedNode
-                                                                            *position,
-                                                    struct SingleLinkedNode
-                                                            **head)
+static struct SingleLinkedNode *insert(struct NodeAlloc         *alloc,
+                                       const size_t              size,
+                                       const void               *value,
+                                       struct SingleLinkedNode  *position,
+                                       struct SingleLinkedNode **head)
 {
 	struct SingleLinkedNode *node = create_node(alloc, size, value);
 
-	if (!position)
+	if (position->next == *head)
 	{
-		*head      = node;
-		node->next = position;
+		*head = node;
 	}
-	else
-	{
-		node->next     = position->next;
-		position->next = node;
-	}
+
+	node->next     = position->next;
+	position->next = node;
 
 	return node;
 }
 
-static void erase_node_singly_linked(struct NodeAlloc  *alloc,
-                                     struct SingleLinkedNode *position)
+static void erase(struct NodeAlloc *alloc, struct SingleLinkedNode *position)
 {
 	struct SingleLinkedNode *to_erase = position->next;
-
-	position->next = to_erase->next;
+	position->next                    = to_erase->next;
 
 	free_node(alloc, to_erase);
 }
 
-void generic_push_front_singly_linked(struct NodeAlloc   *alloc,
-                                      size_t             *nmemb,
-                                      const size_t        size,
-                                      struct SingleLinkedNode **head,
-                                      const void         *value)
+struct SingleLinkedNode *create_sentinel_node(struct NodeAlloc *alloc)
 {
-	push_front_singly_linked_node(alloc, size, value, head);
-	(*nmemb)++;
+	struct SingleLinkedNode *sentinel = create_node(alloc, 0, NULL);
+
+	sentinel->value = NULL;
+	sentinel->next  = NULL;
+
+	return sentinel;
 }
 
-Iter generic_insert_singly_linked(struct NodeAlloc   *alloc,
-                                  size_t             *nmemb,
-                                  const size_t        size,
-                                  struct SingleLinkedNode **head,
-                                  const void         *value,
-                                  Iter                pos)
+void push_front_singly_linked(struct NodeAlloc         *alloc,
+                              size_t                   *nmemb,
+                              const size_t              size,
+                              struct SingleLinkedNode **head,
+                              struct SingleLinkedNode  *sentinel,
+                              const void               *value)
+{
+	push_front(alloc, size, value, head);
+	(*nmemb)++;
+
+	if (sentinel->next != *head)
+	{
+		sentinel->next = *head;
+	}
+}
+
+Iter insert_singly_linked(struct NodeAlloc         *alloc,
+                          size_t                   *nmemb,
+                          const size_t              size,
+                          struct SingleLinkedNode **head,
+                          struct SingleLinkedNode  *sentinel,
+                          const void               *value,
+                          Iter                      pos)
 {
 	struct SingleLinkedNode *node = pos.data.flinked.node;
-
-	pos.data.flinked.node = insert_singly_linked_node(alloc,
-	                                                 size,
-	                                                 value,
-	                                                 node,
-	                                                 head);
+	pos.data.flinked.node         = insert(alloc, size, value, node, head);
 
 	(*nmemb)++;
+
+	if (sentinel->next != *head)
+	{
+		sentinel->next = *head;
+	}
 
 	return pos;
 }
 
-void generic_pop_front_singly_linked(struct NodeAlloc   *alloc,
-                                     size_t             *nmemb,
-                                     struct SingleLinkedNode **head)
+void pop_front_singly_linked(struct NodeAlloc         *alloc,
+                             size_t                   *nmemb,
+                             struct SingleLinkedNode **head,
+                             struct SingleLinkedNode  *sentinel)
 {
 	CHEAP_ASSERT(*nmemb, "Cannot pop an empty list");
 
 	struct SingleLinkedNode *front = *head;
-	*head                    = front->next;
+	*head                          = front->next;
+
 	free_node(alloc, front);
+
+	if (sentinel->next != *head)
+	{
+		sentinel->next = *head;
+	}
+
 	(*nmemb)--;
 }
 
-Iter generic_erase_singly_linked(struct NodeAlloc *alloc,
-                                 size_t           *nmemb,
-                                 Iter              pos)
+Iter erase_singly_linked(struct NodeAlloc         *alloc,
+                         size_t                   *nmemb,
+                         struct SingleLinkedNode **head,
+                         struct SingleLinkedNode  *sentinel,
+                         Iter                      pos)
 {
 	struct SingleLinkedNode *node = pos.data.flinked.node;
 
-	erase_node_singly_linked(alloc, node);
+	erase(alloc, node);
 
 	(*nmemb)--;
+
+	if (sentinel->next != *head)
+	{
+		sentinel->next = *head;
+	}
 
 	return pos;
 }
 
-void generic_clear_linked(struct NodeAlloc   *alloc,
-                          struct SingleLinkedNode **head,
-                          struct SingleLinkedNode **tail,
-                          size_t             *nmemb)
+void clear_singly_linked(struct NodeAlloc         *alloc,
+                         struct SingleLinkedNode **head,
+                         struct SingleLinkedNode **sentinel,
+                         size_t                   *nmemb)
 {
 	clear_nodes(alloc);
 
-	*head = NULL;
-
-	if (tail)
-	{
-		*tail = NULL;
-	}
-
-	*nmemb = 0;
+	*nmemb    = 0;
+	*head     = NULL;
+	*sentinel = create_sentinel_node(alloc);
 }
 
-void *generic_access_linked(struct SingleLinkedNode *node)
+void *access_singly_linked(struct SingleLinkedNode *node)
 {
 	return node->value;
 }
 
-void next_linked(Iter *iter)
+void next_flinked(Iter *iter)
 {
 	iter->data.flinked.node = iter->data.flinked.node->next;
 }
 
-void prev_linked(Iter *iter)
-{
-	iter->data.flinked.node = iter->data.flinked.node->prev;
-}
-
-void *get_linked(const Iter iter)
+void *get_flinked(const Iter iter)
 {
 	return iter.data.flinked.node->value;
 }

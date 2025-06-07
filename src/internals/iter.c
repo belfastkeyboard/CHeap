@@ -1,7 +1,5 @@
 #include "../../iter.h"
 #include "../../internals/error.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 extern void  next_mempool(Iter *iter);
 extern void  prev_mempool(Iter *iter);
@@ -15,6 +13,9 @@ extern void *get_hash_set(Iter iter);
 extern void  next_linked(Iter *iter);
 extern void  prev_linked(Iter *iter);
 extern void *get_linked(Iter iter);
+
+extern void  next_flinked(Iter *iter);
+extern void *get_flinked(Iter iter);
 
 extern void  next_rbtree(Iter *iter);
 extern void  prev_rbtree(Iter *iter);
@@ -41,8 +42,9 @@ void next_iter(Iter *iter)
 			return next_hash(iter);
 		case ITERATOR_LIST:
 		case ITERATOR_LIST_REVERSE:
-		case ITERATOR_FORWARD_LIST:
 			return next_linked(iter);
+		case ITERATOR_FORWARD_LIST:
+			return next_flinked(iter);
 		case ITERATOR_SET:
 		case ITERATOR_SET_REVERSE:
 		case ITERATOR_TABLE:
@@ -123,8 +125,9 @@ void *get_iter(const Iter iter)
 			return get_hash_set(iter);
 		case ITERATOR_LIST:
 		case ITERATOR_LIST_REVERSE:
-		case ITERATOR_FORWARD_LIST:
 			return get_linked(iter);
+		case ITERATOR_FORWARD_LIST:
+			return get_flinked(iter);
 		case ITERATOR_SET:
 		case ITERATOR_SET_REVERSE:
 			return get_rbtree_set(iter);
@@ -154,8 +157,9 @@ bool done_iter(const Iter begin, const Iter end)
 		case ITERATOR_HASH_TABLE:
 			return begin.data.hashed.bucket == end.data.hashed.end;
 		case ITERATOR_LIST:
-		case ITERATOR_FORWARD_LIST:
 			return begin.data.linked.node == end.data.linked.node;
+		case ITERATOR_FORWARD_LIST:
+			return begin.data.flinked.node == end.data.flinked.node;
 		case ITERATOR_SET:
 		case ITERATOR_TABLE:
 			return begin.data.balanced.node == end.data.balanced.node;
