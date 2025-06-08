@@ -1,8 +1,8 @@
 #include "../../algorithms.h"
 #include "../../vector.h"
 #include <memory.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef uint8_t Byte;
 
@@ -49,9 +49,33 @@ void sort_span(Span span, Compare compare)
 	qsort(span.data, span.nmemb, span.size, compare);
 }
 
+void fill_span(Span span, void* value)
+{
+	for (int i = 0; i < span.nmemb; ++i)
+	{
+		memcpy(span.data + i * span.size, value, span.size);
+	}
+}
+
 void shuffle_span(Span span)
 {
 	fisher_yates_shuffle(span.data, span.size, span.nmemb);
+}
+
+void reverse_span(Span span)
+{
+	if (!span.nmemb)
+	{
+		return;
+	}
+
+	for (size_t begin = 0, end = span.nmemb - 1; begin < end; begin++, end--)
+	{
+		void *a = span.data + begin * span.size;
+		void *b = span.data + end * span.size;
+
+		swap(a, b, span.size);
+	}
 }
 
 void *find_span(Span span, Predicate predicate)

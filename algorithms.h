@@ -13,7 +13,9 @@ void swap(void *a, void *b, size_t size);
 
 void transform_span(Span span, Transform transform);
 void sort_span(Span span, Compare compare);
+void fill_span(Span span, void* value);
 void shuffle_span(Span span);
+void reverse_span(Span span);
 
 void *find_span(Span span, Predicate predicate);
 
