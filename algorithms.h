@@ -16,8 +16,12 @@ void sort_span(Span span, Compare compare);
 void fill_span(Span span, void* value);
 void shuffle_span(Span span);
 void reverse_span(Span span);
+void duplicate_span(Span dest, Span src);
 
-void *find_span(Span span, Predicate predicate);
+void *find_span(Span span, Compare compare, const void *value);
+bool contains_span(Span span, Compare compare, const void *value);
+bool alias_span(Span span1, Span span2);
+bool equal_span(Span span1, Span span2, Compare compare);
 
 void *min_span(Span span, Compare compare);
 void *max_span(Span span, Compare compare);

@@ -1,4 +1,5 @@
 #include "../../algorithms.h"
+#include "../../internals/cassert.h"
 #include "../../vector.h"
 #include <memory.h>
 #include <stdint.h>
@@ -49,7 +50,7 @@ void sort_span(Span span, Compare compare)
 	qsort(span.data, span.nmemb, span.size, compare);
 }
 
-void fill_span(Span span, void* value)
+void fill_span(Span span, void *value)
 {
 	for (int i = 0; i < span.nmemb; ++i)
 	{
@@ -78,7 +79,15 @@ void reverse_span(Span span)
 	}
 }
 
-void *find_span(Span span, Predicate predicate)
+void duplicate_span(Span dest, const Span src)
+{
+	CHEAP_ASSERT(dest.size == src.size && dest.nmemb >= src.nmemb,
+	             "Destination cannot store source values due size mismatch.");
+
+	memcpy(dest.data, src.data, src.size * src.nmemb);
+}
+
+void *find_span(Span span, Compare compare, const void *value)
 {
 	void *result = NULL;
 
@@ -86,7 +95,7 @@ void *find_span(Span span, Predicate predicate)
 	{
 		void *item = span.data + i * span.size;
 
-		if (predicate(item))
+		if (compare(item, value) == 0)
 		{
 			result = item;
 			break;
@@ -94,6 +103,48 @@ void *find_span(Span span, Predicate predicate)
 	}
 
 	return result;
+}
+
+bool contains_span(Span span, Compare compare, const void *value)
+{
+	return find_span(span, compare, value);
+}
+
+bool alias_span(Span span1, Span span2)
+{
+	if (span1.size != span2.size || span1.nmemb != span2.nmemb ||
+	    span1.data != span2.data)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool equal_span(const Span span1, const Span span2, Compare compare)
+{
+	if (span1.size != span2.size || span1.nmemb != span2.nmemb)
+	{
+		return false;
+	}
+
+	if (span1.data != span2.data)
+	{
+		return true;
+	}
+
+	for (int i = 0; i < span1.nmemb; ++i)
+	{
+		const void *a = span1.data + i * span1.size;
+		const void *b = span2.data + i * span2.size;
+
+		if (compare(a, b) != 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void *min_span(Span span, Compare compare)
