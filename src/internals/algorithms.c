@@ -2,13 +2,23 @@
 #include "../../vector.h"
 #include <memory.h>
 #include <stdlib.h>
+#include <stdint.h>
+
+typedef uint8_t Byte;
+
+static void internal_swap(void *a, void *b, size_t size)
+{
+	Byte buff[size];
+
+	memcpy(buff, a, size);
+	memcpy(a, b, size);
+	memcpy(b, buff, size);
+}
 
 static void fisher_yates_shuffle(void        *data,
                                  const size_t size,
                                  const size_t nmemb)
 {
-	char buff[size];
-
 	for (size_t i = nmemb - 1; i > 0; i--)
 	{
 		size_t j = random() % (i + 1);
@@ -16,10 +26,13 @@ static void fisher_yates_shuffle(void        *data,
 		void *a = data + i * size;
 		void *b = data + j * size;
 
-		memcpy(buff, a, size);
-		memcpy(a, b, size);
-		memcpy(b, buff, size);
+		internal_swap(a, b, size);
 	}
+}
+
+void swap(void *a, void *b, size_t size)
+{
+	internal_swap(a, b, size);
 }
 
 void transform_span(Span span, Transform transform)
@@ -57,6 +70,40 @@ void *find_span(Span span, Predicate predicate)
 	}
 
 	return result;
+}
+
+void *min_span(Span span, Compare compare)
+{
+	void *min = span.data;
+
+	for (int i = 1; i < span.nmemb; ++i)
+	{
+		void *next = span.data + i * span.size;
+
+		if (compare(min, next) < 0)
+		{
+			min = next;
+		}
+	}
+
+	return min;
+}
+
+void *max_span(Span span, Compare compare)
+{
+	void *max = span.data;
+
+	for (int i = 1; i < span.nmemb; ++i)
+	{
+		void *next = span.data + i * span.size;
+
+		if (compare(max, next) > 0)
+		{
+			max = next;
+		}
+	}
+
+	return max;
 }
 
 bool any_span(Span span, Predicate predicate)
