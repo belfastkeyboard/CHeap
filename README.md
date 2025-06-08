@@ -117,7 +117,7 @@ functions to handle the data in a container agnostic manner.
 - [x] separate list and forward list implementations, forward list is meant 
   to be more memory efficient, it currently is not 
 - [x] add before_begin iterator for forward list
-- [ ] span functions
+- [x] span functions
 - [ ] transform and filter functions for ranges
 - [ ] storing pointers
     - storing items as pointers is not intuitive
