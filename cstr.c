@@ -29,6 +29,10 @@ typedef String (*DuplicateStrategy)(Arena *, ConstString);
 
 typedef String (*DuplicateNStrategy)(Arena *, ConstString, uint32_t);
 
+String arena_cstr_dup(Arena *, ConstString);
+
+String arena_cstr_ndup(Arena *, ConstString, uint32_t);
+
 //              SCHEMA             \\
 // |----|----|------------|------| \\
 // |BUFF|LEN |   STRING   | FREE | \\
@@ -52,13 +56,13 @@ stdlib_realloc(String string, const uint32_t sz, const uint32_t old, Arena *)
 }
 
 ALLOC static char *
-arena_alloc(String, const uint32_t sz, uint32_t, Arena *arena)
+cstr_arena_alloc(String, const uint32_t sz, uint32_t, Arena *arena)
 {
     return calloc_arena(arena, sz);
 }
 
 ALLOC static char *
-arena_realloc(String string, const uint32_t sz, uint32_t, Arena *arena)
+cstr_arena_realloc(String string, const uint32_t sz, uint32_t, Arena *arena)
 {
     void *ptr = calloc_arena(arena, sz);
 
@@ -89,16 +93,6 @@ static uint32_t get_metadata_item(ConstBuffer meta)
     memcpy(&sz, meta, sizeof(uint32_t));
 
     return sz;
-}
-
-uint32_t string_buffer(ConstString string)
-{
-    return get_metadata_item(BUFFER(string));
-}
-
-uint32_t string_len(ConstString string)
-{
-    return get_metadata_item(LENGTH(string));
 }
 
 static void null_terminate(String string, const uint32_t len)
@@ -209,8 +203,8 @@ ALLOC static String string_concatenate(String dest,
                                        const AllocationStrategy strategy,
                                        Arena *arena)
 {
-    const uint32_t buffsz = string_buffer(dest);
-    const uint32_t len = string_len(dest);
+    const uint32_t buffsz = cstr_buffer(dest);
+    const uint32_t len = cstr_len(dest);
 
     if (buffsz - len < n)
     {
@@ -241,7 +235,7 @@ ALLOC static String string_replace(String str,
                                    AllocationStrategy strategy,
                                    Arena *arena)
 {
-    uint32_t len = string_len(str);
+    uint32_t len = cstr_len(str);
     const size_t n = strlen(new);
     const size_t o = strlen(old);
     const int32_t diff = (int32_t) (n - o);
@@ -256,7 +250,7 @@ ALLOC static String string_replace(String str,
             substr += o;
         }
 
-        const uint32_t buffsz = string_buffer(str);
+        const uint32_t buffsz = cstr_buffer(str);
 
         if (buffsz - len < count * diff)
         {
@@ -297,268 +291,28 @@ ALLOC static String string_replace(String str,
     return clean_up(str, len);
 }
 
-String string_new(const char *fmt, ...)
-{
-    va_list args;
-    va_list len_args;
-    va_start(args, fmt);
-    va_copy(len_args, args);
-
-    String string = string_construct_formatted(fmt,
-                                               args,
-                                               len_args,
-                                               stdlib_alloc,
-                                               NULL);
-
-    va_end(args);
-
-    return string;
-}
-
-String string_from_stream(FILE *stream)
-{
-    return string_construct_from_stream(stream, stdlib_alloc, NULL);
-}
-
-void string_free(String str)
-{
-    char *buff = BUFFER(str);
-
-    free(buff);
-}
-
-String string_cat(String dest, ConstString src)
-{
-    const uint32_t n = string_len(src);
-    return string_concatenate(dest, src, n, stdlib_realloc, NULL);
-}
-
-String string_dup(ConstString src)
-{
-    const uint32_t buf = string_buffer(src);
-    const uint32_t len = string_len(src);
-    return string_duplicate(src, buf, len, stdlib_alloc, NULL);
-}
-
-String string_sub(String str, const char *old, const char *new)
-{
-    return string_replace(str, old, new, stdlib_realloc, NULL);
-}
-
-ALLOC String string_ndup(ConstString src, const uint32_t n)
-{
-    return string_duplicate(src, n, n, stdlib_alloc, NULL);
-}
-
-int string_cmp(ConstString str1, ConstString str2)
-{
-    return strcmp(str1, str2);
-}
-
-StringView string_chr(ConstString str, int c)
-{
-    return strchr(str, c);
-}
-
-StringView string_rchr(ConstString str, int c)
-{
-    return strrchr(str, c);
-}
-
-StringView string_pbrk(ConstString str, ConstString accept)
-{
-    return strpbrk(str, accept);
-}
-
-StringView string_str(ConstString haystack, ConstString needle)
-{
-    return strstr(haystack, needle);
-}
-
-uint32_t string_cspn(ConstString str, ConstString reject)
-{
-    return strcspn(str, reject);
-}
-
-uint32_t string_spn(ConstString str, ConstString accept)
-{
-    return strspn(str, accept);
-}
-
-void string_tolower(String str)
-{
-    const uint32_t len = string_len(str);
-
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        char c = str[i];
-        str[i] = (char) tolower(c);
-    }
-}
-
-void string_toupper(String str)
-{
-    const uint32_t len = string_len(str);
-
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        char c = str[i];
-        str[i] = (char) toupper(c);
-    }
-}
-
-void string_clear(String str)
-{
-    const uint32_t len = 0;
-    const uint32_t buff = string_buffer(str);
-
-    memset(str, 0, buff);
-    clean_up(str, len);
-}
-
-void string_slice(String str, uint32_t start, uint32_t end)
-{
-    assert(start < end);
-
-    const uint32_t len = end - start;
-
-    memmove(str, str + start, len);
-    clean_up(str, len);
-}
-
-void string_strip(String str, const char *reject)
-{
-    char *end = str + string_len(str) - 1;
-    char *sp = str;
-    char *ep = end;
-
-    while (sp <= end && strchr(reject, *sp))
-    {
-        sp++;
-    }
-
-    while (ep > sp && strchr(reject, *ep))
-    {
-        ep--;
-    }
-
-    const uint32_t len = ep - sp + 1;
-
-    if (sp != str)
-    {
-        memmove(str, sp, len);
-    }
-
-    clean_up(str, len);
-}
-
-void string_totitle(String str)
-{
-    const uint32_t len = string_len(str);
-    bool space = true;
-
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        char c = str[i];
-        bool letter = isalpha(c);
-
-        if (space && letter)
-        {
-            str[i] = (char) toupper(c);
-        }
-        else if (letter)
-        {
-            str[i] = (char) tolower(c);
-        }
-
-        space = (isspace(c) || ispunct(c)) ? true : false;
-    }
-}
-
-ALLOC FORMAT_EXT String arena_string_new(Arena *arena, const char *fmt, ...)
-{
-    assert(arena);
-
-    va_list args;
-    va_list len_args;
-    va_start(args, fmt);
-    va_copy(len_args, args);
-
-    String string = string_construct_formatted(fmt,
-                                               args,
-                                               len_args,
-                                               arena_alloc,
-                                               arena);
-
-    va_end(args);
-
-    return string;
-}
-
-ALLOC String arena_string_from_stream(Arena *arena, FILE *stream)
-{
-    assert(arena);
-
-    return string_construct_from_stream(stream, arena_alloc, arena);
-}
-
-ALLOC String arena_string_cat(Arena *arena, String dest, ConstString src)
-{
-    assert(arena);
-
-    const uint32_t n = string_len(src);
-    return string_concatenate(dest, src, n, arena_realloc, arena);
-}
-
-ALLOC String arena_string_dup(Arena *arena, ConstString src)
-{
-    assert(arena);
-
-    const uint32_t buf = string_buffer(src);
-    const uint32_t len = string_len(src);
-
-    return string_duplicate(src, buf, len, arena_alloc, arena);
-}
-
-ALLOC String arena_string_sub(Arena *arena,
-                              String str,
-                              const char *old,
-                              const char *new)
-{
-    assert(arena);
-
-    return string_replace(str, old, new, arena_realloc, arena);
-}
-
-ALLOC String arena_string_ndup(Arena *arena, ConstString src, uint32_t n)
-{
-    assert(arena);
-
-    return string_duplicate(src, n, n, arena_alloc, arena);
-}
-
 ALLOC static String generic_string_dup(Arena *, ConstString string)
 {
-    return string_dup(string);
+    return cstr_dup(string);
 }
 
 ALLOC static String generic_string_ndup(Arena *,
                                         ConstString string,
                                         const uint32_t n)
 {
-    return string_ndup(string, n);
+    return cstr_ndup(string, n);
 }
 
 ALLOC static String arena_generic_string_dup(Arena *arena, ConstString string)
 {
-    return arena_string_dup(arena, string);
+    return arena_cstr_dup(arena, string);
 }
 
 ALLOC static String arena_generic_string_ndup(Arena *arena,
                                               ConstString string,
                                               const uint32_t n)
 {
-    return arena_string_ndup(arena, string, n);
+    return arena_cstr_ndup(arena, string, n);
 }
 
 static Vector *generic_string_split(ConstString str,
@@ -597,15 +351,6 @@ static Vector *generic_string_split(ConstString str,
     return strings;
 }
 
-Vector *string_split(ConstString str, ConstString delim)
-{
-    return generic_string_split(str,
-                                delim,
-                                generic_string_dup,
-                                generic_string_ndup,
-                                NULL);
-}
-
 ALLOC static String generic_join(const Vector *strings,
                                  ConstString delim,
                                  AllocationStrategy alloc_strat,
@@ -620,7 +365,7 @@ ALLOC static String generic_join(const Vector *strings,
     for (size_t i = 0; i < c; ++i)
     {
         ConstString s = *(ConstString *) at_vector(strings, i);
-        uint32_t n = string_len(s);
+        uint32_t n = cstr_len(s);
         string = string_concatenate(string, s, n, realloc_strat, arena);
 
         if (i < c - 1)
@@ -636,12 +381,284 @@ ALLOC static String generic_join(const Vector *strings,
     return string;
 }
 
-String string_join(const Vector *strings, ConstString delim)
+uint32_t cstr_buffer(ConstString str)
+{
+    return get_metadata_item(BUFFER(str));
+}
+
+uint32_t cstr_len(ConstString str)
+{
+    return get_metadata_item(LENGTH(str));
+}
+
+String cstr_new(const char *fmt, ...)
+{
+    va_list args;
+    va_list len_args;
+    va_start(args, fmt);
+    va_copy(len_args, args);
+
+    String string = string_construct_formatted(fmt,
+                                               args,
+                                               len_args,
+                                               stdlib_alloc,
+                                               NULL);
+
+    va_end(args);
+
+    return string;
+}
+
+String cstr_from_stream(FILE *stream)
+{
+    return string_construct_from_stream(stream, stdlib_alloc, NULL);
+}
+
+void cstr_free(String *str)
+{
+    char *buff = BUFFER(*str);
+    free(buff);
+}
+
+String cstr_cat(String dest, const char *src)
+{
+    const uint32_t n = strlen(src);
+    return string_concatenate(dest, src, n, stdlib_realloc, NULL);
+}
+
+String cstr_cat_cstr(String dest, ConstString src)
+{
+    const uint32_t n = cstr_len(src);
+    return string_concatenate(dest, src, n, stdlib_realloc, NULL);
+}
+
+String cstr_dup(ConstString src)
+{
+    const uint32_t buf = cstr_buffer(src);
+    const uint32_t len = cstr_len(src);
+    return string_duplicate(src, buf, len, stdlib_alloc, NULL);
+}
+
+String cstr_sub(String str, const char *old, const char *new)
+{
+    return string_replace(str, old, new, stdlib_realloc, NULL);
+}
+
+String cstr_ndup(ConstString src, const uint32_t n)
+{
+    return string_duplicate(src, n, n, stdlib_alloc, NULL);
+}
+
+int cstr_cmp(ConstString str1, ConstString str2)
+{
+    return strcmp(str1, str2);
+}
+
+StringView cstr_chr(ConstString str, int c)
+{
+    return strchr(str, c);
+}
+
+StringView cstr_rchr(ConstString str, int c)
+{
+    return strrchr(str, c);
+}
+
+StringView cstr_pbrk(ConstString str, ConstString accept)
+{
+    return strpbrk(str, accept);
+}
+
+StringView cstr_str(ConstString haystack, ConstString needle)
+{
+    return strstr(haystack, needle);
+}
+
+uint32_t cstr_cspn(ConstString str, ConstString reject)
+{
+    return strcspn(str, reject);
+}
+
+uint32_t cstr_spn(ConstString str, ConstString accept)
+{
+    return strspn(str, accept);
+}
+
+void cstr_tolower(String str)
+{
+    const uint32_t len = cstr_len(str);
+
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        char c = str[i];
+        str[i] = (char) tolower(c);
+    }
+}
+
+void cstr_toupper(String str)
+{
+    const uint32_t len = cstr_len(str);
+
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        char c = str[i];
+        str[i] = (char) toupper(c);
+    }
+}
+
+void cstr_clear(String str)
+{
+    const uint32_t len = 0;
+    const uint32_t buff = cstr_buffer(str);
+
+    memset(str, 0, buff);
+    clean_up(str, len);
+}
+
+void cstr_slice(String str, uint32_t start, uint32_t end)
+{
+    assert(start < end);
+
+    const uint32_t len = end - start;
+
+    memmove(str, str + start, len);
+    clean_up(str, len);
+}
+
+void cstr_strip(String str, const char *reject)
+{
+    char *end = str + cstr_len(str) - 1;
+    char *sp = str;
+    char *ep = end;
+
+    while (sp <= end && strchr(reject, *sp))
+    {
+        sp++;
+    }
+
+    while (ep > sp && strchr(reject, *ep))
+    {
+        ep--;
+    }
+
+    const uint32_t len = ep - sp + 1;
+
+    if (sp != str)
+    {
+        memmove(str, sp, len);
+    }
+
+    clean_up(str, len);
+}
+
+void cstr_totitle(String str)
+{
+    const uint32_t len = cstr_len(str);
+    bool space = true;
+
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        char c = str[i];
+        bool letter = isalpha(c);
+
+        if (space && letter)
+        {
+            str[i] = (char) toupper(c);
+        }
+        else if (letter)
+        {
+            str[i] = (char) tolower(c);
+        }
+
+        space = (isspace(c) || ispunct(c)) ? true : false;
+    }
+}
+
+String arena_cstr_new(Arena *arena, const char *fmt, ...)
+{
+    assert(arena);
+
+    va_list args;
+    va_list len_args;
+    va_start(args, fmt);
+    va_copy(len_args, args);
+
+    String string = string_construct_formatted(fmt,
+                                               args,
+                                               len_args,
+                                               cstr_arena_alloc,
+                                               arena);
+
+    va_end(args);
+
+    return string;
+}
+
+String arena_cstr_from_stream(Arena *arena, FILE *stream)
+{
+    assert(arena);
+
+    return string_construct_from_stream(stream, cstr_arena_alloc, arena);
+}
+
+String arena_cstr_cat(Arena *arena, String dest, const char *src)
+{
+    assert(arena);
+
+    const uint32_t n = strlen(src);
+    return string_concatenate(dest, src, n, cstr_arena_realloc, arena);
+}
+
+String arena_cstr_cat_cstr(Arena *arena, String dest, ConstString src)
+{
+    assert(arena);
+
+    const uint32_t n = cstr_len(src);
+    return string_concatenate(dest, src, n, cstr_arena_realloc, arena);
+}
+
+String arena_cstr_dup(Arena *arena, ConstString src)
+{
+    assert(arena);
+
+    const uint32_t buf = cstr_buffer(src);
+    const uint32_t len = cstr_len(src);
+
+    return string_duplicate(src, buf, len, cstr_arena_alloc, arena);
+}
+
+String arena_cstr_sub(Arena *arena,
+                            String str,
+                            const char *old,
+                            const char *new)
+{
+    assert(arena);
+
+    return string_replace(str, old, new, cstr_arena_realloc, arena);
+}
+
+String arena_cstr_ndup(Arena *arena, ConstString src, uint32_t n)
+{
+    assert(arena);
+
+    return string_duplicate(src, n, n, cstr_arena_alloc, arena);
+}
+
+Vector *cstr_split(ConstString str, ConstString delim)
+{
+    return generic_string_split(str,
+                                delim,
+                                generic_string_dup,
+                                generic_string_ndup,
+                                NULL);
+}
+
+String cstr_join(const Vector *strings, ConstString delim)
 {
     return generic_join(strings, delim, stdlib_alloc, stdlib_realloc, NULL);
 }
 
-Vector *arena_string_split(Arena *arena, ConstString str, ConstString delim)
+Vector *arena_cstr_split(Arena *arena, ConstString str, ConstString delim)
 {
     return generic_string_split(str,
                                 delim,
@@ -650,7 +667,10 @@ Vector *arena_string_split(Arena *arena, ConstString str, ConstString delim)
                                 arena);
 }
 
-String arena_string_join(Arena *arena, const Vector *strings, ConstString delim)
+String arena_cstr_join(Arena *arena, const Vector *strings, ConstString delim)
 {
-    return generic_join(strings, delim, arena_alloc, arena_realloc, arena);
+    return generic_join(strings, delim,
+                        cstr_arena_alloc,
+                        cstr_arena_realloc,
+                        arena);
 }
