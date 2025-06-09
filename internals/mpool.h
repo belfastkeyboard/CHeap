@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../range.h"
 #include <stddef.h>
 
 #define ALLOC __attribute__((warn_unused_result))
@@ -31,13 +30,6 @@ void generic_mempool_set(void       *array,
                          size_t      index,
                          size_t      nmemb,
                          size_t      size);
-
-void generic_mempool_range_insert(void  **array,
-                                  size_t  index,
-                                  size_t *capacity,
-                                  size_t *nmemb,
-                                  size_t  size,
-                                  Range   range);
 
 void generic_mempool_pop_back(size_t *nmemb);
 

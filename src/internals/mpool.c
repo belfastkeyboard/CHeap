@@ -1,7 +1,6 @@
 #include "../../internals/mpool.h"
 #include "../../internals/base.h"
 #include "../../internals/cassert.h"
-#include "../../iter.h"
 #include <memory.h>
 
 ALLOC static void *mempool_alloc(const size_t nmemb, const size_t size)
@@ -28,18 +27,6 @@ ALLOC static void *mempool_resize(void        *array,
 {
 	*capacity = (*capacity > EMPTY) ? *capacity * SEQUENTIAL_GROWTH
 	                                : SEQUENTIAL_INIT;
-
-	return mempool_realloc(array, *capacity * size);
-}
-
-ALLOC static void *mempool_range_resize(void        *array,
-                                        size_t      *capacity,
-                                        const size_t size,
-                                        const size_t r_nmemb)
-{
-	*capacity = (*capacity + r_nmemb > *capacity * SEQUENTIAL_GROWTH)
-	                ? *capacity + r_nmemb
-	                : *capacity * SEQUENTIAL_GROWTH;
 
 	return mempool_realloc(array, *capacity * size);
 }
@@ -150,25 +137,6 @@ void generic_mempool_set(void        *array,
 	mempool_set(array, value, index, size);
 }
 
-void generic_mempool_range_insert(void       **array,
-                                  size_t index,
-                                  size_t      *capacity,
-                                  size_t      *nmemb,
-                                  const size_t size,
-                                  Range       range)
-{
-	bool forward = range.begin.type < ITERATOR_REVERSE;
-	bool (*done)(Range) = (forward) ? done_range : done_range_r;
-	void (*iterate)(Iter*) = (forward) ? next_iter : prev_iter;
-
-	for (; !done(range); iterate(&range.begin))
-	{
-		void *value = get_range(range);
-		generic_mempool_insert(array, value, index, capacity, nmemb, size);
-		index++;
-	}
-}
-
 void generic_mempool_pop_back(size_t *nmemb)
 {
 	CHEAP_ASSERT(*nmemb, "Cannot pop back empty container.");
@@ -246,19 +214,4 @@ void generic_mempool_shrink_to_fit(void       **array,
 		*capacity = nmemb;
 		*array    = mempool_realloc(*array, *capacity * size);
 	}
-}
-
-void next_mempool(Iter *iter)
-{
-	iter->data.contiguous.array += iter->data.contiguous.size;
-}
-
-void prev_mempool(Iter *iter)
-{
-	iter->data.contiguous.array -= iter->data.contiguous.size;
-}
-
-void *get_mempool(const Iter iter)
-{
-	return iter.data.contiguous.array;
 }
