@@ -52,7 +52,7 @@ typedef struct Table Table;
  * @return An integer less than, equal to, or greater than zero depending on the
  * comparison.
  */
-typedef int (*KComp)(const void *, const void *);
+typedef int (*KComp)(const void *a, const void *b);
 
 /**
  * @brief Create a Table object
