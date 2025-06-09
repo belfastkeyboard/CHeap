@@ -1,6 +1,6 @@
-#include "../../arena.h"
-#include "../../internals/base.h"
-#include "../../internals/cassert.h"
+#include "arena.h"
+#include <assert.h>
+#include <malloc.h>
 #include <memory.h>
 
 struct Page
@@ -24,7 +24,7 @@ ALLOC static struct Page *construct_page(struct Page *prev,
 
 	void *memory = malloc(sizeof(struct Page) + n_size);
 
-	CHEAP_ASSERT(memory, "Arena unable to acquire memory.");
+	assert(memory);
 
 	struct Page *page = memory;
 
@@ -87,7 +87,9 @@ static void arena_clear(struct Page **curr)
 
 Arena *create_arena(const size_t size)
 {
-	Arena *arena = memory_allocate_container(sizeof(Arena));
+    Arena *arena = calloc(1, sizeof(Arena));
+
+    assert(arena);
 
 	arena->curr = construct_page(NULL, 1, size);
 
@@ -98,7 +100,8 @@ void destroy_arena(Arena **arena)
 {
 	arena_destroy_pages(&(*arena)->curr);
 
-	memory_free_buffer((void **)arena);
+	free(*arena);
+    *arena = NULL;
 }
 
 void *alloc_arena(Arena *arena, const size_t size)

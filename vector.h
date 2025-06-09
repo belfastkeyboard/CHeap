@@ -7,9 +7,11 @@
  * added and supports standard operations such as @c push @c pop @c insert and
  * @c erase .
  *
+ * This version is StringLib specific.
+ *
  * @author Riain Ó Tuathail
  * @date 2025-05-21
- * @version 0.9.5
+ * @version SL 1.0.0
  */
 
 #pragma once
@@ -88,27 +90,6 @@ void push_back_vector(Vector *vector, const void *value);
  */
 void insert_vector(Vector *vector, const void *value, size_t index);
 
-#ifdef CHEAP_RANGE_AVAILABLE
-/**
- * @brief Inserts a copy of @p range to the end of the vector
- *
- * @param vector The Vector object
- * @param index The index at which to insert @p range
- * @param range The range to insert
- * @return Nothing
- */
-void push_back_range_vector(Vector *vector, Range range);
-
-/**
- * @brief Appends a copy of @p range at the specified index
- *
- * @param vector The Vector object
- * @param range The range to append
- * @return Nothing
- */
-void insert_range_vector(Vector *vector, size_t index, Range range);
-#endif
-
 /**
  * @brief Removes the last element of the vector
  *
@@ -175,50 +156,6 @@ void *front_vector(const Vector *vector);
  */
 void *back_vector(const Vector *vector);
 
-#ifdef CHEAP_ITERATOR_AVAILABLE
-/**
- * @brief Returns an iterator to the first element of the vector
- *
- * @param vector The Vector object
- * @return Iterator to the first element
- *
- * @warning Calling on an empty vector is undefined behaviour
- */
-Iter begin_vector(const Vector *vector);
-
-/**
- * @brief Returns an iterator to the end of the vector
- *
- * @param vector The Vector object
- * @return Sentinel iterator representing the end of the vector
- *
- * @warning Calling on an empty vector is undefined behaviour
- * @note End is a sentinel value and should not be dereferenced
- */
-Iter end_vector(const Vector *vector);
-
-/**
- * @brief Returns a reverse iterator to the last element of the vector
- *
- * @param vector The Vector object
- * @return Reverse iterator to the last element
- *
- * @warning Calling on an empty vector is undefined behaviour
- */
-Iter rbegin_vector(const Vector *vector);
-
-/**
- * @brief Returns an iterator to the reverse end of the vector
- *
- * @param vector The Vector object
- * @return Sentinel iterator representing the reverse end of the vector
- *
- * @warning Calling on an empty vector is undefined behaviour
- * @note End is a sentinel value and should not be dereferenced
- */
-Iter rend_vector(const Vector *vector);
-#endif
-
 /**
  * @brief Checks if the vector has no elements
  *
@@ -263,25 +200,3 @@ void reserve_vector(Vector *vector, size_t amount);
  * @return Nothing
  */
 void shrink_to_fit_vector(Vector *vector);
-
-#ifdef CHEAP_SPAN_AVAILABLE
-/**
- * @brief Derive a @p Span object giving an abstract view onto a contiguous
- * array
- *
- * @param vector The Vector object
- * @return @p Span object representing the full length of the vector
- */
-Span span_from_vector(Vector *vector);
-
-/**
- * @brief Derive a @p Span object giving an abstract view onto a contiguous
- * array
- *
- * @param vector The Vector object
- * @param start The index of the start of the slice
- * @param size_t The index of the end of the slice
- * @return @p Span object representing a slice of the vector
- */
-Span span_from_vector_slice(Vector *vector, size_t start, size_t end);
-#endif
