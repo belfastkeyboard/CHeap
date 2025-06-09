@@ -1,5 +1,4 @@
 #include "vector.h"
-// #include "../../internals/mpool.h"
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
@@ -95,11 +94,11 @@ void pop_back_vector(Vector *vector)
 
 void erase_vector(Vector *vector, const size_t index)
 {
-    assert(vector->array);
-    assert(index < nmemb);
-
     const size_t nmemb = vector->nmemb;
     const size_t size = vector->size;
+
+    assert(vector->array);
+    assert(index < nmemb);
 
     memmove(vector->array + index * size,
             vector->array + (index + 1) * size,

@@ -89,7 +89,7 @@ Arena *create_arena(const size_t size)
 {
     Arena *arena = calloc(1, sizeof(Arena));
 
-    assert(ptr);
+    assert(arena);
 
 	arena->curr = construct_page(NULL, 1, size);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+// This is a StringLib specific version.
+
 #ifndef CHEAP_ARENA_AVAILABLE
 #define CHEAP_ARENA_AVAILABLE
 #endif
