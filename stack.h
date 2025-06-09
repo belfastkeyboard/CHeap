@@ -10,7 +10,7 @@
  *
  * @author Riain Ó Tuathail
  * @date 2025-05-23
- * @version 0.9.0
+ * @version 0.9.1
  */
 
 #pragma once
@@ -19,10 +19,6 @@
 #include <stddef.h>
 
 #define ALLOC __attribute__((warn_unused_result))
-
-#ifdef CHEAP_RANGE_AVAILABLE
-#include "range.h"
-#endif
 
 /**
  * @brief A container provides LIFO (last-in, first-out) functionality
